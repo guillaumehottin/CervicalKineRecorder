@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,20 +22,20 @@
     <ProjectGuid>{4B1E431E-1054-4213-B4F2-B22FE680EECF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>WProject</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
@@ -43,14 +43,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
@@ -75,8 +75,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Nadia\Documents\OculusSDK\LibOVR\Include;Z:\Sérieux\Projet_Long\OculusSDK\LibOVR\Include;C:\Users\Lucile\Downloads\ovr_sdk_win_0.8.0.0\OculusSDK\LibOVR\Include;F:\OculusSDK\LibOVR\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;C:\Users\Nadia\Documents\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;Z:\Sérieux\Projet_Long\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;C:\Users\Lucile\Downloads\ovr_sdk_win_0.8.0.0\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Florian\Documents\projet_long\ovr_sdk_win_1.20.0_public\OculusSDK\LibOVR\Include;C:\Users\Lucile\Downloads\ovr_sdk_win_0.8.0.0\OculusSDK\LibOVR\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>F:\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;C:\Users\Florian\Documents\projet_long\ovr_sdk_win_1.20.0_public\OculusSDK\LibOVR\Lib\Windows\Win32\Release\VS2015;$(LibraryPath)</LibraryPath>
     <TargetName>Cervical Kinématic Recorder</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,7 +104,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>F:\boost_1_60_0\boost_1_60_0;Z:\Sérieux\Projet_Long\boost_1_60_0;C:\Users\Nadia\Documents\boost_1_60_0\boost_1_60_0;C:\Users\Lucile\Downloads\boost_1_60_0\boost_1_60_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\boost_1_60_0\boost_1_60_0;C:\Users\Florian\Documents\projet_long\boost_1_66_0</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>true</CompileAsManaged>
     </ClCompile>
@@ -112,7 +112,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>LibOVR.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>Z:\Sérieux\Projet_Long\boost_1_60_0\stage\lib;C:\Users\Nadia\Documents\boost_1_60_0\boost_1_60_0\stage\lib;C:\Users\Lucile\Downloads\boost_1_60_0\boost_1_60_0\stage\lib;F:\boost_1_60_0\boost_1_60_0\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Florian\Documents\projet_long\boost_1_66_0\stage\lib;F:\boost_1_60_0\boost_1_60_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

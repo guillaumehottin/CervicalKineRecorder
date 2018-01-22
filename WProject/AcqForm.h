@@ -716,15 +716,24 @@ private: void plot(Retour_t retour) {
 	serie3->Name = L"serie3";
 	this->chart3->Series->Add(serie3);
 
-	//if data comes from an acquistion (not browsed)
+	// If data comes from an acquistion (not browsed)
 	if (!fromCharge) {
-		//get the current date 
+		// Get the current date 
 		time_t date = time(0);
-		String^ time = gcnew String(ctime(&date));
+
+		//System::String^ time = gcnew System::String(ctime(&date));
+		// Create the buffer TODO CHECK SIZE
+		char buffer[26];
+		ctime_s(buffer, sizeof buffer, &date);
+
+		// Create a string handle with the current time
+		System::String^ time = gcnew System::String(buffer);
+
 		int timeSize = time->Length;
 		time = time->Remove(timeSize - 1, 1);
 		time = time->Substring(4, 16);
-		//create the filename : name of patient and time 
+
+		// Create the filename : name of patient and time 
 		fileName = nom + " " + time;
 	}
 	fromCharge = false;
