@@ -23,6 +23,22 @@ def generate_clusters(centers,radii,npts_by_clusters):
             pts.append([xi,yi])
     return x,y,pts
 
+#Generate n MultiPoints which consists of randomly generated clusters
+def generate_MP(n,cl_min=1,cl_max=5,axes=[-10,10,-10,10],rmax=5,npts_by_clusters=20,alpha=0.7):
+    res = []
+    for i in range(n):
+        nb_clusters = rd.randint(cl_min,cl_max)
+        centers = []
+        radii = []
+        points = []
+        for j in range(nb_clusters):
+            centers += [[rd.randint(axes[0]+rmax,axes[1]-rmax),rd.randint(axes[2]+rmax,axes[3]-rmax)]]
+            radii += [rd.randint(1,rmax)]
+            _,_,pts = generate_clusters(centers,radii,npts_by_clusters)
+            points += pts
+        res += [array2MP(points)]
+    return res
+
 # Removes all subdirectories of curr_dir whose name is dir2rm
 def remove_dir(curr_dir,dir2rm):
 	list_dir = [x[0] for x in os.walk(curr_dir)]
@@ -34,3 +50,58 @@ def remove_dir(curr_dir,dir2rm):
 def array2MP(pts):
     points = [geometry.asPoint(p) for p in pts]
     return geometry.MultiPoint(list(points))
+
+#Define RGBA color
+def RGBA_arg():
+    hex_str = hex(int(rd.random()*16777215))[2:]
+    n = len(hex_str)
+    while n < 6:
+        hex_str = '0'+hex_str
+        n = len(hex_str)
+    return '#'+hex_str
+    
+#To fetch files in a specified folder and its sub folders, returns the list of the paths to theses files
+def fetch_files(dir_name='.',extension='.orpl',sub_dir=''):
+    res = []
+    list_dir = next(os.walk(dir_name))[1]
+    for folder in list_dir:
+        if sub_dir == '':
+            path = dir_name+'\\'+folder
+        else:
+            path = dir_name+'\\'+folder+'\\'+sub_dir
+        for file in os.listdir(path):
+            if extension in file:
+                res += [path+'\\'+file] 
+    return res
+
+#Get list of coordinates in an ORPL file (yaw,pitch_roll)
+def get_coord(file_path):
+    f = open(file_path,"r")
+    data = f.readlines()
+    f.close()
+    yaw_l, pitch_l, roll_l = [],[],[]
+
+    data.pop(0)
+    for i in range(len(data)):
+        elems = data[i].split(" ")
+        yaw_l.append(elems[0])
+        pitch_l.append(elems[1])
+        roll_l.append(elems[2])
+
+    pitch_l = list(map(float, pitch_l))
+    yaw_l = list(map(float, yaw_l))
+    roll_l = list(map(float, roll_l))
+
+    return (pitch_l,yaw_l,roll_l)
+
+#Convert n lists of m coordinates into a list of m n-dimensional vectors
+def coord2points(data):
+    n = len(data)
+    m = len(data[0])
+    points = []
+    for i in range(m):
+        point = []
+        for j in range(n):
+            point += [data[j][i]]
+        points += [point]
+    return points

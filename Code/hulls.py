@@ -7,7 +7,6 @@ from scipy.spatial import Delaunay
 import numpy as np
 import myutils
 
-#Convex hull
 def plot_polygon_MP(polygon):
     """
     Plot a polygon using PolygonPatch.
@@ -25,9 +24,38 @@ def plot_polygon_MP(polygon):
     ax.add_patch(patch)
     return fig
 
-def plot_polygon_lst(pts):
+def plot_many_polygons(lst_poly):
+    x_max = 0
+    y_max = 0
+    x_min = 0
+    y_min = 0
+    fig = plt.figure(figsize=(10,10))
+    ax = fig.add_subplot(111)
+    margin = .3
+    for poly in lst_poly:
+        x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
+        if x_max < x_max_curr:
+            x_max = x_max_curr
+        if y_max < y_max_curr:
+            y_max = y_max_curr
+        if y_min > y_min_curr:
+            y_min = y_min_curr
+        if x_min > x_min_curr:
+            x_min = x_min_curr
+        color = myutils.RGBA_arg()
+        patch = PolygonPatch(poly, fc=color,
+                         ec=color, fill=True,
+                         zorder=-1)
+        ax.add_patch(patch)
+    ax.set_xlim([x_min-margin, x_max+margin])
+    ax.set_ylim([y_min-margin, y_max+margin])
+    ax.legend([str(i+1) for i in range(len(polys))])
+    return fig
+
+#Convex hull
+def plot_convex_hull(pts):
     """
-    Plot a polygon with an array of points as input.
+    Plot a convex hull with an array of points as input.
     """
     point_collection = myutils.array2MP(pts)
     plt.figure(figsize=(10,10))
@@ -91,13 +119,69 @@ def alpha_shape(points, alpha):
     triangles = list(polygonize(m))
     return cascaded_union(triangles), edge_points
 
+#Distance for clustering
+def hull_distance(polyA,polyB):
+    alphaA,_ = alpha_shape(polyA,0.8)
+    alphaB,_ = alpha_shape(polyB,0.8)
+    AmB = alphaA.difference(alphaB)
+    BmA = alphaB.difference(alphaA)
+    return AmB.area + BmA.area
+
+
 #############################################################
 c = [[0,0],[3,7],[-3,4],[-6,-4],[4,-7],[-4,-8]]
 r = [4,4,3,3,5,2]
+c2 = [[1,2],[-3,-4],[2,3]]
+r2 = [2,5,5]
 n = 100
 
 x,y,pts = myutils.generate_clusters(c,r,n)
+x2,y2,pts2 = myutils.generate_clusters(c2,r2,n)
+
+#print(hull_distance(myutils.array2MP(pts),myutils.array2MP(pts2)))
+
+from scipy.cluster.hierarchy import fclusterdata
+"""
+polys = myutils.generate_MP(12,cl_max=1,alpha=0.5)
+
+plot_many_polygons([alpha_shape(p,alpha=0.6)[0] for p in polys])
+f = fclusterdata(np.arange(len(polys)).reshape((len(polys),1)),1.0,metric=hull_dist_indices)
+print(f)
+"""
+
+files = myutils.fetch_files(dir_name='bonnes_mesures',sub_dir='Normalized')
+points_collection = []
+for file in files:
+    yaw,pitch,roll = myutils.get_coord(file)
+    coordinates = myutils.coord2points([pitch,yaw])
+    points_collection += [myutils.array2MP(coordinates)]
+    
+def hull_dist_indices(first,second):
+    return hull_distance(points_collection[int(first[0])],points_collection[int(second[0])])
+
+n = len(points_collection)
+threshold = [0.01,0.1,0.5,1.0]
+threshold=[0.1]
+f = []
+for i in threshold:
+    f += [fclusterdata(np.arange(n).reshape((n,1)),i,metric=hull_dist_indices)]
+for x in f:
+    print(x)
+    
+"""
+alpha=0.4
+t=1.0
+[20  1  1  5 25 23 21 26  6  6  6  6 18  6  6  6 15 19 17  2 10  6  3  8  3
+  9  2  6 16  6 13  6  6 12  6  6  4  4  6 14 22 11 24  5  6  6  6  6  6  6
+  6  6  7]
+t=0.1
+[36  1  1  5 41 39 37 42 10 17 13 11 34 17  9  8 31 35 33  2 26 21  3 24  3
+ 25  2 18 32  9 29  8 14 28 19 22  4  4 12 30 38 27 40  5 11 15  6  7 20 14
+ 16  6 23]
+"""
+
+"""
 concave_hull, edge_points = alpha_shape(myutils.array2MP(pts),alpha=0.7)
 plot_polygon_MP(concave_hull.buffer(1,resolution=1))
 plt.plot(x,y,'o', color='#f16824')
-
+"""

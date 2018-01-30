@@ -1,26 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
-def get_coord(file_path):
-	f = open(file_path,"r")
-	data = f.readlines()
-	yaw_l, pitch_l, roll_l = [],[],[]
-
-	data.pop(0)
-	for i in range(0,len(data)):
-		elems = data[i].split(" ")
-		yaw_l.append(elems[0])
-		pitch_l.append(elems[1])
-		roll_l.append(elems[2])
-
-	pitch_l = list(map(float, pitch_l))
-	yaw_l = list(map(float, yaw_l))
-	roll_l = list(map(float, roll_l))
-	return (pitch_l,yaw_l,roll_l)
+import myutils
 
 def plot_from_file(name_file,name_dir,save_fig=0,show=1,scatter=0):
-    (pitch_l,yaw_l,roll_l) = get_coord(name_dir+'\\'+name_file)
+    (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'\\'+name_file)
     fig = plot_figs(pitch_l,yaw_l,roll_l,show,scatter)
     if save_fig:
         new_name = (name_dir+'\\'+name_file).split(".")[0] + ".png"
@@ -58,7 +42,7 @@ def plot_all(motion,name_dir,save_fig,show,scatter):
 		plot_from_file(name,name_dir,save_fig,show,scatter)
 
 def normalize(file_path):
-	(pitch_l,yaw_l,roll_l) = get_coord(file_path)
+	(pitch_l,yaw_l,roll_l) = myutils.get_coord(file_path)
 	normalized_pitch = (pitch_l-np.mean(pitch_l))/np.std(pitch_l)
 	normalized_yaw= (yaw_l-np.mean(yaw_l))/np.std(yaw_l)
 	normalized_roll= (roll_l-np.mean(roll_l))/np.std(roll_l)
@@ -84,9 +68,9 @@ def save_normalized(motion,name_dir):
 			f.write('{0} {1} {2}\n'.format(yaw_l[i],pitch_l[i],roll_l[i]))
 		f.close()
 			
-motions = ['Roulis','Lacet']
-list_dir = next(os.walk('D:\Documents\Projet Long - Oculus Rift\Data'))[1]
-list_dir = ['D:\Documents\Projet Long - Oculus Rift\Data\\'+s for s in list_dir]
+motions = ['Lacet']
+list_dir = next(os.walk('bonnes_mesures\\'))[1]
+list_dir = ['bonnes_mesures\\'+s for s in list_dir]
 save_fig = 1 # to save the figure
 scatter = 0
 show = 0 # to plot the figure
@@ -94,5 +78,5 @@ norm = 1 # to normalize data before processing it
 
 for directory in list_dir:
 	for motion in motions:
-		#save_normalized(motion,directory)
-		plot_all(motion,directory,save_fig,show,scatter)
+		save_normalized(motion,directory)
+		#plot_all(motion,directory,save_fig,show,scatter)
