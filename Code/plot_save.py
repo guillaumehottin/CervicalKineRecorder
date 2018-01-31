@@ -5,13 +5,13 @@ import myutils
 import re
 
 def plot_from_file(name_file,name_dir,save_fig=0,show=1,scatter=0,norm=1):
-    (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'\\'+name_file)
+    (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'/'+name_file)
     fig = plot_figs(pitch_l,yaw_l,roll_l,show,scatter,norm)
     if save_fig:
         if norm:
-            full_name = (name_dir+'\\Normalized\\'+name_file)
+            full_name = (name_dir+'/Normalized/'+name_file)
         else:
-            full_name = (name_dir+'\\'+name_file)
+            full_name = (name_dir+'/'+name_file)
         last_dot_index = [m.start() for m in re.finditer('\.',full_name)][-1]
         new_name = full_name[:last_dot_index] + ".png"
         plt.savefig(new_name)
@@ -63,13 +63,13 @@ def save_normalized(motion,name_dir):
             l += [name]
 
     for name in l:
-        (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'\\'+name)
+        (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'/'+name)
         (pitch_l,yaw_l,roll_l) = normalize(pitch_l,yaw_l,roll_l)
         try:
-            os.mkdir(name_dir+'\\Normalized')
+            os.mkdir(name_dir+'/Normalized')
         except FileExistsError:
             pass
-        f = open(name_dir+'\\Normalized\\'+name,'w')
+        f = open(name_dir+'/Normalized/'+name,'w')
         f.write('yaw pitch roll\n')
         for i in range(len(pitch_l)):
             f.write('{0} {1} {2}\n'.format(yaw_l[i],pitch_l[i],roll_l[i]))
@@ -77,7 +77,7 @@ def save_normalized(motion,name_dir):
 			
 
 motions = ['Lacet','Roulis']
-dir_name = '../Data\\'
+dir_name = '../Data/'
 list_dir = next(os.walk(dir_name))[1]
 list_dir = [dir_name+s for s in list_dir]
 save_fig = 1 # to save the figure

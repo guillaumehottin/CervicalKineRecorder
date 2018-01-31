@@ -168,7 +168,7 @@ for x in f:
     print(x)
 """
 
-yaw,pitch,roll = myutils.get_coord('bonnes_mesures\\bonnemaison_elodie_22\\Normalized\\Fri Dec  8 15_10_38 2017 - Lacet.orpl')
+yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
 yaw_pitch = myutils.coord2points([yaw,pitch])
 plot_polygon_MP(alpha_shape(myutils.array2MP(yaw_pitch),alpha=1)[0])
 plt.plot(yaw,pitch)
