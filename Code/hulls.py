@@ -49,7 +49,7 @@ def plot_many_polygons(lst_poly):
         ax.add_patch(patch)
     ax.set_xlim([x_min-margin, x_max+margin])
     ax.set_ylim([y_min-margin, y_max+margin])
-    ax.legend([str(i+1) for i in range(len(polys))])
+    ax.legend([str(i+1) for i in range(len(lst_poly))])
     return fig
 
 #Convex hull
@@ -121,14 +121,15 @@ def alpha_shape(points, alpha):
 
 #Distance for clustering
 def hull_distance(polyA,polyB):
-    alphaA,_ = alpha_shape(polyA,0.8)
-    alphaB,_ = alpha_shape(polyB,0.8)
+    alphaA,_ = alpha_shape(polyA,0.2)
+    alphaB,_ = alpha_shape(polyB,0.2)
     AmB = alphaA.difference(alphaB)
     BmA = alphaB.difference(alphaA)
     return AmB.area + BmA.area
 
 
 #############################################################
+"""
 c = [[0,0],[3,7],[-3,4],[-6,-4],[4,-7],[-4,-8]]
 r = [4,4,3,3,5,2]
 c2 = [[1,2],[-3,-4],[2,3]]
@@ -138,16 +139,15 @@ n = 100
 x,y,pts = myutils.generate_clusters(c,r,n)
 x2,y2,pts2 = myutils.generate_clusters(c2,r2,n)
 
-#print(hull_distance(myutils.array2MP(pts),myutils.array2MP(pts2)))
-
-from scipy.cluster.hierarchy import fclusterdata
-"""
 polys = myutils.generate_MP(12,cl_max=1,alpha=0.5)
 
 plot_many_polygons([alpha_shape(p,alpha=0.6)[0] for p in polys])
 f = fclusterdata(np.arange(len(polys)).reshape((len(polys),1)),1.0,metric=hull_dist_indices)
 print(f)
 """
+
+"""
+from scipy.cluster.hierarchy import fclusterdata
 
 files = myutils.fetch_files(dir_name='bonnes_mesures',sub_dir='Normalized')
 points_collection = []
@@ -160,16 +160,41 @@ def hull_dist_indices(first,second):
     return hull_distance(points_collection[int(first[0])],points_collection[int(second[0])])
 
 n = len(points_collection)
-threshold = [0.01,0.1,0.5,1.0]
-threshold=[0.1]
+threshold = [1.05]
 f = []
 for i in threshold:
     f += [fclusterdata(np.arange(n).reshape((n,1)),i,metric=hull_dist_indices)]
 for x in f:
     print(x)
-    
 """
-alpha=0.4
+
+yaw,pitch,roll = myutils.get_coord('bonnes_mesures\\bonnemaison_elodie_22\\Normalized\\Fri Dec  8 15_10_38 2017 - Lacet.orpl')
+yaw_pitch = myutils.coord2points([yaw,pitch])
+plot_polygon_MP(alpha_shape(myutils.array2MP(yaw_pitch),alpha=1)[0])
+plt.plot(yaw,pitch)
+ 
+"""
+alpha=0.2
+t=0.5
+[28  1  1 25 40 41  9  4 29  2 20 27 35  3  2 36 38 30 13 15 12 20 33  6  5
+ 11 24 17 29 13 31  3 22 10  7 34 19 18 23 42 26 37 21 18 16 11  6  5 32 14
+  4  8 39]
+t=1.0
+[16  1  1 13 26 27  7  4 17  2  9 15 21  3  2 22 24 17  9  9  9  9 19  6  5
+  9 12  9 17  9 17  3 10  8  6 20  9  9 11 28 14 23  9  9  9  9  6  5 18  9
+  4  6 25]
+t=1.05
+[16  1  1 13 26 27  7  4 17  2  9 15 21  3  2 22 24 17  9  9  9  9 19  6  5
+  9 12  9 17  9 17  3 10  8  6 20  9  9 11 28 14 23  9  9  9  9  6  5 18  9
+  4  6 25]
+t=1.5
+[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+t=2.0
+[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+
+alpha=0.4 (pas norm)
 t=1.0
 [20  1  1  5 25 23 21 26  6  6  6  6 18  6  6  6 15 19 17  2 10  6  3  8  3
   9  2  6 16  6 13  6  6 12  6  6  4  4  6 14 22 11 24  5  6  6  6  6  6  6
@@ -178,6 +203,33 @@ t=0.1
 [36  1  1  5 41 39 37 42 10 17 13 11 34 17  9  8 31 35 33  2 26 21  3 24  3
  25  2 18 32  9 29  8 14 28 19 22  4  4 12 30 38 27 40  5 11 15  6  7 20 14
  16  6 23]
+
+alpha=0.6
+t=0.01
+[31  1  1 27 38 37  7 13  3 26 29 35  4 19 23  2  2 32 20 21 17 18  6  6  8
+ 16 30 28  3 20 15 22 27 12  9 34  4  5 25 15 31 14 33 13 22 16  8 11 14 19
+ 24 10 36]
+t=0.1
+[31  1  1 27 38 37  7 13  3 26 29 35  4 19 23  2  2 32 20 21 17 18  6  6  8
+ 16 30 28  3 20 15 22 27 12  9 34  4  5 25 15 31 14 33 13 22 16  8 11 14 19
+ 24 10 36]
+t=1.0
+[19  1  1 16 25 24  5  6  3 15 17 22  4 10 12  2  2 19 10 10  9  9  5  5  5
+  9 18 16  3 10  8 11 16  5  5 21  4  4 14  8 19  7 20  6 11  9  5  5  7 10
+ 13  5 23]
+t=2.0
+[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
+
+alpha=0.8
+t=0.1 idem 0.5
+[30  3  3  6 39 35 15 25 36  2 40 38 18  1  1  5 38  4 20 22 21 27  7  7  8
+ 29 20  6  4 26 32 14 13 16  9 33 12 17  5 19 19 37 31 28 13 24  8 11 23 26
+ 21 10 34]
+t=1.0
+[ 8  2  2  5 17 13  5  7 14  1 18 16  5  1  1  4 16  3  7  7  7  7  5  5  5
+  7  7  5  3  7 10  5  5  5  5 11  5  5  4  6  6 15  9  7  5  7  5  5  7  7
+  7  5 12]
 """
 
 """
