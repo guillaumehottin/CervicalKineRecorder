@@ -77,7 +77,7 @@ def save_normalized(motion,name_dir):
 			
 
 motions = ['Lacet','Roulis']
-dir_name = '../Data/'
+dir_name = 'bonnes_mesures/'
 list_dir = next(os.walk(dir_name))[1]
 list_dir = [dir_name+s for s in list_dir]
 save_fig = 1 # to save the figure

@@ -105,3 +105,29 @@ def coord2points(data):
             point += [data[j][i]]
         points += [point]
     return points
+
+#Return the mean difference between 2 successive elements in an array
+def mean_succ_diff(data):
+    n = len(data)
+    s=0
+    for i in range(n-1):
+        s += abs(data[i]-data[i+1])
+    return s/(n-1)
+
+#Detect when the patient starts to move
+#data = yaw,pitch,roll
+def start_movement_index(data,motion,alpha=1,window_width=5):
+    if motion == 'Lacet':
+        axis = data[0]
+    elif motion == 'Tangage':
+        axis = data[1]
+    elif motion == 'Roulis':
+        axis = data[2]
+    else:
+        raise ValueError('The motion argument must be one of these: "Lacet", "Roulis" or "Tangage"')
+    threshold = alpha*mean_succ_diff(axis)
+    i=0
+    while mean_succ_diff(axis[i:i+window_width]) < threshold:
+        i += 1
+    return i
+    

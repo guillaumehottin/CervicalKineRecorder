@@ -121,8 +121,8 @@ def alpha_shape(points, alpha):
 
 #Distance for clustering
 def hull_distance(polyA,polyB):
-    alphaA,_ = alpha_shape(polyA,0.2)
-    alphaB,_ = alpha_shape(polyB,0.2)
+    alphaA,_ = alpha_shape(polyA,1.0)
+    alphaB,_ = alpha_shape(polyB,1.0)
     AmB = alphaA.difference(alphaB)
     BmA = alphaB.difference(alphaA)
     return AmB.area + BmA.area
@@ -146,7 +146,6 @@ f = fclusterdata(np.arange(len(polys)).reshape((len(polys),1)),1.0,metric=hull_d
 print(f)
 """
 
-"""
 from scipy.cluster.hierarchy import fclusterdata
 
 files = myutils.fetch_files(dir_name='bonnes_mesures',sub_dir='Normalized')
@@ -160,19 +159,20 @@ def hull_dist_indices(first,second):
     return hull_distance(points_collection[int(first[0])],points_collection[int(second[0])])
 
 n = len(points_collection)
-threshold = [1.05]
+threshold = [1.0]
 f = []
 for i in threshold:
     f += [fclusterdata(np.arange(n).reshape((n,1)),i,metric=hull_dist_indices)]
 for x in f:
     print(x)
-"""
 
+"""
 yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
 yaw_pitch = myutils.coord2points([yaw,pitch])
 plot_polygon_MP(alpha_shape(myutils.array2MP(yaw_pitch),alpha=1)[0])
 plt.plot(yaw,pitch)
- 
+"""
+
 """
 alpha=0.2
 t=0.5
