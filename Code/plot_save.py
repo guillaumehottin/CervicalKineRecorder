@@ -49,11 +49,21 @@ def plot_all(motion,name_dir,save_fig,show,scatter,norm):
         plot_from_file(name,name_dir,save_fig,show,scatter,norm)
 
 def normalize(pitch_l,yaw_l,roll_l):
-	normalized_pitch = (pitch_l-np.amin(pitch_l))/(np.amax(pitch_l)-np.amin(pitch_l))
-	normalized_yaw = (yaw_l-np.amin(yaw_l))/(np.amax(yaw_l)-np.amin(yaw_l))
-	normalized_roll = (roll_l-np.amin(roll_l))/(np.amax(roll_l)-np.amin(roll_l))
-	return normalized_pitch,normalized_yaw,normalized_roll
+    normalized_pitch = (pitch_l-np.amin(pitch_l))/(np.amax(pitch_l)-np.amin(pitch_l))
+    normalized_yaw = (yaw_l-np.amin(yaw_l))/(np.amax(yaw_l)-np.amin(yaw_l))
+    normalized_roll = (roll_l-np.amin(roll_l))/(np.amax(roll_l)-np.amin(roll_l))
+    return normalized_pitch,normalized_yaw,normalized_roll
 
+"""
+def normalize(pitch_l,yaw_l,roll_l):
+    amin = np.amin([np.amin(pitch_l),np.amin(yaw_l),np.amin(roll_l)])    
+    amax = np.amax([np.amax(pitch_l),np.amax(yaw_l),np.amax(roll_l)])    
+    normalized_pitch = (pitch_l-amin)/(amax-amin)
+    normalized_yaw = (yaw_l-amin)/(amax-amin)
+    normalized_roll = (roll_l-amin)/(amax-amin)
+    return normalized_pitch,normalized_yaw,normalized_roll
+    """
+    
 def save_normalized(motion,name_dir):
     stg = motion + ".orpl"
     list_dir = os.listdir(name_dir)
@@ -87,7 +97,7 @@ norm = 1 # to normalize data before processing it
 
 for directory in list_dir:
 	for motion in motions:
-		#save_normalized(motion,directory)
-		plot_all(motion,directory,save_fig,show,scatter,norm)
+		save_normalized(motion,directory)
+		#plot_all(motion,directory,save_fig,show,scatter,norm)
 
 # plot_all('Lacet','.',0,1,0)

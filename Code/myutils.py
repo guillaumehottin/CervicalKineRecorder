@@ -3,6 +3,7 @@ import shutil
 import shapely.geometry as geometry
 import numpy as np
 import os
+import time
 
 #Generate clusters based on their center and radius
 def generate_clusters(centers,radii,npts_by_clusters):
@@ -131,3 +132,8 @@ def start_movement_index(data,motion,alpha=1,window_width=5):
         i += 1
     return i
     
+#Make an audio signal when a program is over
+def audio_signal(n=4,t=1):
+    for i in range(n):
+        time.sleep(t)
+        print('\a')

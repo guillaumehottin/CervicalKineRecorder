@@ -7,6 +7,7 @@ from scipy.spatial import Delaunay
 import numpy as np
 import myutils
 
+
 def plot_polygon_MP(polygon):
     """
     Plot a polygon using PolygonPatch.
@@ -60,7 +61,6 @@ def plot_convex_hull(pts):
     point_collection = myutils.array2MP(pts)
     plt.figure(figsize=(10,10))
     fig = plot_polygon_MP(point_collection.convex_hull)
-    plt.plot(x,y,'o')
     return fig
 
 ###############################################
@@ -127,7 +127,22 @@ def hull_distance(polyA,polyB):
     BmA = alphaB.difference(alphaA)
     return AmB.area + BmA.area
 
+#Discretize a space to match a polygon
+def matching_grid(polygon,axis=[0,1],npts=20):
+    grid = np.zeros(npts**2)
+    h = (axis[1]-axis[0])/(npts-1)
+    for i in range(npts):
+        for j in range(npts):
+            pt = geometry.Point(i*h,j*h)
+            if polygon.contains(pt):
+                grid[i*npts+j] = 1
+    return grid       
 
+#Make a concave hull and return the corresponding grid
+def hull_grid(x, y, m, alpha, buff_size):
+    coordinates = myutils.coord2points([x, y])
+    hull = alpha_shape(myutils.array2MP(coordinates), alpha = alpha)[0].buffer(buff_size)
+    return matching_grid(hull, npts = m)
 #############################################################
 """
 c = [[0,0],[3,7],[-3,4],[-6,-4],[4,-7],[-4,-8]]
@@ -144,8 +159,25 @@ polys = myutils.generate_MP(12,cl_max=1,alpha=0.5)
 plot_many_polygons([alpha_shape(p,alpha=0.6)[0] for p in polys])
 f = fclusterdata(np.arange(len(polys)).reshape((len(polys),1)),1.0,metric=hull_dist_indices)
 print(f)
+
+concave_hull, edge_points = alpha_shape(myutils.array2MP(pts),alpha=0.7)
+plot_polygon_MP(concave_hull.buffer(1,resolution=1))
+plt.plot(x,y,'o', color='#f16824')
 """
 
+
+""" Results with former norm
+accuracy:  0.880952380952
+precision:  1.0
+recall:  0.880952380952
+f1:  0.936708860759
+"""
+
+
+
+
+"""
+#clustering
 from scipy.cluster.hierarchy import fclusterdata
 
 files = myutils.fetch_files(dir_name='bonnes_mesures',sub_dir='Normalized')
@@ -165,12 +197,15 @@ for i in threshold:
     f += [fclusterdata(np.arange(n).reshape((n,1)),i,metric=hull_dist_indices)]
 for x in f:
     print(x)
+"""
 
 """
 yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
 yaw_pitch = myutils.coord2points([yaw,pitch])
-plot_polygon_MP(alpha_shape(myutils.array2MP(yaw_pitch),alpha=1)[0])
+hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)
+plot_polygon_MP(hull)
 plt.plot(yaw,pitch)
+print(matching_grid(hull))
 """
 
 """
@@ -232,8 +267,3 @@ t=1.0
   7  5 12]
 """
 
-"""
-concave_hull, edge_points = alpha_shape(myutils.array2MP(pts),alpha=0.7)
-plot_polygon_MP(concave_hull.buffer(1,resolution=1))
-plt.plot(x,y,'o', color='#f16824')
-"""
