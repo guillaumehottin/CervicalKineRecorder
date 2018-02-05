@@ -200,8 +200,30 @@ def plot_example(list_path,id_curve,index_interpolate_data):
 	plt.savefig('Plot_Spline/Spline_'+str(list_name[index_interpolate_data])+'/'+title.replace(' = ','_').replace('(','_').replace(')',str(cpt)+'.png'))
 	plt.close()
 
+def compute_acp(angle_x,angle_y):
+	mean_x  = np.mean(angle_x)
+	mean_y  = np.mean(angle_y)
+	sigma_x = np.std(angle_x)
+	sigma_y = np.std(angle_y)
+	n	= len(angle_x)
+
+	M_barre = np.array([[e-mean_x for e in angle_x],[e-mean_y for e in angle_y]]).T
+	
+	M_sym   = M_barre.T.dot(M_barre)/n
+	print M_sym
+	vap,vep = np.linalg.eig(M_sym)
+
+	barycenter_x = np.mean(M_barre[:,0])
+	barycenter_y = np.mean(M_barre[:,1])
+	plt.plot(barycenter_x,barycenter_y,'ro')
+	plt.plot(M_barre[:,0],M_barre[:,1])
+	plt.quiver([barycenter_x,barycenter_x],[barycenter_y,barycenter_y],vep[:,0],vep[:,1],angles='xy',scale=5)
+	plt.show()
+
+	return vap,vep, M_sym
+
 #####################################################################
-"""
+
 file_1 = "Fri Sep 29 15_52_35 2017 - Lacet.orpl"
 name_1 = "Aslanyan_Marine_23"
 
@@ -215,15 +237,20 @@ path_5 = 'De bortoli_Marion_23/Wed Dec  6 16_33_22 2017 - Lacet.orpl'
 path_6 = 'roma_mathieu_22/Fri Dec  8 13_47_53 2017 - Lacet.orpl'
 
 list_path = ['bonnes_mesures/'+name_2+'/'+file_2,'bonnes_mesures/'+name_1+'/'+file_1,'bonnes_mesures/'+name_3+'/'+file_3,'bonnes_mesures/'+path_4,'bonnes_mesures/'+path_5,'bonnes_mesures/'+path_6]
-"""
 
+yaw,pitch,roll = get_file_data(list_path[0])
+vap,vep,M = compute_acp(yaw,pitch)
+
+
+
+"""
 direct = 'bonnes_mesures/'
 list_dir = next(os.walk(direct))[1][:6]
 list_dir = [direct+s for s in list_dir]
 list_path=[]
 for path in list_dir:
 	list_path.extend(glob.glob(path+'/*.orpl'))
-	
+
 cpt = 0
 for index in range(len(list_path)):
 	print "Iteration " + str(index+1)+'/'+str(len(list_path))
@@ -231,4 +258,5 @@ for index in range(len(list_path)):
 	plot_example(list_path,2,index)
 	plot_example(list_path,3,index)
 	cpt+=1
+"""
 
