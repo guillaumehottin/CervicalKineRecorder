@@ -8,6 +8,7 @@ from scipy import interpolate
 import pylab as plb
 from plot_save import normalize
 import glob
+import sklearn.decomposition as skd
 global cpt 
 
 def get_file_data(path):
@@ -200,63 +201,57 @@ def plot_example(list_path,id_curve,index_interpolate_data):
 	plt.savefig('Plot_Spline/Spline_'+str(list_name[index_interpolate_data])+'/'+title.replace(' = ','_').replace('(','_').replace(')',str(cpt)+'.png'))
 	plt.close()
 
-def compute_acp(angle_x,angle_y):
-	mean_x  = np.mean(angle_x)
-	mean_y  = np.mean(angle_y)
-	sigma_x = np.std(angle_x)
-	sigma_y = np.std(angle_y)
-	n	= len(angle_x)
 
-	M_barre = np.array([[e-mean_x for e in angle_x],[e-mean_y for e in angle_y]]).T
+
+def compute_acp(angle_x,angle_y,plot):
 	
-	M_sym   = M_barre.T.dot(M_barre)/n
-	print M_sym
-	vap,vep = np.linalg.eig(M_sym)
+	pca = skd.PCA(n_components=2)
+	pca.fit(np.array([angle_x,angle_y]).T)
+	veps = pca.components_
+	vep1 = veps[0,:]
+	vep2 = veps[1,:]
+	
+	if plot:
+		mean_x  = np.mean(angle_x)
+		mean_y  = np.mean(angle_y)
+		sigma_x = np.std(angle_x)
+		sigma_y = np.std(angle_y)
+		n	= len(angle_x)
+		M_barre = np.array([[e-mean_x for e in angle_x],[e-mean_y for e in angle_y]]).T
 
-	barycenter_x = np.mean(M_barre[:,0])
-	barycenter_y = np.mean(M_barre[:,1])
-	plt.plot(barycenter_x,barycenter_y,'ro')
-	plt.plot(M_barre[:,0],M_barre[:,1])
-	plt.quiver([barycenter_x,barycenter_x],[barycenter_y,barycenter_y],vep[:,0],vep[:,1],angles='xy',scale=5)
-	plt.show()
-
-	return vap,vep, M_sym
+		barycenter_x = np.mean(M_barre[:,0])
+		barycenter_y = np.mean(M_barre[:,1])
+		plt.plot(barycenter_x,barycenter_y,'ro')
+		plt.plot(M_barre[:,0],M_barre[:,1])
+		plt.quiver([barycenter_x,barycenter_x],[barycenter_y,barycenter_y],vep1,vep2,angles='uv',scale=5)
+		plt.show()
+	
+	
+	return vep1,vep2
 
 #####################################################################
 
-file_1 = "Fri Sep 29 15_52_35 2017 - Lacet.orpl"
-name_1 = "Aslanyan_Marine_23"
-
-file_2 = "Fri Dec  8 15_10_38 2017 - Lacet.orpl"
-name_2 = "bonnemaison_elodie_22"
-
-file_3 = "Fri Oct  6 17_57_57 2017 - Lacet.orpl"
-name_3 = "Marine_Lepetit_22"
-path_4 = 'cimia_karen_22/Wed Sep 27 16_46_59 2017 - Lacet.orpl'
-path_5 = 'De bortoli_Marion_23/Wed Dec  6 16_33_22 2017 - Lacet.orpl'
-path_6 = 'roma_mathieu_22/Fri Dec  8 13_47_53 2017 - Lacet.orpl'
-
-list_path = ['bonnes_mesures/'+name_2+'/'+file_2,'bonnes_mesures/'+name_1+'/'+file_1,'bonnes_mesures/'+name_3+'/'+file_3,'bonnes_mesures/'+path_4,'bonnes_mesures/'+path_5,'bonnes_mesures/'+path_6]
-
-yaw,pitch,roll = get_file_data(list_path[0])
-vap,vep,M = compute_acp(yaw,pitch)
-
-
 
 """
-direct = 'bonnes_mesures/'
-list_dir = next(os.walk(direct))[1][:6]
+direct = '../bonnes_mesures/'
+list_dir = next(os.walk(direct))[1]
 list_dir = [direct+s for s in list_dir]
 list_path=[]
 for path in list_dir:
 	list_path.extend(glob.glob(path+'/*.orpl'))
 
 cpt = 0
+list_path = [list_path[1]]
 for index in range(len(list_path)):
+
 	print "Iteration " + str(index+1)+'/'+str(len(list_path))
 	plot_example(list_path,1,index)
 	plot_example(list_path,2,index)
 	plot_example(list_path,3,index)
 	cpt+=1
-"""
 
+	y,p,r = get_file_data(list_path[index])
+	vep1,vep2 = compute_acp(y,p,True)
+	vep1,vep2 = compute_acp(p,r,True)
+	vep1,vep2 = compute_acp(r,y,True)
+"""
