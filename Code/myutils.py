@@ -107,17 +107,47 @@ def coord2points(data):
         points += [point]
     return points
 
-#Return the mean difference between 2 successive elements in an array
 def mean_succ_diff(data):
+    """
+    The mean difference beween successive elements of an array.
+    
+    Parameters
+    ----------
+    data : array
+            The elements.
+    
+    Returns
+    -------
+    int
+            The mean difference.
+    """
     n = len(data)
     s=0
     for i in range(n-1):
         s += abs(data[i]-data[i+1])
     return s/(n-1)
 
-#Detect when the patient starts to move
-#data = yaw,pitch,roll
 def start_movement_index(data,motion,alpha=1,window_width=5):
+    """
+    A simple estimation of the beginning of the movement, based on the difference 
+    between two successive points and a threshold.
+    
+    Parameters
+    ----------
+    data : array
+            The data in the form of (yaw, pitch, roll).
+    motion : str
+            'Lacet', 'Roulis' or 'Tangage' to specify the axis on which we focus.
+    alpha : real, optional
+            A parameter to adjust the threshold. A small alpha will yield a smaller index. By default 1.
+    window_width : int, optional
+            The number of successive points whose mean difference is compared to the threshold. By default 5.
+
+    Returns
+    -------            
+    int
+            The index of the estimated beginning of the movement.
+    """
     if motion == 'Lacet':
         axis = data[0]
     elif motion == 'Tangage':
@@ -134,6 +164,20 @@ def start_movement_index(data,motion,alpha=1,window_width=5):
     
 #Make an audio signal when a program is over
 def audio_signal(n=4,t=1):
+    """
+    Make an audio signal.
+    
+    Parameters
+    ----------
+    n : int, optional
+            How many times the signal is repeated. 4 by default.
+    t : int, optional
+            In seconds, the sleeping time between two signals. By default 1.
+            
+    Notes
+    -----
+    Mostly used to indicate that a program has finished its running.
+    """
     for i in range(n):
         time.sleep(t)
         print('\a')
