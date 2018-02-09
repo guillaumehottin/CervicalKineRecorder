@@ -8,6 +8,9 @@ from scipy import interpolate
 import pylab as plb
 from plot_save import normalize
 import glob
+import sklearn.decomposition as skd
+from hausdorff import hausdorff
+
 global cpt 
 
 def get_file_data(path):
@@ -52,86 +55,32 @@ def interpolate_spline(angle_x,angle_y):
 
 	return x_spline,y_spline
 
-#####################################################################
-#Symmetric
-def need_symmetric(angle_yaw,angle_pitch,angle_roll,id_curve):
-	if (id_curve==1):
-		return need_symmetric_pitch_yaw(angle_yaw,angle_pitch)
-	elif (id_curve==2):
-		return need_symmetric_roll_pitch(angle_pitch,angle_roll)
-	else:
-		return need_symmetric_yaw_roll(angle_roll,angle_yaw)
 
-
-def need_symmetric_pitch_yaw(angle_x,angle_y):
-	positive_l,negative_l = [],[]
-	positive_l = [angle_y[i] for i in range(0,len(angle_y)) if angle_x[i]>0.5]
-	negative_l = [angle_y[i] for i in range(0,len(angle_y)) if angle_x[i]<0.5]
-	if(max(positive_l)>max(negative_l)):
-		return False
-	else:
-		return True
-
-def need_symmetric_roll_pitch(angle_x,angle_y):
-	positive_l,negative_l = [],[]
-	positive_l = [angle_x[i] for i in range(0,len(angle_y)) if angle_y[i]>0.5]
-	negative_l = [angle_x[i] for i in range(0,len(angle_y)) if angle_y[i]<0.5]
-	if(max(positive_l)>max(negative_l)):
-		return False
-	else:
-		return True
-
-def need_symmetric_yaw_roll(angle_x,angle_y):
-	"""
-	positive_l,negative_l = [],[]
-	positive_l = [angle_y[i] for i in range(0,len(angle_y)) if angle_y[i]>0.51]
-	negative_l = [angle_y[i] for i in range(0,len(angle_y)) if angle_y[i]<0.51]
-	"""
-	l = [angle_y[i] for i in range(0,len(angle_y)) if angle_x[i]>0.49 and angle_x[i]<0.51]
-	if(np.max(l)<0.5):
-		return False
-	else:
-		return True
-####################################################################################"
+####################################################################################
 #Transformation	
 	
-def adapt_orientation(angle_yaw,angle_pitch,angle_roll,id_curve):
-	modify = False
-	if(need_symmetric(angle_yaw,angle_pitch,angle_roll,id_curve)):
-		modify=True
-		if (id_curve==1):
-			return [y * -1 +1 for y in angle_yaw],angle_pitch,angle_roll,modify
-		elif (id_curve==2):
-			return angle_yaw,angle_pitch,[y * -1 +1 for y in angle_roll],modify
-		else:
-			return [y * -1 +1 for y in angle_yaw],angle_pitch,[y * -1 +1 for y in angle_roll],modify
-		 
-	else:
-		return angle_yaw,angle_pitch,angle_roll,modify
-
-
-
 def adapt_all_curves(list_path,id_curve):
 	yaw_l,pitch_l,roll_l = [],[],[]
 	list_name = []
 	list_sym = []
 	
 	for path in list_path:	
+		#Get data and normalize it
 		yaw,pitch,roll  = get_file_data(path)
 		yaw,pitch,roll  = normalize(yaw,pitch,roll)
-		yaw,pitch,roll,modify  = adapt_orientation(yaw,pitch,roll,id_curve)
+
 		yaw_l.append(yaw)
 		pitch_l.append(pitch)
 		roll_l.append(roll)
 		list_name.append(path.split('/')[1])
-		list_sym.append(modify)
 
-	return yaw_l,pitch_l,roll_l,list_name,list_sym
+	return yaw_l,pitch_l,roll_l,list_name
 
 def prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l):
 	all_control_x = []
 	all_control_y = []
 
+	#Choose plot
 	if(id_curve==1): #pitch = f(yaw)
 		angle_x = yaw_l
 		angle_y = pitch_l
@@ -149,8 +98,6 @@ def prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l):
 			c_x,c_y = get_control_points(pitch_l[i],roll_l[i])
 			all_control_x.append(c_x)
 			all_control_y.append(c_y)
-
-
 	else:
 		angle_x = roll_l
 		angle_y = yaw_l
@@ -160,18 +107,36 @@ def prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l):
 			all_control_x.append(c_x)
 			all_control_y.append(c_y)
 
-	return angle_x,angle_y,all_control_x, all_control_y,title
+	n = len(all_control_x)
 
-def plot_example(list_path,id_curve,index_interpolate_data):
+	#Truncate to have same number of points in each list
+	min_l = min(map(len, all_control_x))
+	all_control_x = [all_control_x[i][:min_l] for i in range(n)]
+	all_control_y = [all_control_y[i][:min_l] for i in range(n)]
+
+	#Mean Control Points
+	all_control_x,all_control_y = np.array(all_control_x),np.array(all_control_y)
+	mean_control_x,mean_control_y = [float(sum(col))/len(col) for col in zip(*all_control_x)],[float(sum(col))/len(col) for col in zip(*all_control_y)]
+	return angle_x,angle_y,mean_control_x,mean_control_y,title
+
+
+#Compute Hausdorff distance
+def hausdorff_distance(curve1,curve2):
+	d = hausdorff(curve1,curve2)
+	return d
+
+#################################################################################
+## Script plots
+def plot_example(list_path,id_curve):
 	global cpt
-	#Normalization + Symmetric if necessary
-	yaw_l,pitch_l,roll_l,list_name,list_sym = adapt_all_curves(list_path,id_curve)
+	#Get + Normalization 
+	yaw_l,pitch_l,roll_l,list_name = adapt_all_curves(list_path,id_curve)
 	
-	#Get all control points
-	angle_x,angle_y,all_control_x, all_control_y,title = prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l)
+	#Get control points
+	angle_x,angle_y,mean_control_x, mean_control_y,title = prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l)
 
 	#Interpolate with B-Spline
-	tck,u=interpolate.splprep([all_control_x[index_interpolate_data],all_control_y[index_interpolate_data]],s=0.0)
+	tck,u=interpolate.splprep([mean_control_x, mean_control_y],s=0.0)
 	x_spline,y_spline= interpolate.splev(np.linspace(0,1,100),tck)	
 	
 	#Plot
@@ -183,9 +148,9 @@ def plot_example(list_path,id_curve,index_interpolate_data):
 	    v = v+1
 	    ax1 = plb.subplot(number_of_subplots/2+1,2,v)
 	    ax1.plot(angle_x[i],angle_y[i],'r--',x_spline,y_spline)
-	    title_plot = title + ' : ' + list_name[i] + ' (Spline ' + str(index_interpolate_data) + ') '
-	    if (list_sym[i]):
-		title_plot += ' (Sym) '
+
+	    title_plot = title + ' : ' + list_name[i] 
+
 	    ax1.set_title(title_plot)
 	    ax1.set_xlim([-0.5,1.5])
 	    ax1.set_ylim([-0.5,1.5])
@@ -194,41 +159,65 @@ def plot_example(list_path,id_curve,index_interpolate_data):
         except OSError:
             pass
 	try:
-            os.mkdir('Plot_Spline/Spline_'+str(list_name[index_interpolate_data]))
+            os.mkdir('Plot_Spline/Spline_'+str(id_curve))
         except OSError:
             pass
-	plt.savefig('Plot_Spline/Spline_'+str(list_name[index_interpolate_data])+'/'+title.replace(' = ','_').replace('(','_').replace(')',str(cpt)+'.png'))
+	plt.savefig('Plot_Spline/Spline_'+str(id_curve)+'/'+title.replace(' = ','_').replace('(','_').replace(')',str(cpt)+'.png'))
 	plt.close()
 
+
+
+###################################################################
+# ACP for OCSVM
+def compute_acp(angle_x,angle_y,plot):
+	
+	pca = skd.PCA(n_components=2)
+	pca.fit(np.array([angle_x,angle_y]).T)
+	veps = pca.components_
+	vep1 = veps[0,:]
+	vep2 = veps[1,:]
+	
+	if plot:
+		mean_x  = np.mean(angle_x)
+		mean_y  = np.mean(angle_y)
+		sigma_x = np.std(angle_x)
+		sigma_y = np.std(angle_y)
+		n	= len(angle_x)
+		M_barre = np.array([[e-mean_x for e in angle_x],[e-mean_y for e in angle_y]]).T
+
+		barycenter_x = np.mean(M_barre[:,0])
+		barycenter_y = np.mean(M_barre[:,1])
+		plt.plot(barycenter_x,barycenter_y,'ro')
+		plt.plot(M_barre[:,0],M_barre[:,1])
+		plt.quiver([barycenter_x,barycenter_x],[barycenter_y,barycenter_y],vep1,vep2,angles='uv',scale=5)
+		plt.show()
+	
+	
+	return vep1,vep2
+
 #####################################################################
-"""
-file_1 = "Fri Sep 29 15_52_35 2017 - Lacet.orpl"
-name_1 = "Aslanyan_Marine_23"
 
-file_2 = "Fri Dec  8 15_10_38 2017 - Lacet.orpl"
-name_2 = "bonnemaison_elodie_22"
 
-file_3 = "Fri Oct  6 17_57_57 2017 - Lacet.orpl"
-name_3 = "Marine_Lepetit_22"
-path_4 = 'cimia_karen_22/Wed Sep 27 16_46_59 2017 - Lacet.orpl'
-path_5 = 'De bortoli_Marion_23/Wed Dec  6 16_33_22 2017 - Lacet.orpl'
-path_6 = 'roma_mathieu_22/Fri Dec  8 13_47_53 2017 - Lacet.orpl'
 
-list_path = ['bonnes_mesures/'+name_2+'/'+file_2,'bonnes_mesures/'+name_1+'/'+file_1,'bonnes_mesures/'+name_3+'/'+file_3,'bonnes_mesures/'+path_4,'bonnes_mesures/'+path_5,'bonnes_mesures/'+path_6]
-"""
-
-direct = 'bonnes_mesures/'
-list_dir = next(os.walk(direct))[1][:6]
+direct = '../bonnes_mesures/'
+list_dir = next(os.walk(direct))[1]
 list_dir = [direct+s for s in list_dir]
 list_path=[]
 for path in list_dir:
 	list_path.extend(glob.glob(path+'/*.orpl'))
-	
 cpt = 0
+list_path = list_path[:6]
+
+
+plot_example(list_path,1)
+plot_example(list_path,2)
+plot_example(list_path,3)
+cpt+=1
+"""
 for index in range(len(list_path)):
-	print "Iteration " + str(index+1)+'/'+str(len(list_path))
-	plot_example(list_path,1,index)
-	plot_example(list_path,2,index)
-	plot_example(list_path,3,index)
-	cpt+=1
+	y,p,r = get_file_data(list_path[index])
+	vep1,vep2 = compute_acp(y,p,True)
+	vep1,vep2 = compute_acp(p,r,True)
+	vep1,vep2 = compute_acp(r,y,True)
+"""
 

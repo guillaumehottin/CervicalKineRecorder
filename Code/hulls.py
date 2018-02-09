@@ -7,10 +7,15 @@ from scipy.spatial import Delaunay
 import numpy as np
 import myutils
 
+
 def plot_polygon_MP(polygon):
     """
     Plot a polygon using PolygonPatch.
-    @param polygon: MultiPoint, the polygon to plot
+    
+    Parameters
+    ----------
+    polygon : MultiPoint
+            The polygon to plot
     """
     fig = plt.figure(figsize=(10,10))
     ax = fig.add_subplot(111)
@@ -25,6 +30,19 @@ def plot_polygon_MP(polygon):
     return fig
 
 def plot_many_polygons(lst_poly):
+    """
+    Plot a list of polygons contained in a list.
+    
+    Parameters
+    ----------
+    lst_poly : array(MultiPoints)
+            List of polygons
+            
+    Returns
+    -------
+    figure
+            The corresponding figure.
+    """
     x_max = 0
     y_max = 0
     x_min = 0
@@ -33,6 +51,7 @@ def plot_many_polygons(lst_poly):
     ax = fig.add_subplot(111)
     margin = .3
     for poly in lst_poly:
+        #Determine the axes limits
         x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
         if x_max < x_max_curr:
             x_max = x_max_curr
@@ -42,6 +61,7 @@ def plot_many_polygons(lst_poly):
             y_min = y_min_curr
         if x_min > x_min_curr:
             x_min = x_min_curr
+            
         color = myutils.RGBA_arg()
         patch = PolygonPatch(poly, fc=color,
                          ec=color, fill=True,
@@ -55,12 +75,21 @@ def plot_many_polygons(lst_poly):
 #Convex hull
 def plot_convex_hull(pts):
     """
-    Plot a convex hull with an array of points as input.
+    Plot a convex hull.
+    
+    Parameters
+    ----------
+    pts : array(Point)
+            The points whose the convex hull is expected.
+            
+    Returns
+    -------
+    figure
+            The corresponding figure.
     """
     point_collection = myutils.array2MP(pts)
     plt.figure(figsize=(10,10))
     fig = plot_polygon_MP(point_collection.convex_hull)
-    plt.plot(x,y,'o')
     return fig
 
 ###############################################
@@ -119,14 +148,71 @@ def alpha_shape(points, alpha):
     triangles = list(polygonize(m))
     return cascaded_union(triangles), edge_points
 
-#Distance for clustering
 def hull_distance(polyA,polyB):
+    """
+    Distance between two hulls, defined by the sum of their differences areas.
+    @param polyA (MultiPoint): first set of points
+    @param polyA (MultiPoint): first set of points
+    """
     alphaA,_ = alpha_shape(polyA,1.0)
     alphaB,_ = alpha_shape(polyB,1.0)
     AmB = alphaA.difference(alphaB)
     BmA = alphaB.difference(alphaA)
     return AmB.area + BmA.area
 
+#Discretize a space to match a polygon
+def matching_grid(polygon,axis=[0,1],npts=20):
+    """
+    Discretize a space to match a polygon.
+    
+    Parameters
+    ----------
+    polygon : Polygon
+            The polygon to discretize.
+    axis : list, optional
+            The min and the max of the square space. [0,1] by default.
+    npts : int, optional
+            The number of points by side of the discretization. 20 by default.
+    
+    Returns
+    -------
+    array
+            For each point of the discretization, 1 if the point is in the polygon and 0 otherwise.
+    """
+    grid = np.zeros(npts**2)
+    h = (axis[1]-axis[0])/(npts-1)
+    for i in range(npts):
+        for j in range(npts):
+            pt = geometry.Point(i*h,j*h)
+            if polygon.contains(pt):
+                grid[i*npts+j] = 1
+    return grid       
+
+def hull_grid(x, y, m, alpha, buff_size):
+    """
+    Make a concave hull of a set of points and return the corresponding discretization.
+    
+    Parameters
+    ----------
+    x : array
+            The x-axis coordinates of the points.
+    y : array
+            The y-axis coordinates of the points.
+    m : int
+            The number of points of a side of the discretization.
+    alpha : real
+            The alpha parameter for the concave hull.
+    buff_size : real
+            The buffer size of the concave hull, i.e. a margin.
+    
+    Returns
+    -------
+    array
+            The corresponding grid.
+    """
+    coordinates = myutils.coord2points([x, y])
+    hull = alpha_shape(myutils.array2MP(coordinates), alpha = alpha)[0].buffer(buff_size)
+    return matching_grid(hull, npts = m)
 
 #############################################################
 """
@@ -144,8 +230,25 @@ polys = myutils.generate_MP(12,cl_max=1,alpha=0.5)
 plot_many_polygons([alpha_shape(p,alpha=0.6)[0] for p in polys])
 f = fclusterdata(np.arange(len(polys)).reshape((len(polys),1)),1.0,metric=hull_dist_indices)
 print(f)
+
+concave_hull, edge_points = alpha_shape(myutils.array2MP(pts),alpha=0.7)
+plot_polygon_MP(concave_hull.buffer(1,resolution=1))
+plt.plot(x,y,'o', color='#f16824')
 """
 
+
+""" Results with former norm
+accuracy:  0.880952380952
+precision:  1.0
+recall:  0.880952380952
+f1:  0.936708860759
+"""
+
+
+
+
+"""
+#clustering
 from scipy.cluster.hierarchy import fclusterdata
 
 files = myutils.fetch_files(dir_name='bonnes_mesures',sub_dir='Normalized')
@@ -165,12 +268,15 @@ for i in threshold:
     f += [fclusterdata(np.arange(n).reshape((n,1)),i,metric=hull_dist_indices)]
 for x in f:
     print(x)
+"""
 
 """
 yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
 yaw_pitch = myutils.coord2points([yaw,pitch])
-plot_polygon_MP(alpha_shape(myutils.array2MP(yaw_pitch),alpha=1)[0])
+hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)
+plot_polygon_MP(hull)
 plt.plot(yaw,pitch)
+print(matching_grid(hull))
 """
 
 """
@@ -232,8 +338,3 @@ t=1.0
   7  5 12]
 """
 
-"""
-concave_hull, edge_points = alpha_shape(myutils.array2MP(pts),alpha=0.7)
-plot_polygon_MP(concave_hull.buffer(1,resolution=1))
-plt.plot(x,y,'o', color='#f16824')
-"""
