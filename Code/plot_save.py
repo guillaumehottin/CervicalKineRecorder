@@ -7,8 +7,8 @@ import os
 import myutils
 import re
 
-
 OS = "linux"
+
 
 def plot_from_file(name_file, name_dir, save_fig=0, show=1, scatter=0, norm=1):
     (pitch_l, yaw_l, roll_l) = myutils.get_coord(name_dir + '/' + name_file)
@@ -57,11 +57,12 @@ def plot_all(motion, name_dir, save_fig, show, scatter, norm):
         plot_from_file(name, name_dir, save_fig, show, scatter, norm)
 
 
-def normalize(pitch_l,yaw_l,roll_l):
-    normalized_pitch = (pitch_l-np.amin(pitch_l))/(np.amax(pitch_l)-np.amin(pitch_l))
-    normalized_yaw = (yaw_l-np.amin(yaw_l))/(np.amax(yaw_l)-np.amin(yaw_l))
-    normalized_roll = (roll_l-np.amin(roll_l))/(np.amax(roll_l)-np.amin(roll_l))
-    return normalized_pitch,normalized_yaw,normalized_roll
+def normalize(pitch_l, yaw_l, roll_l):
+    normalized_pitch = (pitch_l - np.amin(pitch_l)) / (np.amax(pitch_l) - np.amin(pitch_l))
+    normalized_yaw = (yaw_l - np.amin(yaw_l)) / (np.amax(yaw_l) - np.amin(yaw_l))
+    normalized_roll = (roll_l - np.amin(roll_l)) / (np.amax(roll_l) - np.amin(roll_l))
+    return normalized_pitch, normalized_yaw, normalized_roll
+
 
 """
 def normalize(pitch_l,yaw_l,roll_l):
@@ -71,9 +72,10 @@ def normalize(pitch_l,yaw_l,roll_l):
     normalized_yaw = (yaw_l-amin)/(amax-amin)
     normalized_roll = (roll_l-amin)/(amax-amin)
     return normalized_pitch,normalized_yaw,normalized_roll
-    """
-    
-def save_normalized(motion,name_dir):
+"""
+
+
+def save_normalized(motion, name_dir):
     stg = motion + ".orpl"
     list_dir = os.listdir(name_dir)
     l = []
@@ -94,7 +96,8 @@ def save_normalized(motion,name_dir):
             f.write('{0} {1} {2}\n'.format(yaw_l[i], pitch_l[i], roll_l[i]))
         f.close()
 
-if OS=="linux":
+
+if OS == "linux":
     motions = ['Lacet', 'Roulis']
     dir_name = '../bonnes_mesures/'
     list_dir = next(os.walk(dir_name))[1]
@@ -106,7 +109,7 @@ if OS=="linux":
 
     for directory in list_dir:
         for motion in motions:
-            save_normalized(motion,directory)
-            #plot_all(motion,directory,save_fig,show,scatter,norm)
+            save_normalized(motion, directory)
+            # plot_all(motion,directory,save_fig,show,scatter,norm)
 
     # plot_all('Lacet','.',0,1,0)
