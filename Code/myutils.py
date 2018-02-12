@@ -4,6 +4,7 @@ import shapely.geometry as geometry
 import numpy as np
 import os
 import time
+from shapely.wkt import loads
 
 #Generate clusters based on their center and radius
 def generate_clusters(centers,radii,npts_by_clusters):
@@ -165,7 +166,7 @@ def start_movement_index(data,motion,alpha=1,window_width=5):
 #Make an audio signal when a program is over
 def audio_signal(n=4,t=1):
     """
-    Make an audio signal.
+    Makes an audio signal.
     
     Parameters
     ----------
@@ -181,3 +182,34 @@ def audio_signal(n=4,t=1):
     for i in range(n):
         time.sleep(t)
         print('\a')
+     
+        
+def write_shape(shape, file):
+    """
+    Writes a shape to a file.
+    
+    Parameters
+    ----------
+    shape : geometry shape
+            The shape to write.(Polygon, Point...)
+    file : file
+            The file where the shape will be written.
+    """
+    file.write(shape.wkt)
+    
+    
+def read_shape(file):
+    """
+    Reads a shape from a file.
+    
+    Parameters
+    ----------
+    file : file
+            The file from which to read the polygon.
+            
+    Returns
+    -------
+    geometry shape 
+            The shape.
+    """
+    return loads(file.read())
