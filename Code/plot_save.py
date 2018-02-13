@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import myutils
+from Code import myutils
 import re
 
 OS = "linux"
@@ -57,22 +57,20 @@ def plot_all(motion, name_dir, save_fig, show, scatter, norm):
         plot_from_file(name, name_dir, save_fig, show, scatter, norm)
 
 
+# def normalize(pitch_l, yaw_l, roll_l):
+#     normalized_pitch = (pitch_l - np.amin(pitch_l)) / (np.amax(pitch_l) - np.amin(pitch_l))
+#     normalized_yaw = (yaw_l - np.amin(yaw_l)) / (np.amax(yaw_l) - np.amin(yaw_l))
+#     normalized_roll = (roll_l - np.amin(roll_l)) / (np.amax(roll_l) - np.amin(roll_l))
+#     return normalized_pitch, normalized_yaw, normalized_roll
+
+
 def normalize(pitch_l, yaw_l, roll_l):
-    normalized_pitch = (pitch_l - np.amin(pitch_l)) / (np.amax(pitch_l) - np.amin(pitch_l))
-    normalized_yaw = (yaw_l - np.amin(yaw_l)) / (np.amax(yaw_l) - np.amin(yaw_l))
-    normalized_roll = (roll_l - np.amin(roll_l)) / (np.amax(roll_l) - np.amin(roll_l))
-    return normalized_pitch, normalized_yaw, normalized_roll
-
-
-"""
-def normalize(pitch_l,yaw_l,roll_l):
-    amin = np.amin([np.amin(pitch_l),np.amin(yaw_l),np.amin(roll_l)])    
-    amax = np.amax([np.amax(pitch_l),np.amax(yaw_l),np.amax(roll_l)])    
+    amin = np.amin([np.amin(pitch_l), np.amin(yaw_l), np.amin(roll_l)])
+    amax = np.amax([np.amax(pitch_l), np.amax(yaw_l), np.amax(roll_l)])
     normalized_pitch = (pitch_l-amin)/(amax-amin)
     normalized_yaw = (yaw_l-amin)/(amax-amin)
     normalized_roll = (roll_l-amin)/(amax-amin)
-    return normalized_pitch,normalized_yaw,normalized_roll
-"""
+    return normalized_pitch, normalized_yaw, normalized_roll
 
 
 def save_normalized(motion, name_dir):
