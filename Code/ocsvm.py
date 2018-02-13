@@ -95,9 +95,10 @@ def test_ocsvm(m_list, buff_size_list, alpha_list, directory = 'bonnes_mesures/'
         myutils.audio_signal()
   
 ##################################################
-        
-m_list = [500]
-buff_size_list = [0.05]
-alpha_list = [2.8]
 
-test_ocsvm(m_list, buff_size_list, alpha_list)
+if __name__ == '__main__':
+    m_list = [500]
+    buff_size_list = [0.05]
+    alpha_list = [2.8]
+    
+    test_ocsvm(m_list, buff_size_list, alpha_list)

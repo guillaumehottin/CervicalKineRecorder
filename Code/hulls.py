@@ -103,6 +103,7 @@ def add_edge(edges, edge_points, coords, i, j):
         edges.add((i,j))
         edge_points.append(coords[[i,j]])
 
+
 def alpha_shape(points, alpha):
     """
     Compute the alpha shape (concave hull) of a set
@@ -148,6 +149,7 @@ def alpha_shape(points, alpha):
     triangles = list(polygonize(m))
     return cascaded_union(triangles), edge_points
 
+
 def hull_distance(polyA,polyB):
     """
     Distance between two hulls, defined by the sum of their differences areas.
@@ -160,7 +162,7 @@ def hull_distance(polyA,polyB):
     BmA = alphaB.difference(alphaA)
     return AmB.area + BmA.area
 
-#Discretize a space to match a polygon
+
 def matching_grid(polygon,axis=[0,1],npts=20):
     """
     Discretize a space to match a polygon.
@@ -188,6 +190,7 @@ def matching_grid(polygon,axis=[0,1],npts=20):
                 grid[i*npts+j] = 1
     return grid       
 
+
 def hull_grid(x, y, m, alpha, buff_size):
     """
     Make a concave hull of a set of points and return the corresponding discretization.
@@ -214,6 +217,31 @@ def hull_grid(x, y, m, alpha, buff_size):
     hull = alpha_shape(myutils.array2MP(coordinates), alpha = alpha)[0].buffer(buff_size)
     return matching_grid(hull, npts = m)
 
+
+def pts_out_poly(poly, pts):
+    """
+    The number of points belonging to a set of points which are not within a polygon frame.
+    
+    Parameters
+    ----------
+    poly : Polygon
+            The polygon.
+    pts : array
+            Array of points.
+            
+    Returns
+    -------
+    int
+            The number of points outside the polygon.
+    """
+    n = 0
+    for pt in pts:
+        
+        if not poly.contains(pt):
+            n += 1
+    return n
+
+
 #############################################################
 """
 c = [[0,0],[3,7],[-3,4],[-6,-4],[4,-7],[-4,-8]]
@@ -237,104 +265,10 @@ plt.plot(x,y,'o', color='#f16824')
 """
 
 
-""" Results with former norm
-accuracy:  0.880952380952
-precision:  1.0
-recall:  0.880952380952
-f1:  0.936708860759
-"""
-
-
-
-
-"""
-#clustering
-from scipy.cluster.hierarchy import fclusterdata
-
-files = myutils.fetch_files(dir_name='bonnes_mesures',sub_dir='Normalized')
-points_collection = []
-for file in files:
-    yaw,pitch,roll = myutils.get_coord(file)
-    coordinates = myutils.coord2points([pitch,yaw])
-    points_collection += [myutils.array2MP(coordinates)]
-    
-def hull_dist_indices(first,second):
-    return hull_distance(points_collection[int(first[0])],points_collection[int(second[0])])
-
-n = len(points_collection)
-threshold = [1.0]
-f = []
-for i in threshold:
-    f += [fclusterdata(np.arange(n).reshape((n,1)),i,metric=hull_dist_indices)]
-for x in f:
-    print(x)
-"""
-
-"""
 yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
 yaw_pitch = myutils.coord2points([yaw,pitch])
 hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)
 plot_polygon_MP(hull)
 plt.plot(yaw,pitch)
 print(matching_grid(hull))
-"""
-
-"""
-alpha=0.2
-t=0.5
-[28  1  1 25 40 41  9  4 29  2 20 27 35  3  2 36 38 30 13 15 12 20 33  6  5
- 11 24 17 29 13 31  3 22 10  7 34 19 18 23 42 26 37 21 18 16 11  6  5 32 14
-  4  8 39]
-t=1.0
-[16  1  1 13 26 27  7  4 17  2  9 15 21  3  2 22 24 17  9  9  9  9 19  6  5
-  9 12  9 17  9 17  3 10  8  6 20  9  9 11 28 14 23  9  9  9  9  6  5 18  9
-  4  6 25]
-t=1.05
-[16  1  1 13 26 27  7  4 17  2  9 15 21  3  2 22 24 17  9  9  9  9 19  6  5
-  9 12  9 17  9 17  3 10  8  6 20  9  9 11 28 14 23  9  9  9  9  6  5 18  9
-  4  6 25]
-t=1.5
-[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
- 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-t=2.0
-[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
- 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-
-alpha=0.4 (pas norm)
-t=1.0
-[20  1  1  5 25 23 21 26  6  6  6  6 18  6  6  6 15 19 17  2 10  6  3  8  3
-  9  2  6 16  6 13  6  6 12  6  6  4  4  6 14 22 11 24  5  6  6  6  6  6  6
-  6  6  7]
-t=0.1
-[36  1  1  5 41 39 37 42 10 17 13 11 34 17  9  8 31 35 33  2 26 21  3 24  3
- 25  2 18 32  9 29  8 14 28 19 22  4  4 12 30 38 27 40  5 11 15  6  7 20 14
- 16  6 23]
-
-alpha=0.6
-t=0.01
-[31  1  1 27 38 37  7 13  3 26 29 35  4 19 23  2  2 32 20 21 17 18  6  6  8
- 16 30 28  3 20 15 22 27 12  9 34  4  5 25 15 31 14 33 13 22 16  8 11 14 19
- 24 10 36]
-t=0.1
-[31  1  1 27 38 37  7 13  3 26 29 35  4 19 23  2  2 32 20 21 17 18  6  6  8
- 16 30 28  3 20 15 22 27 12  9 34  4  5 25 15 31 14 33 13 22 16  8 11 14 19
- 24 10 36]
-t=1.0
-[19  1  1 16 25 24  5  6  3 15 17 22  4 10 12  2  2 19 10 10  9  9  5  5  5
-  9 18 16  3 10  8 11 16  5  5 21  4  4 14  8 19  7 20  6 11  9  5  5  7 10
- 13  5 23]
-t=2.0
-[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
- 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-
-alpha=0.8
-t=0.1 idem 0.5
-[30  3  3  6 39 35 15 25 36  2 40 38 18  1  1  5 38  4 20 22 21 27  7  7  8
- 29 20  6  4 26 32 14 13 16  9 33 12 17  5 19 19 37 31 28 13 24  8 11 23 26
- 21 10 34]
-t=1.0
-[ 8  2  2  5 17 13  5  7 14  1 18 16  5  1  1  4 16  3  7  7  7  7  5  5  5
-  7  7  5  3  7 10  5  5  5  5 11  5  5  4  6  6 15  9  7  5  7  5  5  7  7
-  7  5 12]
-"""
 
