@@ -86,13 +86,17 @@ def detect_two_ways(diff_l):
 	sign = sign_l[0]
 	for i in range(len(sign_l)):
 		if(sign_l[i]!=sign and sign_l[i]!=0):
-			index_change_l.append(i+1)
+			index_change_l.append(i)
 			sign = sign_l[i]
 	index_change_l = index_change_l[::2]
 	return index_change_l
 
-
+########################################################
 #Have same number of points for each two ways and compute mean
+#Inputs:
+#	_ two_ways_x : List of List with each two ways for axis x
+#	_ two_ways_y : Same with axis y
+########################################################
 def mean_control_points(two_ways_x,two_ways_y):
 	#Get same number of points of each two ways
 	min_len = min(map(len, two_ways_x))
@@ -103,6 +107,8 @@ def mean_control_points(two_ways_x,two_ways_y):
 	mean_control_x = [float(sum(col))/len(col) for col in zip(*two_ways_x)]
 	mean_control_y = [float(sum(col))/len(col) for col in zip(*two_ways_y)]
 	return mean_control_x,mean_control_y
+
+
 ########################################################
 # Compute mean control points for two ways
 # Detect each two ways, get same number of points
@@ -139,8 +145,8 @@ def get_control_points(angle_x,angle_y,id_curve):
 
 
 ########################################################
-# Compute control points
-# Interpolate data
+# Compute final control points
+# And Interpolate data
 # Inputs:
 #	 _ angle_x : List
 #	 _ angle_y : List
@@ -172,6 +178,7 @@ def interpolate_spline(angle_x,angle_y,id_curve,nb_points=500):
 #	 _ id_curve: int
 #Outputs:
 #	 _ List of List with all angles
+#	 _ list_name : List with names of all patients
 ########################################################	
 def adapt_all_curves(list_path,id_curve):
 	yaw_l,pitch_l,roll_l = [],[],[]
@@ -272,33 +279,33 @@ def compute_acp(angle_x,angle_y,plot):
 	return vep1,vep2
 
 #####################################################################
+if __name__ == "__main__":
 
-l = []
-"""
-x = range(1,200)
-xr = range(1,199)[::-1]
-x.extend(xr)
-x.extend(x)
-x.extend(x)
-y = [1+random.uniform(-0.1,0.1) for i in range(len(x))]
-
-xs,ys = interpolate_spline(x,y,1,500)
-plt.plot(x,y,'r--',xs,ys)
-#plt.plot(l[0],l[1],'bo')
-
-plt.ylim(-2,2)
-plt.show()
-"""
-direct = '../bonnes_mesures/'
-list_dir = next(os.walk(direct))[1]
-list_dir = [direct+s for s in list_dir]
-list_path=[]
-for path in list_dir:
-	list_path.extend(glob.glob(path+'/*.orpl'))
-for i in range(5,10):
-	x,y,r = get_file_data(list_path[i])
+	l = []
+	"""
+	x = range(1,200)
+	xr = range(1,199)[::-1]
+	x.extend(xr)
+	x.extend(x)
+	x.extend(x)
+	y = [1+random.uniform(-0.1,0.1) for i in range(len(x))]
 	xs,ys = interpolate_spline(x,y,1,500)
 	plt.plot(x,y,'r--',xs,ys)
-	plt.plot(l[0],l[1],'bo')
+	#plt.plot(l[0],l[1],'bo')
+	plt.ylim(-2,2)
 	plt.show()
+	"""
+
+	direct = '../bonnes_mesures/'
+	list_dir = next(os.walk(direct))[1]
+	list_dir = [direct+s for s in list_dir]
+	list_path=[]
+	for path in list_dir:
+		list_path.extend(glob.glob(path+'/*.orpl'))
+	for i in range(5,10):
+		x,y,r = get_file_data(list_path[i])
+		xs,ys = interpolate_spline(x,y,1,500)
+		plt.plot(x,y,'r--',xs,ys)
+		plt.plot(l[0],l[1],'bo')
+		plt.show()
 
