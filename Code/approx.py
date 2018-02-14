@@ -9,17 +9,15 @@ import pylab as plb
 from plot_save import normalize
 import glob
 import sklearn.decomposition as skd
-from hausdorff import hausdorff
+import random
 
-global cpt 
+global cpt ,l
 
 def get_file_data(path):
 	f = open(path,"r")
 	data = f.readlines()
 	yaw_l, pitch_l, roll_l = [],[],[]
 	data.pop(0)
-
-	#Ignore data with not enough points
 
 	for i in range(0,len(data)):
 		elems = data[i].split(" ")
@@ -35,15 +33,126 @@ def get_file_data(path):
 	return yaw_l,pitch_l,roll_l
 
 
-def get_control_points(angle_x,angle_y):
-	return angle_x[::3], angle_y[::3]
+########################################################
+#Compute distance between two consecutives points
+#for the main axis of motion
+#For yaw motion -> Main axis = yaw
+#For pitch motion -> Main axis = Pitch
+########################################################
+def compute_difference_list_motion(angle_x,angle_y,id_curve):
+	if(id_curve==1 or id_curve==3):  #Lacet or Roulis
+		#Detect two ways
+		diff_l = [angle_x[i]-angle_x[i+1] for i in range(len(angle_x)-1)]
+			
+	elif(id_curve==2):#Tangage
+		diff_l = [angle_y[i]-angle_y[i+1] for i in range(len(angle_y)-1)]
+	else:		  
+		diff_l = []
+	return diff_l
 
 
-#####################################################################
-def interpolate_spline(angle_x,angle_y):
+######################################################
+#Remove parasite motion
+#At the end of one way motion for instance
+######################################################
+def remove_parasite_motion(angle_x,angle_y,id_curve,threshold=0.1):
+
+	diff_l = compute_difference_list_motion(angle_x,angle_y,id_curve)
+	index_to_remove = []
+	for i in range(len(diff_l)):
+		if(np.abs(diff_l[i])<threshold):
+			index_to_remove.append(i+1)
+
+	#update angle_x and angle_y
+	n = len(list(angle_x))
+	angle_x = [angle_x[ind] for ind in range(n) if ind not in index_to_remove]
+	angle_y = [angle_y[ind] for ind in range(n) if ind not in index_to_remove]
+	#Recompute diff_l
+	diff_l = compute_difference_list_motion(angle_x,angle_y,id_curve)
+	return angle_x,angle_y,diff_l
+
+########################################################
+# Detect each two ways
+# Input:
+#	 _ diff : List
+# Output:
+#	 _ List with index for all two ways beginning
+########################################################
+
+
+def detect_two_ways(diff_l):
+	sign_l = np.sign(diff_l)
+	index_change_l = [0]
+	sign = sign_l[0]
+	for i in range(len(sign_l)):
+		if(sign_l[i]!=sign and sign_l[i]!=0):
+			index_change_l.append(i+1)
+			sign = sign_l[i]
+	index_change_l = index_change_l[::2]
+	return index_change_l
+
+
+#Have same number of points for each two ways and compute mean
+def mean_control_points(two_ways_x,two_ways_y):
+	#Get same number of points of each two ways
+	min_len = min(map(len, two_ways_x))
+	for i in range(len(two_ways_x)):
+		n = len(two_ways_x[i])
+		two_ways_x[i] = [two_ways_x[i][j + j*(n-min_len)/min_len] for j in range(min_len)]
+		two_ways_y[i] = [two_ways_y[i][j + j*(n-min_len)/min_len] for j in range(min_len)]
+	mean_control_x = [float(sum(col))/len(col) for col in zip(*two_ways_x)]
+	mean_control_y = [float(sum(col))/len(col) for col in zip(*two_ways_y)]
+	return mean_control_x,mean_control_y
+########################################################
+# Compute mean control points for two ways
+# Detect each two ways, get same number of points
+# and mean each list
+# Inputs:
+#	 _ angle_x : List
+#	 _ angle_y : List
+#	 _ id_curve: int
+#Outputs:
+#	 _ Control points
+########################################################
+def get_control_points(angle_x,angle_y,id_curve):
+
+	#Remove very small motions
+	angle_x,angle_y,diff_l = remove_parasite_motion(angle_x,angle_y,id_curve,threshold=0.1)	
+
+	#Two ways
+	index_change_l = detect_two_ways(diff_l)	
+	#Build list for each two ways
+	two_ways_x, two_ways_y = [],[]
+	for i in range(len(index_change_l)-1):
+		two_ways_x += [angle_x[index_change_l[i]:index_change_l[i+1]]]
+		two_ways_y += [angle_y[index_change_l[i]:index_change_l[i+1]]]
+		
+	two_ways_x += [angle_x[index_change_l[-1]:]]
+	two_ways_y += [angle_y[index_change_l[-1]:]]
+
+	#Mean
+	mean_control_x,mean_control_y = mean_control_points(two_ways_x,two_ways_y)
+	
+	print "Mean"
+	print mean_control_x
+	return mean_control_x,mean_control_y
+
+
+########################################################
+# Compute control points
+# Interpolate data
+# Inputs:
+#	 _ angle_x : List
+#	 _ angle_y : List
+#	 _ id_curve: int
+#Outputs:
+#	 _ Spline curve
+########################################################
+def interpolate_spline(angle_x,angle_y,id_curve,nb_points=500):
+	global l
 	#1) Choose control points
-	x_control,y_control = get_control_points(angle_x,angle_y)
-
+	x_control,y_control = get_control_points(angle_x,angle_y,id_curve)
+	l = [x_control,y_control]
 	#2)Interpolate
 	#Inputs  :
 	#	s: smoothing condition
@@ -51,14 +160,19 @@ def interpolate_spline(angle_x,angle_y):
 	#	tck : tuple (t,c,k) vector of knots, B-spline coeff and the degree
 	#	u   : weighted sum of squared residuals of the approximation
 	tck,u=interpolate.splprep([x_control,y_control],s=0.0)
-	x_spline,y_spline= interpolate.splev(np.linspace(0,1,100),tck)
+	x_spline,y_spline= interpolate.splev(np.linspace(0,1,nb_points),tck)
 
 	return x_spline,y_spline
 
 
-####################################################################################
-#Transformation	
-	
+########################################################
+# Get data in list_path and normalize it
+# Inputs:
+#	 _ list_path: List
+#	 _ id_curve: int
+#Outputs:
+#	 _ List of List with all angles
+########################################################	
 def adapt_all_curves(list_path,id_curve):
 	yaw_l,pitch_l,roll_l = [],[],[]
 	list_name = []
@@ -76,68 +190,28 @@ def adapt_all_curves(list_path,id_curve):
 
 	return yaw_l,pitch_l,roll_l,list_name
 
-def prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l):
-	all_control_x = []
-	all_control_y = []
-
-	#Choose plot
-	if(id_curve==1): #pitch = f(yaw)
-		angle_x = yaw_l
-		angle_y = pitch_l
-		title   = 'pitch = f(yaw)'	
-		for i in range(len(yaw_l)):
-			c_x,c_y = get_control_points(yaw_l[i],pitch_l[i])
-			all_control_x.append(c_x)
-			all_control_y.append(c_y)
-
-	elif(id_curve==2):#roll = f(pitch)
-		angle_x = pitch_l
-		angle_y = roll_l
-		title   = 'roll = f(pitch)'
-		for i in range(len(pitch_l)):
-			c_x,c_y = get_control_points(pitch_l[i],roll_l[i])
-			all_control_x.append(c_x)
-			all_control_y.append(c_y)
-	else:
-		angle_x = roll_l
-		angle_y = yaw_l
-		title   = 'yaw = f(roll)'
-		for i in range(len(yaw_l)):
-			c_x,c_y = get_control_points(roll_l[i],yaw_l[i])
-			all_control_x.append(c_x)
-			all_control_y.append(c_y)
-
-	n = len(all_control_x)
-
-	#Truncate to have same number of points in each list
-	min_l = min(map(len, all_control_x))
-	all_control_x = [all_control_x[i][:min_l] for i in range(n)]
-	all_control_y = [all_control_y[i][:min_l] for i in range(n)]
-
-	#Mean Control Points
-	all_control_x,all_control_y = np.array(all_control_x),np.array(all_control_y)
-	mean_control_x,mean_control_y = [float(sum(col))/len(col) for col in zip(*all_control_x)],[float(sum(col))/len(col) for col in zip(*all_control_y)]
-	return angle_x,angle_y,mean_control_x,mean_control_y,title
-
-
-#Compute Hausdorff distance
-def hausdorff_distance(curve1,curve2):
-	d = hausdorff(curve1,curve2)
-	return d
-
 #################################################################################
 ## Script plots
 def plot_example(list_path,id_curve):
 	global cpt
+
 	#Get + Normalization 
 	yaw_l,pitch_l,roll_l,list_name = adapt_all_curves(list_path,id_curve)
-	
-	#Get control points
-	angle_x,angle_y,mean_control_x, mean_control_y,title = prepare_interpolation(id_curve,yaw_l,pitch_l,roll_l)
+	#Choose plot
+	if(id_curve==1): #pitch = f(yaw)
+		title   = 'pitch = f(yaw)'
+		angle_x_l = yaw_l
+		angle_y_l = pitch_l	
+		
+	elif(id_curve==2):#roll = f(pitch)
+		title   = 'roll = f(pitch)'
+		angle_x_l = pitch_l
+		angle_y_l = roll_l
+	else:
+		title   = 'yaw = f(roll)'
+		angle_x_l = roll_l
+		angle_y_l = yaw_l
 
-	#Interpolate with B-Spline
-	tck,u=interpolate.splprep([mean_control_x, mean_control_y],s=0.0)
-	x_spline,y_spline= interpolate.splev(np.linspace(0,1,100),tck)	
 	
 	#Plot
 	plb.rcParams['figure.figsize'] = 25, 10
@@ -147,7 +221,9 @@ def plot_example(list_path,id_curve):
 	for i,v in enumerate(xrange(number_of_subplots)):
 	    v = v+1
 	    ax1 = plb.subplot(number_of_subplots/2+1,2,v)
-	    ax1.plot(angle_x[i],angle_y[i],'r--',x_spline,y_spline)
+	    #Interpolate with B-Spline
+	    x_spline,y_spline = interpolate_spline(angle_x_l[i], angle_y_l[i],id_curve)
+	    ax1.plot(angle_x_l[i],angle_y_l[i],'r--',x_spline,y_spline)
 
 	    title_plot = title + ' : ' + list_name[i] 
 
@@ -197,27 +273,32 @@ def compute_acp(angle_x,angle_y,plot):
 
 #####################################################################
 
+l = []
+"""
+x = range(1,200)
+xr = range(1,199)[::-1]
+x.extend(xr)
+x.extend(x)
+x.extend(x)
+y = [1+random.uniform(-0.1,0.1) for i in range(len(x))]
 
+xs,ys = interpolate_spline(x,y,1,500)
+plt.plot(x,y,'r--',xs,ys)
+#plt.plot(l[0],l[1],'bo')
 
+plt.ylim(-2,2)
+plt.show()
+"""
 direct = '../bonnes_mesures/'
 list_dir = next(os.walk(direct))[1]
 list_dir = [direct+s for s in list_dir]
 list_path=[]
 for path in list_dir:
 	list_path.extend(glob.glob(path+'/*.orpl'))
-cpt = 0
-list_path = list_path[:6]
-
-
-plot_example(list_path,1)
-plot_example(list_path,2)
-plot_example(list_path,3)
-cpt+=1
-"""
-for index in range(len(list_path)):
-	y,p,r = get_file_data(list_path[index])
-	vep1,vep2 = compute_acp(y,p,True)
-	vep1,vep2 = compute_acp(p,r,True)
-	vep1,vep2 = compute_acp(r,y,True)
-"""
+for i in range(5,10):
+	x,y,r = get_file_data(list_path[i])
+	xs,ys = interpolate_spline(x,y,1,500)
+	plt.plot(x,y,'r--',xs,ys)
+	plt.plot(l[0],l[1],'bo')
+	plt.show()
 
