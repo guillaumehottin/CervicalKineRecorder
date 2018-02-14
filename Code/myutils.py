@@ -7,7 +7,29 @@ import time
 from shapely.wkt import loads
 
 #Generate clusters based on their center and radius
-def generate_clusters(centers,radii,npts_by_clusters):
+def generate_clusters(centers,radii,npts_by_cluster):
+    """
+    Generate clusters of a specified number of points based on their centers and 
+    radii. The repartition is done randomly around the center.
+    
+    Parameters
+    ----------
+    centers : array of 2-array of real
+            The list of centers coordinates.
+    radii : array of real
+            The list of radii of the clusters. Must have the same length as centers.
+    npts_by_cluster : int
+            Number of points by cluster.
+        
+    Returns
+    -------
+    tuple 
+            (x, y, pts) : x and y are lists containing all x-axis and y-axis 
+            coordinates, respectively. 
+            pts is a list of the points coordinates
+    """
+    if len(centers) != len(radii):
+        raise ValueError('centers and radii must have the same length.')
     pts = []
     x = []
     y = []
@@ -15,7 +37,7 @@ def generate_clusters(centers,radii,npts_by_clusters):
         xj = centers[j][0]
         yj = centers[j][1]
         rj = radii[j]
-        for i in range(npts_by_clusters):
+        for i in range(npts_by_cluster):
             theta = rd.random()*2*np.pi
             mod = rd.random()
             xi = xj+rj*mod*np.cos(theta)

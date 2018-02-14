@@ -5,6 +5,25 @@ import myutils
 import re
 
 def plot_from_file(name_file,name_dir,save_fig=0,show=1,scatter=0,norm=1):
+    """
+    Plot the three angular planes given a path to a file containing the data.
+    
+    Parameters
+    ----------
+    name_file : str
+            The name of the file (not the full path).
+    name_dir : str
+            The path to the directory which contains the file targeted.
+    save_fig : bool
+            True to save the figure in the same directory. By default False.
+    show : bool
+            True to show the figure. By default True.
+    scatter : bool
+            True to scatter the points instead of plotting lines. By default False.
+    norm : bool
+            True to use normalized data which must be contained in a subdirectory 
+            named 'Normalized'. By default True.
+    """
     (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'/'+name_file)
     fig = plot_figs(pitch_l,yaw_l,roll_l,show,scatter,norm)
     if save_fig:
@@ -18,14 +37,34 @@ def plot_from_file(name_file,name_dir,save_fig=0,show=1,scatter=0,norm=1):
     plt.close(fig)
 	
 def plot_figs(pitch_l,yaw_l,roll_l,show=1,scatter=0,norm=1):
-	# row and column sharing
-	#f = plt.figure(1)
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     """
+    Plot the three angular planes given the three angles.
+    
+    Parameters
+    ----------
+    pitch_l : list
+            The pitch angles.
+    roll_l : list
+            The roll angles.
+    yaw_l : list
+            The yaw angles.
+    show : bool
+            True to show the figure. By default True.
+    scatter : bool
+            True to scatter the points instead of plotting lines. By default False.
+    norm : bool
+            True to use normalized data which must be contained in a subdirectory 
+            named 'Normalized'. By default True.
+            
+    Returns
+    -------
+    figure
+            The corresponding figure.
+    """
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     for ax in [ax1,ax2,ax3]:
         ax.set_xlim([0, 1])
         ax.set_ylim([0, 1])
-    """
     if norm:
         (pitch_l,yaw_l,roll_l) = normalize(pitch_l,yaw_l,roll_l)
     if scatter:
@@ -43,8 +82,30 @@ def plot_figs(pitch_l,yaw_l,roll_l,show=1,scatter=0,norm=1):
         plt.show()
     return fig
 
-def plot_all(motion,name_dir,save_fig,show,scatter,norm):
-    stg = motion + ".txt"
+def plot_all(motion,name_dir,save_fig,show,scatter,norm,extension):
+    """
+    Plot figures using all the matching data available in a given directory.
+    
+    Parameters
+    ----------
+    motion : str
+            The type of movement: either 'Yaw', 'Pitch' or 'Roll'.
+    name_dir : str 
+            The (either relative or absolute) path to the directory which contains 
+            the data.
+    save_fig : bool
+            True to save the figure in the same directory. By default False.
+    show : bool
+            True to show the figure. By default True.
+    scatter : bool
+            True to scatter the points instead of plotting lines. By default False.
+    norm : bool
+            True to use normalized data which must be contained in a subdirectory 
+            named 'Normalized'. By default True.
+    extension : str
+            The extension of the data files.
+    """
+    stg = motion + '.' + extension
     list_dir = os.listdir(name_dir)
     l = []
     for name in list_dir:
@@ -62,6 +123,25 @@ def normalize(pitch_l,yaw_l,roll_l):
 """
 
 def normalize(pitch_l,yaw_l,roll_l):
+    """
+    Normalize the data. This is done using the global maximum and minimum values of the
+    three angles. For every value x, the normalized value is:
+        (x-min)/(max-min)
+        
+    Parameters
+    ----------
+    pitch_l : list
+            The pitch angles.
+    roll_l : list
+            The roll angles.
+    yaw_l : list
+            The yaw angles.
+    Returns
+    -------
+    tuple
+            Contains three lists, each corresponding to an angle, with the 
+            normalized value. 
+    """
     amin = np.amin([np.amin(pitch_l),np.amin(yaw_l),np.amin(roll_l)])    
     amax = np.amax([np.amax(pitch_l),np.amax(yaw_l),np.amax(roll_l)])    
     normalized_pitch = (pitch_l-amin)/(amax-amin)
@@ -69,8 +149,22 @@ def normalize(pitch_l,yaw_l,roll_l):
     normalized_roll = (roll_l-amin)/(amax-amin)
     return normalized_pitch,normalized_yaw,normalized_roll
     
-def save_normalized(motion,name_dir):
-    stg = motion + ".txt"
+def save_normalized(motion, name_dir, extension):
+    """
+    Save the normalized data in a subdirectory named 'Normalized' with the same 
+    format as the original data.
+    
+    Parameters
+    ----------
+    motion : str
+            The type of movement: either 'Yaw', 'Pitch' or 'Roll'.
+    name_dir : str 
+            The (either relative or absolute) path to the directory which contains 
+            the data.
+    extension : str
+            The extension of the data files.
+    """
+    stg = motion + '.' + extension
     list_dir = os.listdir(name_dir)
     l = []
     for name in list_dir:
@@ -100,10 +194,11 @@ if __name__ == '__main__':
     scatter = 0
     show = 1 # to plot the figure
     norm = 1 # to normalize data before processing it
+    extension = 'txt'
     
     for directory in list_dir:
     	for motion in motions:
-    		#save_normalized(motion,directory)
-    		plot_all(motion,directory,save_fig,show,scatter,norm)
+    		#save_normalized(motion,directory,extension)
+    		plot_all(motion,directory,save_fig,show,scatter,norm,extension)
 
 # plot_all('Lacet','.',0,1,0)
