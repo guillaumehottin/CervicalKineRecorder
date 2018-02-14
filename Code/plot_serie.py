@@ -19,10 +19,10 @@ directory = '../bonnes_mesures/'
 
 def normalize(pitch_l, yaw_l, roll_l):
     """ Normalization of data
-    :param pitch_l: tangage
-    :param yaw_l: lacet
-    :param roll_l: roulis
-    :return: les données normalisées
+    :param pitch_l: list of pitch movement
+    :param yaw_l: list of yaw movement
+    :param roll_l: list of roll movement
+    :return: 3 lists, 1 for each movement, filled with normalized data
     """
     amin = np.amin([np.amin(pitch_l), np.amin(yaw_l), np.amin(roll_l)])
     amax = np.amax([np.amax(pitch_l), np.amax(yaw_l), np.amax(roll_l)])
@@ -32,10 +32,10 @@ def normalize(pitch_l, yaw_l, roll_l):
     return normalized_pitch, normalized_yaw, normalized_roll
 
 
-def make_list_directory(dir_name):
+def get_list_directory(dir_name):
     """ Construct the list of every patient folder's path
-    :param dir_name: chemin vers le dossier des patients
-    :return: list_path : liste de toutes les données
+    :param dir_name: path which leads to the data base
+    :return: list_path : list of each path of each data
     """
     list_dir = next(os.walk(dir_name))[1]
     list_dir = [dir_name + s for s in list_dir]  # contient la liste de tous les dossiers patients
@@ -46,6 +46,14 @@ def make_list_directory(dir_name):
 
 
 def get_wavelet(pitch_l, yaw_l, roll_l):
+    """
+    Calculates wavelet transformation for each movement list
+    :param pitch_l: list of pitch movement
+    :param yaw_l: list of yaw movement
+    :param roll_l: list of roll movement
+    :return: for each list, returns 2 list corresponding to the wavelet transformation
+    ex : (pitch_a, pitch_d) for pitch_l, etc...
+    """
     pitch_a, pitch_d = pywt.dwt(pitch_l, 'db1')
     yaw_a, yaw_d = pywt.dwt(yaw_l, 'db1')
     roll_a, roll_d = pywt.dwt(roll_l, 'db1')
@@ -53,6 +61,13 @@ def get_wavelet(pitch_l, yaw_l, roll_l):
 
 
 def get_fourrier(pitch_l, yaw_l, roll_l):
+    """
+    Calculate the fourrier transformation of a data set
+    :param pitch_l: pitch data list
+    :param yaw_l: yaw data list
+    :param roll_l: roll data list
+    :return: 3 lists corresponding to the fourrier transformation of each data.
+    """
     fft_pitch = np.fft.fft(pitch_l)
     fft_yaw = np.fft.fft(yaw_l)
     fft_roll = np.fft.fft(roll_l)
@@ -60,7 +75,13 @@ def get_fourrier(pitch_l, yaw_l, roll_l):
 
 
 def get_all_fourrier(dir_name, norm=1):
-    list_path = make_list_directory(dir_name)
+    """
+    Calculates and returns every fourrier decomposition of a data base
+    :param dir_name: path which leads to the data base
+    :param norm: optional, 1 if you want to norm your data base, 0 if not.
+    :return: returns every fourrier decomposition of a data base, for each movement.
+    """
+    list_path = get_list_directory(dir_name)
     all_fft_pitch = [[]]
     all_fft_yaw = [[]]
     all_fft_roll = [[]]
@@ -83,9 +104,9 @@ def get_all_fourrier(dir_name, norm=1):
 
 def plot_all_superposed_fourrier(dir_name, norm=1, save=0):
     """ Plot a figure with every fourrier decomposition superposed
-    :param dir_name: chemin vers le dossiers des patients
-    :param norm: optionel, 1 si on veut normer les données, 0 sinon
-    :param save: pareil pour sauvegarder des figures
+    :param dir_name: path which leads to the data base
+    :param norm: optional, 1 if you want to norm data, 0 if not
+    :param save: optional, 1 if you want to save figures, 0 if not
     """
     fig_superposed_fourrier, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     fig_superposed_fourrier.suptitle('Superposed Fourrier decomposition 1D')
@@ -109,6 +130,14 @@ def plot_all_superposed_fourrier(dir_name, norm=1, save=0):
 
 
 def plot_one(current_file, type_plot, norm=1, save=0):
+    """
+    Plot curves corresponding to a single data set
+    :param current_file: path which leads to the data set
+    :param type_plot: which type of ploting : fourrier decomposition, time movement, 3d movement, wavelet transformation
+    :param norm: optional, 1 if you want to norm your data set, 0 if not
+    :param save: optional, 1 if you want to save the figures, 0 if not
+    :return: Void
+    """
     assert type_plot == 'fourrier' or type_plot == '3d' or type_plot == 'time' or type_plot == 'wavelet'
 
     (pitch_l, yaw_l, roll_l) = myutils.get_coord(current_file)
@@ -208,13 +237,21 @@ def plot_one(current_file, type_plot, norm=1, save=0):
 
 
 def plot_all(dir_name, type_plot, norm=1, save=0):
-    list_path = make_list_directory(dir_name)
+    """
+    Plot all the data base in a row
+    :param dir_name: path which leads to the data base
+    :param type_plot: type of plotting : 3d, Time, Fourrier, Wavelet
+    :param norm: optional, 1 if you want to norm each data, 0 if not
+    :param save: optional, 1 if you want to save the figures, 0 if not
+    :return: void
+    """
+    list_path = get_list_directory(dir_name)
 
     for current_file in list_path:
         plot_one(current_file, type_plot, norm, save)
 
 
-liste = make_list_directory(directory)
+liste = get_list_directory(directory)
 # plot_all(directory, 'time')
 plot_all_superposed_fourrier(directory, save=0, norm=1)
 # plot_one(liste[0], 'wavelet', save=1, norm=0)
