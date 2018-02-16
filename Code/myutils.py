@@ -75,13 +75,29 @@ def array2MP(pts):
     points = [geometry.asPoint(p) for p in pts]
     return geometry.MultiPoint(list(points))
 
+
+def check_letter(x):
+    return x == 'f' or x == 'e' or x == 'd'
+
 #Define RGBA color
 def RGBA_arg():
     hex_str = hex(int(rd.random()*16777215))[2:]
+    hex_str = 'ffefdf'
     n = len(hex_str)
     while n < 6:
         hex_str = '0'+hex_str
         n = len(hex_str)
+    if check_letter(hex_str[0]) and check_letter(hex_str[2]) and check_letter(hex_str[4]):
+        print('ok')
+        index = 2*rd.randint(0,2)
+        res_str = ''
+        for i in range(len(hex_str)):
+            if i == index:
+                char = str(rd.randint(0,9))
+            else:
+                char = hex_str[i]
+            res_str += char
+        hex_str = res_str
     return '#'+hex_str
     
 #To fetch files in a specified folder and its sub folders, returns the list of the paths to theses files
@@ -112,9 +128,9 @@ def get_coord(file_path):
         pitch_l.append(elems[1])
         roll_l.append(elems[2])
 
-    pitch_l = list(map(float, pitch_l))
-    yaw_l = list(map(float, yaw_l))
-    roll_l = list(map(float, roll_l))
+    pitch_l = np.array(list(map(float, pitch_l)))
+    yaw_l = np.array(list(map(float, yaw_l)))
+    roll_l = np.array(list(map(float, roll_l)))
 
     return (pitch_l,yaw_l,roll_l)
 
