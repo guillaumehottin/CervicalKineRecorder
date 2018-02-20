@@ -1,9 +1,0 @@
-Fri Sep 29 15_40_55 2017 - Lacet : 
-Fri Sep 29 15_42_01 2017 - Lacet : 
-Fri Sep 29 15_43_00 2017 - Roulis : 
-Fri Dec  8 13_47_53 2017 - Lacet : neutre
-Fri Dec  8 13_48_57 2017 - Lacet : cale droite
-Fri Dec  8 13_49_50 2017 - Lacet : cale gauche
-Fri Dec  8 13_50_47 2017 - Lacet : debout 
-Fri Dec  8 13_51_44 2017 - Lacet : pied nu droit
-Fri Dec  8 13_52_37 2017 - Lacet : pied nu gauche
