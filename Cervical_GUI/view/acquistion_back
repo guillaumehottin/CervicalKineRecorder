@@ -6,7 +6,7 @@ from PyQt5.QtGui import QFont, QTextDocument
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QPushButton, QInputDialog, QMessageBox, QWidget
 import os
 
-from model.file_manager import create_directory, get_file_name_from_absolute_path, create_file_with_curves, read_file, \
+from model.file_manager import create_directory, get_file_name_from_absolute_path, create_file_with_curves, \
     get_coord, create_last_profile_used_file, add_profile_used, get_param_from_file, get_all_directories
 from model.myutils import RGBA_arg
 from model.plot_canvas import PlotCanvas

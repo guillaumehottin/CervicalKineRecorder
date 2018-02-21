@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QWidget
 
 from controller.my_window_controller import MyWindowController
 from model.file_manager import create_last_profile_used_file

@@ -14,6 +14,8 @@ from model.plot_canvas import PlotCanvas
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
+
+INFO_FILE_EXTENSION = ".txt"
 DEBUG               = False
 
 #TODO CHANGE CONST LOCATION TO CONTROLLER

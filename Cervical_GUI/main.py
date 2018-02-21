@@ -1,5 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
+
+from view.acquistion import Acquisition
 from view.my_window import MyWindow
 import subprocess
 

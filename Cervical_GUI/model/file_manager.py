@@ -5,12 +5,10 @@ import ntpath
 from datetime import datetime
 from PyQt5.QtWidgets import QMessageBox
 
-from controller.my_window_controller import MyWindowController
-
 FILE_EXTENSION      = ".txt"
 # TODO CHANGE TO ORPL
 # FILE_EXTENSION      = ".orpl"
-PATH_TO_STORE_FILES  = MyWindowController.PATH_TO_STORE_FILE
+PATH_TO_STORE_FILES  = "./data/"
 LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
 # DEBUG
 DEBUG = False
