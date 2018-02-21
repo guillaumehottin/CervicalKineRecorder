@@ -85,8 +85,7 @@ class NewProfileDialog(object):
 
     @pyqtSlot(name="accept_button_handler")
     def accept_button_handler(self):
-        print("H2HE")
-        self.parent.accepted.emit()
+        print("11111111111111H2HE")
 
     # static method to create the dialog and return (first_name, last_name, age, accepted)
     @staticmethod
