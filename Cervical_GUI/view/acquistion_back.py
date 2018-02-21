@@ -6,16 +6,11 @@ from PyQt5.QtGui import QFont, QTextDocument
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QPushButton, QInputDialog, QMessageBox, QWidget
 import os
 
-from controller.link_oculus import LinkOculus
 from model.file_manager import create_directory, get_file_name_from_absolute_path, create_file_with_curves, read_file, \
     get_coord, create_last_profile_used_file, add_profile_used, get_param_from_file, get_all_directories
 from model.myutils import RGBA_arg
 from model.plot_canvas import PlotCanvas
 
-#from PyQt5.QtCore import pyqtSlot, pyqtSignal
-#from matplotlib.figure import Figure
-#import matplotlib.pyplot as plt
-#import numpy as np
 from view.model_generator_dialog import ModelGeneratorDialog
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets, is_pyqt5
