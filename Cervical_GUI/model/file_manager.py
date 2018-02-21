@@ -6,19 +6,22 @@ from datetime import datetime
 from PyQt5.QtWidgets import QMessageBox
 from os import path
 
-# TODO DOC
 
 FILE_EXTENSION      = ".txt"
 # TODO CHANGE TO ORPL
 # FILE_EXTENSION      = ".orpl"
-PATH_TO_STORE_FILE  = "./data/"
+PATH_TO_STORE_FILES  = "./data/"
 LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
 # DEBUG
 DEBUG = False
 
 
 def get_all_directory_files(directory_path_string):
-    # TODO DOC
+    """
+    Function used to retrieve all files contained in the given directory path and matching the FILE_EXTENSION
+    :param directory_path_string: String containing the directory path we have to look
+    :return: String list containing each file name we found
+    """
     new_path = directory_path_string.replace("\\", "/").strip("\n")
     list_files = os.listdir(new_path)
 
@@ -37,8 +40,11 @@ def get_all_directory_files(directory_path_string):
 
 
 def get_all_directories():
-    # TODO DOC
-    path = os.path.abspath(PATH_TO_STORE_FILE)
+    """
+    Function used to retrieve the list of directories contained in PATH_TO_STORE_FILES
+    :return: String list containing the list of directories names found
+    """
+    path = os.path.abspath(PATH_TO_STORE_FILES)
     list_dir = os.listdir(path)
     i = 0
     # Go through all files and check if it's a directory
@@ -49,20 +55,22 @@ def get_all_directories():
         else:
             i += 1
 
-    print("=== file_manager.py === PATH TO EXPLORE " + str(PATH_TO_STORE_FILE))
+    print("=== file_manager.py === PATH TO EXPLORE " + str(PATH_TO_STORE_FILES))
     print("=== file_manager.py === ALL DIRECTORIES " + str(list_dir))
     return list_dir
 
 
 def get_file_name_from_absolute_path(absolute_path):
-    # TODO DOC
+    """
+    This function is used to get the file name from a given absolute path
+    :param absolute_path: String containing the given absolute path we have to split
+    :return: String containing the file name we found
+    """
     head, tail = ntpath.split(absolute_path)
     return tail or ntpath.basename(head)
 
 
 def create_directory(directory_name):
-    # TODO DOC
-
     """
     Function used to create a directory with the given directory name
     :param directory_name: the name of the new directory
@@ -70,11 +78,11 @@ def create_directory(directory_name):
     """
     try:
         # Get absolute path from directory name
-        abs_path = os.path.abspath(PATH_TO_STORE_FILE + directory_name)
+        abs_path = os.path.abspath(PATH_TO_STORE_FILES + directory_name)
 
         if not os.path.isdir(abs_path):
-            os.makedirs(PATH_TO_STORE_FILE+directory_name)
-            return os.path.abspath(PATH_TO_STORE_FILE+directory_name)
+            os.makedirs(PATH_TO_STORE_FILES + directory_name)
+            return os.path.abspath(PATH_TO_STORE_FILES + directory_name)
         else:
             DEBUG and print("==== file_manager.py ==== ERROR: directory already exist")
             raise OSError
@@ -83,7 +91,11 @@ def create_directory(directory_name):
 
 
 def get_coord(file_path):
-    # TODO DOC
+    """
+    Function used to parse the file at the given file_path and retrieve the list of values it contains (yaw, pitch roll)
+    :param file_path: String, the file path we have to parse
+    :return: String list, String list, String list - Three lists containing the yaw pitch rolls values
+    """
 
     # Get list of coordinates in an ORPL file (yaw,pitch_roll)
     f = open(file_path, "r")
@@ -118,7 +130,12 @@ def get_coord(file_path):
 
 
 def create_last_profile_used_file():
-    # TODO DOC
+    """
+    This function is used to create or read the LAST_PROFILE_USED_FILE_NAME file content located in the current
+    directory
+    If it does not exist yet, we create it otherwise we read it and retrieve info
+    :return:
+    """
     abs_path = os.path.abspath("./"+LAST_PROFILE_USED_FILE_NAME)
     # If the file does not exist yet, we create it
     if not os.path.isfile(abs_path):
@@ -135,7 +152,7 @@ def create_last_profile_used_file():
             # otherwise we do not return them
             i = 0
             while i < len(list_profiles):
-                abs_path_dir = os.path.abspath(PATH_TO_STORE_FILE+list_profiles[i].strip("\n"))
+                abs_path_dir = os.path.abspath(PATH_TO_STORE_FILES + list_profiles[i].strip("\n"))
                 print("==== file_manager.py ==== CURRENT PATH: " + abs_path_dir)
 
                 # If the directory does not exist anymore we delete the line
@@ -149,7 +166,11 @@ def create_last_profile_used_file():
 
 
 def add_profile_used(profile_name):
-    # TODO DOC
+    """
+    This function is used to add a profile to the last profile used if it does not appear in it yet
+    :param profile_name: String, the profile name we have to add to the file
+    :return: Boolean to know whether it has been added or not
+    """
     # We open the file in writing mode that was created before
     # And we return all the profiles
     try:
@@ -208,7 +229,7 @@ def create_file_with_curves(path, data, param):
 
     # Create the file
     try:
-        abs_path = os.path.abspath(PATH_TO_STORE_FILE + path + file_name)
+        abs_path = os.path.abspath(PATH_TO_STORE_FILES + path + file_name)
         print("=== file_manager.py === ABSOLUTE PATH " + abs_path)
 
         with open(abs_path, 'w') as file:
@@ -279,10 +300,10 @@ def get_param_from_file(file_path):
 
 def read_file(path):
     # Get absolute path from given path
-    abs_path = os.path.abspath(PATH_TO_STORE_FILE+path)
+    abs_path = os.path.abspath(PATH_TO_STORE_FILES + path)
     print("=== file_manager.py === INFO FILE PATH:" + abs_path)
     if os.path.isfile(abs_path):
-        with open(PATH_TO_STORE_FILE + path, "r") as file:
+        with open(PATH_TO_STORE_FILES + path, "r") as file:
             info_read = file.read()
             print("=== file_manager.py === FILE CONTENT READ: " + info_read)
             return info_read

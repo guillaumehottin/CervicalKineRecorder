@@ -350,6 +350,11 @@ class Acquisition(QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(window)
 
     def retranslate_ui(self, window):
+        """
+        This function is used to define the label of each displayable component according to the locale
+        THE CURRENT PROJECT (21/02/2018) DOES NOT SUPPORT MULTILANGUAGE
+        :return: Nothing
+        """
         _translate = QtCore.QCoreApplication.translate
         window.setWindowTitle(_translate("MainWindow", "MainWindow"))
         # LABELS
