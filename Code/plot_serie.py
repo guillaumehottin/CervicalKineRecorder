@@ -159,6 +159,13 @@ def get_all_correlate(dir_name, norm=1, mode='same'):
 
 
 def get_all_wavelet(dir_name, type_wavelet='morl', norm=1):
+    """
+    Get all the wavelet decomposition of the data base
+    :param dir_name: path which leads to the data base
+    :param type_wavelet: type of the wavelet applied for the decomposition, Morlet is default
+    :param norm: optional, 1 if you want the data to be normed
+    :return: 3 lists of list. Each of these contains the lists of each wavelet transformation results
+    """
     list_path = get_list_directory(dir_name)
     all_wavelet_pitch = []
     all_wavelet_yaw = []
@@ -238,7 +245,15 @@ def plot_all_superposed_correlate(dir_name, norm=1, save=0, mode='same'):
             fig_superposed_correlate.savefig(dir_name + 'superposedCorrelate.png')
 
 
-def plot_all_superposed_wavelet(dir_name, type_wavelet, norm=1, save=0):
+def plot_all_superposed_wavelet(dir_name, type_wavelet='morl', norm=1, save=0):
+    """
+    Plots the superposition of every wavelet decomposition of the data base, along the 3 axis.
+    :param dir_name: path which leads to the data base
+    :param type_wavelet: type of the wavelet applied for the decomposition
+    :param norm: optional, 1 if you want the data to be normed
+    :param save: optional, 1 if you want to save the figures
+    :return: void
+    """
     fig_superposed_wavelet, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     fig_superposed_wavelet.suptitle('Superposed wavelet decomposition 1D')
 
@@ -357,3 +372,14 @@ def plot_all(dir_name, type_plot, type_wavelet='morl', norm=1, save=0):
 
     for current_file in list_path:
         plot_one(current_file, type_plot=type_plot, type_wavelet=type_wavelet, norm=norm, save=save)
+
+
+def plot_data(pitch_l, yaw_l, roll_l):
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+    ax1.plot(pitch_l)
+    ax2.plot(yaw_l)
+    ax3.plot(roll_l)
+    ax1.set_title('Pitch')
+    ax2.set_title('Yaw')
+    ax2.set_title('Roll')
+    fig.show()
