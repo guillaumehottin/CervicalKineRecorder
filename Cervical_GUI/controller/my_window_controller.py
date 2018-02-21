@@ -10,12 +10,23 @@ from view.curves_dialog import CurvesDialog
 from view.model_generator_dialog import ModelGeneratorDialog
 from view.new_profile_dialog import NewProfileDialog
 
-PATH_TO_STORE_FILE      = "./data/"
+DEBUG               = False
 
 
 class MyWindowController(QObject):
+    """
+    This class is used to define all the logic behing my_window.py GUI
+    Here you will find all button handler
+    """
+
+    PATH_TO_STORE_FILE = "./data/"
+    GIT_LINK = "https://github.com/guillaumehottin/projetlong"
 
     def __init__(self, view):
+        """
+        Function used to create the controller and init each attribute
+        :param view: the corresponding view (here acquisition.py)
+        """
         super(MyWindowController, self).__init__()
 
         # ATTRIBUTES
@@ -27,10 +38,17 @@ class MyWindowController(QObject):
 
     @pyqtSlot(name="new_profile_menu_handler")
     def new_profile_menu_handler(self):
+        """
+        Handler called when the new profile menu is triggered
+        It open a new_profile_dialog.py to allow the user to fill in first name, last name and age
+        If a same profile (same firstname, lastname, age) is already existing it displays a pop-up
+        If everything is OK, It automagically update the UI according to the selected profile
+        :return: Nothing
+        """
         self.first_name, self.last_name, self.age, accepted = NewProfileDialog.get_info()
 
         if accepted:
-            print("=== acquisition.py === User info : \n " +
+            DEBUG and print("=== my_window_controller.py === User info : \n " +
                     "FIRST NAME " + self.first_name + "\n" +
                     "LAST NAME " + self.last_name + "\n" +
                     "AGE " + self.age)
@@ -40,10 +58,10 @@ class MyWindowController(QObject):
                 # Update label value
                 self.view.update_ui(True, self.first_name, self.last_name, self.age)
 
-                print("=== acquisition.py === DIRECTORY CREATED AT: " + self.directory_path)
+                DEBUG and print("=== my_window_controller.py === DIRECTORY CREATED AT: " + self.directory_path)
 
             except OSError:
-                print("=== acquisition.py === DIRECTORY ALREADY EXIST AT: " + self.directory_path)
+                DEBUG and print("=== my_window_controller.py === DIRECTORY ALREADY EXIST AT: " + self.directory_path)
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
                 msg.setText("Dossier déjà existant")
@@ -52,12 +70,19 @@ class MyWindowController(QObject):
                 msg.exec()
 
         else:
-            print("=== acquisition.py === OPERATION CANCELED")
+            DEBUG and print("=== my_window_controller.py === OPERATION CANCELED")
 
     @pyqtSlot(name="load_profile_menu_handler")
     def load_profile_menu_handler(self):
+        """
+        Handler called when the load profile menu is triggered
+        It opens a browse directory dialog and allow the user to select a directory
+        If the directory selected is already opened in the GUI, it displays a pop up and does not open it again
+        If everything is ok, It automagically update the UI according to the selected profile
+        :return: Nothing
+        """
         new_path = str(QFileDialog.getExistingDirectory(self, "Sélectionner un dossier",
-                                                        PATH_TO_STORE_FILE, QFileDialog.ShowDirsOnly))
+                                                        self.PATH_TO_STORE_FILE, QFileDialog.ShowDirsOnly))
 
         # If the user canceled
         if not new_path:
@@ -78,7 +103,7 @@ class MyWindowController(QObject):
             msg.exec()
             return
 
-        print("=== acquisition.py === FOLDER LOADED : " + self.directory_path)
+        DEBUG and print("=== acquisition.py === FOLDER LOADED : " + self.directory_path)
 
         directory_name = get_file_name_from_absolute_path(self.directory_path)
 
@@ -90,14 +115,14 @@ class MyWindowController(QObject):
 
             self.view.update_ui(True, self.first_name, self.last_name, self.age)
 
-            print("=== acquisition.py === User info : \n " +
+            DEBUG and print("=== acquisition.py === User info : \n " +
                   "FIRST NAME " + self.first_name + "\n" +
                   "LAST NAME " + self.last_name + "\n" +
                   "AGE " + self.age)
 
         except ValueError:
             # DISPLAY POP UP ERROR AND DO NOTHING
-            print("=== acquisition.py === INCORRECT FOLDER NAME")
+            DEBUG and print("=== acquisition.py === INCORRECT FOLDER NAME")
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Format de dossier incorrect")
@@ -109,6 +134,11 @@ class MyWindowController(QObject):
 
     @pyqtSlot(name="load_last_profile_used")
     def load_last_profile_used(self):
+        """
+        Handler called when a profile is loaded from the last profile used list
+        It automagically update the UI according to the selected profile
+        :return: Nothing
+        """
         sending_button  = self.view.sender()
         text_button     = sending_button.text()
 
@@ -126,12 +156,12 @@ class MyWindowController(QObject):
             else:
                 [self.last_name, self.first_name, self.age] = [new_last_name, new_first_name, new_age]
                 add_profile_used(self.last_name + "_" + self.first_name + "_" + self.age.strip("\n"))
-                self.directory_path = os.path.abspath(PATH_TO_STORE_FILE + text_button.replace(" ", "_")).strip("\n")
+                self.directory_path = os.path.abspath(self.PATH_TO_STORE_FILE + text_button.replace(" ", "_")).strip("\n")
                 self.view.update_ui(True, self.first_name, self.last_name, self.age)
 
         except ValueError:
             # DISPLAY POP UP ERROR AND DO NOTHING
-            print("=== acquisition.py === INCORRECT FOLDER NAME")
+            DEBUG and print("=== acquisition.py === INCORRECT FOLDER NAME")
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Format de dossier incorrect")
@@ -143,10 +173,17 @@ class MyWindowController(QObject):
 
     @pyqtSlot(name="load_curves_menu_handler")
     def load_curves_menu_handler(self):
-        print('LOAD CURVES: ' + self.directory_path)
+        """
+        Handler called when the load curves menu is triggered
+        It opens the curves_dialog.py and allow the user to select the curves he wants to display on the graph
+        If the user confirm his operation, it updates the graph according to the selected curves
+        Otherwise it does nothing
+        :return: Nothing
+        """
+        DEBUG and print('=== my_window_controller.py === LOAD CURVES: ' + self.directory_path)
         curves_on_graph, accepted = CurvesDialog.get_result(self.directory_path,
                                                                  self.view.tab_acquisition.get_curves_on_graph())
-        print("CURVES SELECTED ",  str(curves_on_graph))
+        DEBUG and print("=== my_window_controller.py === CURVES SELECTED ",  str(curves_on_graph))
         # The user choose some curves
         if accepted:
             # Empty attributes and graph
@@ -157,17 +194,29 @@ class MyWindowController(QObject):
 
     @pyqtSlot(name="load_files_model_handler")
     def load_files_model_handler(self):
-        print('LOAD FILES' + self.directory_path)
+        """
+        Handler called when the regenerate model menu is triggered
+        It opens the model_generator_dialog and allow the user to select the profile he wants to use to
+        generate the the model
+        According to them it regenerates the model
+        :return: Nothing
+        """
+        DEBUG and print('LOAD FILES' + self.directory_path)
         directories_for_model, accepted = ModelGeneratorDialog.get_result(self.directory_path)
 
         # The user choose some directories
         if accepted:
-            print("=== acquisition.py === selected directories: " + str(directories_for_model))
-
+            DEBUG and print("=== acquisition.py === selected directories: " + str(directories_for_model))
+            #TODO regenerates model
         else:  # The user cancel his operation
             pass
 
     @pyqtSlot(name="about_menu_handler")
     def about_menu_handler(self):
-        print('ABOUT')
-        webbrowser.open(GIT_LINK, new=2)
+        """
+        Handler called when the about menu is called
+        It opens a web browser to the link of our github project
+        :return:
+        """
+        DEBUG and print('=== my_window_controller.py === ABOUT')
+        webbrowser.open(self.GIT_LINK, new=2)

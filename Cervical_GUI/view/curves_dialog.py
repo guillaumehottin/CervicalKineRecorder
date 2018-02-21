@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QDialog
 
 from model.file_manager import get_all_directory_files
 
-PATH_TO_STORE_FILE  = "./data/"
+DEBUG               = True
 
 
 class CurvesDialog(object):
@@ -69,8 +69,8 @@ class CurvesDialog(object):
         list_curves = get_all_directory_files(self.directory_path)
 
         if len(list_curves) > 0:
-            print("LIST CURVES: " + str(list_curves))
-            print("ALREADY SELECTED CURVES: " + str(self.already_selected_curves))
+            DEBUG and print("=== curves_dialog.py === LIST CURVES: " + str(list_curves))
+            DEBUG and print("=== curves_dialog.py === ALREADY SELECTED CURVES: " + str(self.already_selected_curves))
             for i in range(0, len(list_curves)):
                 # Add curve name as first column
                 item_curve_name = QStandardItem(list_curves[i])
@@ -123,7 +123,7 @@ class CurvesDialog(object):
         This functin is used to go through all the model and retrieve the selected curves
         :return: String list containing the selected curves
         """
-        print("=== curves_dialog.py === Get selected curves")
+        DEBUG and print("=== curves_dialog.py === Get selected curves")
         selected_curves = []
         i = 0
         while self.model.item(i):

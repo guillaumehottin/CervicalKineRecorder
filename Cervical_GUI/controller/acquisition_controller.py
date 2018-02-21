@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QMessageBox
 
 from model.file_manager import create_file_with_curves
 
+DEBUG = False
+
 
 class AcquisitionController(QObject):
     """
@@ -55,7 +57,7 @@ class AcquisitionController(QObject):
         :return: Nothing
         """
         if self.view.startStopButton.text() == "Lancer acquisition":
-            print('START')
+            DEBUG and print('=== acquisition_controller.py === START')
             self.selected_movement = self.view.comboBox.currentText()
             self.angle = self.view.text_angle.text()
             self.speed = self.view.text_speed.text()
@@ -67,7 +69,7 @@ class AcquisitionController(QObject):
             #         "profileName": "guillaumelethug", "sphereGreenToYellowAngle": "0.1", "sphereYellowToRedAngle": "0.2"}
             #
             #
-            # print("=== acquisition.py === Acquisition info : \n" +
+            # DEBUG and print("=== acquisition.py === Acquisition info : \n" +
             #         "MOV: " + str(self.comboBox.currentText()) + "\n" +
             #         "ANGLE: " + str(self.angle) + "\n" +
             #         "SPEED: " + str(self.speed) + "\n" +
@@ -84,7 +86,7 @@ class AcquisitionController(QObject):
             # self.sock_serv = SocketServer()
             # self.sock_serv.start(HOST, PORT)
             #
-            # print(self.sock_serv.receive())
+            # DEBUG and print(self.sock_serv.receive())
             #
             # time_to_wait = calculate_time_for_finish(CONF)
             # self.send_continue_thread = SendContinue(self.sock_serv, time_to_wait)
@@ -99,16 +101,16 @@ class AcquisitionController(QObject):
             self.view.startStopButton.setStyleSheet("background-color: red; color:white")
 
         elif self.view.startStopButton.text() == "Arrêter acquisition":
-            print('STOP')
+            DEBUG and print('=== acquisition_controller.py === STOP')
             # TODO STOP ACQUISITION
             # self.sock_serv.send("stopAcquisition")
             # self.sock_serv.close()
-            # print("SENT")
+            # DEBUG and print("SENT")
             # self.sock_serv = SocketServer()
-            # print("NEW")
+            # DEBUG and print("NEW")
             # self.sock_serv.start(AcquisitionController.HOST, AcquisitionController.PORT)
-            # print("started")
-            # print(self.sock_serv.receive())
+            # DEBUG and print("started")
+            # DEBUG and print(self.sock_serv.receive())
             # self.sock_serv.close()
             self.view.startStopButton.setText("Lancer acquisition")
             self.view.startStopButton.setStyleSheet("background-color: green; color:white")
@@ -144,14 +146,14 @@ class AcquisitionController(QObject):
                                          confirmation_msg, QMessageBox.Yes, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
-                print("SUPPRESION EN COURS")
+                DEBUG and print("=== acquisition_controller.py === SUPPRESION EN COURS")
                 self.view.clear_graph()
 
                 # Empty attribute
                 self.curves_on_graph    = []
 
             else:
-                print("ANNULATION")
+                DEBUG and print("=== acquisition_controller.py === ANNULATION")
 
     @pyqtSlot(name="save_curves_button_handler")
     def save_curves_button_handler(self):
@@ -161,7 +163,7 @@ class AcquisitionController(QObject):
         and save them into a file
         :return: Nothing
         """
-        print('SAVE CURVES')
+        DEBUG and print('=== acquisition_controller.py === SAVE CURVES')
 
         # TODO CHECK USE
         data = self.yaw_pitch_roll

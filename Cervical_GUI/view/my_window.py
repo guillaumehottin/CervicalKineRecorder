@@ -10,7 +10,6 @@ from view.modelization import Modelization
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
-GIT_LINK                        = "https://github.com/guillaumehottin/projetlong"
 APP_ICON                        = "./icone.ico"
 LAST_PROFILE_USED_LIST_LIMIT    = 5
 

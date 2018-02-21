@@ -14,8 +14,7 @@ from model.plot_canvas import PlotCanvas
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
-PATH_TO_STORE_FILE  = "./data/"
-INFO_FILE_EXTENSION          = ".txt"
+DEBUG               = False
 
 #TODO CHANGE CONST LOCATION TO CONTROLLER
 HOST = "localhost"
@@ -325,7 +324,7 @@ class Acquisition(QWidget):
         self.acquisition_controller.yaw_pitch_roll      = []
         yaw_pitch_roll          = []
 
-        print("=== acquisition.py === selected curves: " + str(list_curves))
+        DEBUG and print("=== acquisition.py === selected curves: " + str(list_curves))
         for file_name in list_curves:
             [yaw_l, pitch_l, roll_l] = get_coord(os.path.join(directory_path, file_name))
             yaw_pitch_roll.append([yaw_l, pitch_l, roll_l])

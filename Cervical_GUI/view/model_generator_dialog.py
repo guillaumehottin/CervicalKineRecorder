@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 
 from model.file_manager import get_all_directories
 
+DEBUG = False
+
 
 class ModelGeneratorDialog(object):
     """
@@ -70,8 +72,8 @@ class ModelGeneratorDialog(object):
 
         # Check if there is some directories to display
         if len(list_directories) > 0:
-            print("LIST DIRECTORIES: " + str(list_directories))
-            # print("ALREADY SELECTED CURVES: " + str(self.already_selected_profiles))
+            DEBUG and print("=== model_generator_dialog.py === LIST DIRECTORIES: " + str(list_directories))
+            # DEBUG and print("=== model_generator_dialog.py === ALREADY SELECTED CURVES: " + str(self.already_selected_profiles))
             # GO THROUGH EACH FOLDER FOUND AND PUT IT IN THE LIST VIEW
             for i in range(0, len(list_directories)):
                 item = QStandardItem(list_directories[i])
@@ -115,7 +117,7 @@ class ModelGeneratorDialog(object):
         This functin is used to go through all the model and retrieve the selected profiles
         :return: String list containing the selected profiles
         """
-        print("=== model_generator_dialog.py === Get selected directories")
+        DEBUG and print("=== model_generator_dialog.py === Get selected directories")
         selected_directories = []
         i = 0
         while self.model.item(i):

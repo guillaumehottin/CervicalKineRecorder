@@ -8,6 +8,8 @@ from model.plot_canvas import PlotCanvas
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
+DEBUG = False
+
 
 class Modelization(QWidget):
     """
