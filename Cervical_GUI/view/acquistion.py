@@ -2,50 +2,44 @@
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QMessageBox, QWidget
-from model.socket_server import *
+from PyQt5.QtWidgets import QWidget
+
+from controller.acquisition_controller import AcquisitionController
 import os
 
-from model.file_manager import create_file_with_curves,\
-    get_coord, get_param_from_file
+from model.file_manager import get_coord, get_param_from_file
 from model.myutils import RGBA_arg
 from model.plot_canvas import PlotCanvas
 
 from view.new_profile_dialog import *
-from matplotlib.backends.qt_compat import QtCore, QtWidgets, is_pyqt5
+from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
-PATH_TO_STORE_FILE  = "./data/"
-INFO_FILE_EXTENSION          = ".txt"
 
-if is_pyqt5():
-    from matplotlib.backends.backend_qt5agg import (
-        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-else:
-    from matplotlib.backends.backend_qt4agg import (
-        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+INFO_FILE_EXTENSION = ".txt"
+DEBUG               = False
 
-INIT_ANGLE      = 70.0
-INIT_SPEED      = 25
-INIT_NB_RETURN  = 5
-INIT_WAIT_TIME = 0.2
-LAST_PROFILE_USED_LIST_LIMIT = 5
-
+#TODO CHANGE CONST LOCATION TO CONTROLLER
 HOST = "localhost"
 PORT = 50007
 
+
 class Acquisition(QWidget):
+    """
+    This class is the GUI of the acquisition tabs
+    Here you can find every aspect of the Widget display (orientation, position, layouts, connection to handler, etc.)
+    The logical behind this GUI is located in acquisition_controller.py
+    """
 
     def __init__(self, window):
+        """
+        This function is used to define and instanciate all class attributes of this class
+        :param window: Window in which is displayed this GUI
+        """
         super(Acquisition, self).__init__()
 
         # ATTRIBUTES
-        self.parent             = window
-        self.selected_movement  = "Lacet"
-        self.angle              = INIT_ANGLE
-        self.speed              = INIT_SPEED
-        self.nb_return          = INIT_NB_RETURN
-        self.wait_time          = INIT_WAIT_TIME
-        self.curves_on_graph    = []
+        self.parent                 = window
+        self.acquisition_controller = AcquisitionController(self)
 
         self.parent.setObjectName("Acquisition")
         self.centralwidget      = QtWidgets.QWidget(self.parent)
@@ -107,14 +101,15 @@ class Acquisition(QWidget):
         self.emptyGraph         = QtWidgets.QPushButton("emptyGraph", self.gridLayoutWidget)
 
         self.setup_ui()
-        self.sock_serv = SocketServer()
-        self.sock_serv.start(HOST, PORT)
+        # self.sock_serv = SocketServer()
+        # self.sock_serv.start(HOST, PORT)
 
     def setup_ui(self):
-
-        ###################################################################
-        #### ACQUISITION TAB
-        ###################################################################
+        """
+        This function is used to manage each widget and component used in this GUI
+        Here, layouts are filled in, buttons are set up, etc.
+        :return: Nothing
+        """
 
         # CENTRAL WIDGET ACQUISITION
         self.setLayout(self.gridLayout)
@@ -196,25 +191,14 @@ class Acquisition(QWidget):
         # COMBO BOX
         self.comboBox.setObjectName("comboBox")
 
-        # DEACTIVATE ALL FIELD AND BUTTON
-        self.text_area_comment.setEnabled(False)
-        self.comboBox.setEnabled(False)
-        self.text_angle.setEnabled(False)
-        self.text_speed.setEnabled(False)
-        self.text_nb_return.setEnabled(False)
-        self.text_wait_time.setEnabled(False)
-        self.startStopButton.setEnabled(False)
-        self.saveButton.setEnabled(False)
-        self.emptyGraph.setEnabled(False)
-
         # BUTTONS LISTENER
-        self.startStopButton.clicked.connect(self.start_stop_button_handler)
-        self.emptyGraph.clicked.connect(self.empty_graph_button_handler)
-        self.saveButton.clicked.connect(self.save_curves_button_handler)
+        self.startStopButton.clicked.connect(self.acquisition_controller.start_stop_button_handler)
+        self.emptyGraph.clicked.connect(self.acquisition_controller.empty_graph_button_handler)
+        self.saveButton.clicked.connect(self.acquisition_controller.save_curves_button_handler)
 
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
-        # SPIN BOX
+        # SPIN BOXES
         self.text_angle.setMinimum(0.5)
         self.text_angle.setMaximum(90)
         self.text_angle.setSingleStep(1)
@@ -235,6 +219,11 @@ class Acquisition(QWidget):
         QtCore.QMetaObject.connectSlotsByName(self.parent)
 
     def retranslate_ui(self):
+        """
+        This function is used to define the label of each displayable component according to the locale
+        THE CURRENT PROJECT (21/02/2018) DOES NOT SUPPORT MULTILANGUAGE
+        :return: Nothing
+        """
         _translate = QtCore.QCoreApplication.translate
         # LABELS
         self.label_nom_prenom.setText(_translate("MainWindow", "Nom prénom age"))
@@ -246,140 +235,56 @@ class Acquisition(QWidget):
         self.label_wait_time.setText(_translate("MainWindow", "Temps d'arrêt entre chaque aller retour"))
 
         # SPINBOX
-        self.text_angle.setValue(INIT_ANGLE)
-        self.text_speed.setValue(INIT_SPEED)
-        self.text_nb_return.setValue(INIT_NB_RETURN)
-        self.text_wait_time.setValue(INIT_WAIT_TIME)
+        self.text_angle.setValue(self.acquisition_controller.INIT_ANGLE)
+        self.text_speed.setValue(self.acquisition_controller.INIT_SPEED)
+        self.text_nb_return.setValue(self.acquisition_controller.INIT_NB_RETURN)
+        self.text_wait_time.setValue(self.acquisition_controller.INIT_WAIT_TIME)
 
         # BUTTONS
         self.startStopButton.setText(_translate("MainWindow", "Lancer acquisition"))
         self.saveButton.setText(_translate("MainWindow", "Enregistrer"))
         self.emptyGraph.setText(_translate("MainWindow", "Vider les graphiques"))
 
-    @pyqtSlot(name="start_stop_button_handler")
-    def start_stop_button_handler(self):
-
-        if self.startStopButton.text() == "Lancer acquisition":
-            print('START')
-            self.selected_movement  = self.comboBox.currentText()
-            self.angle              = self.text_angle.text()
-            self.speed              = self.text_speed.text()
-            self.nb_return          = self.text_nb_return.text()
-            self.wait_time         = self.text_wait_time.text()
-
-            CONF = {"sphereSpeed": str(self.speed), "sphereLimitAngle": str(self.angle), "sphereWaitTime": str(self.wait_time),
-                    "sphereCountdownTime": "3", "sphereRoundTripNumber": str(self.nb_return),
-                    "profileName": "guillaumelethug", "sphereGreenToYellowAngle": "0.1", "sphereYellowToRedAngle": "0.2"}
-
-
-            print("=== acquisition.py === Acquisition info : \n" +
-                    "MOV: " + str(self.comboBox.currentText()) + "\n" +
-                    "ANGLE: " + str(self.angle) + "\n" +
-                    "SPEED: " + str(self.speed) + "\n" +
-                    "NB RETURN: " + str(self.nb_return) + "\n" +
-                    "TIME LIMIT: " + str(self.wait_time) + "\n")
-
-
-
-            message = build_startAcquisition_message(CONF)
-
-            self.sock_serv.send(message)
-            self.sock_serv.close()
-
-            self.sock_serv = SocketServer()
-            self.sock_serv.start(HOST, PORT)
-
-            print(self.sock_serv.receive())
-
-            time_to_wait = calculate_time_for_finish(CONF)
-            self.send_continue_thread = SendContinue(self.sock_serv, time_to_wait)
-            self.send_continue_thread.start()
-
-
-
-            # TODO LAUNCH ACQUISITION
-
-            # UPDATE BUTTON START/STOP
-            self.startStopButton.setText("Arrêter acquisition")
-            self.startStopButton.setStyleSheet("background-color: red; color:white")
-
-        elif self.startStopButton.text() == "Arrêter acquisition":
-            print('STOP')
-            # TODO STOP ACQUISITION
-            self.sock_serv.send("stopAcquisition")
-            self.sock_serv.close()
-            print("SENT")
-            self.sock_serv = SocketServer()
-            print("NEW")
-            self.sock_serv.start(HOST, PORT)
-            print("started")
-            print(self.sock_serv.receive())
-            self.sock_serv.close()
-            self.startStopButton.setText("Lancer acquisition")
-            self.startStopButton.setStyleSheet("background-color: green; color:white")
-            # self.send_continue_thread.send = False
-            self.sock_serv = SocketServer()
-            self.sock_serv.start(HOST, PORT)
-
-    @pyqtSlot(name="empty_graph_button_handler")
-    def empty_graph_button_handler(self):
-
-        if len(self.curves_on_graph) == 0:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Graphiques vide")
-            msg.setInformativeText("Aucune courbes n'est affiché actuellement")
-            msg.setWindowTitle("Information")
-            msg.exec()
-        else:
-            confirmation_msg = "Etes vous sur de vouloir supprimer des graphiques toutes " \
-                               "les courbes affichées ? (" + len(self.curves_on_graph) + " Courbes)"
-            reply = QMessageBox.question(self, 'Attention !',
-                                         confirmation_msg, QMessageBox.Yes, QMessageBox.No)
-
-            if reply == QMessageBox.Yes:
-                print("SUPPRESION EN COURS")
-                self.clear_graph()
-
-                # Empty attribute
-                self.curves_on_graph    = []
-
-            else:
-                print("ANNULATION")
-
-    @pyqtSlot(name="save_curves_button_handler")
-    def save_curves_button_handler(self):
-        print('SAVE CURVES')
-
-        data    = self.yaw_pitch_roll
-
-        self.selected_movement  = self.comboBox.currentText()
-        self.angle              = self.text_angle.text()
-        self.speed              = self.text_speed.text()
-        self.nb_return          = self.text_nb_return.text()
-        self.wait_time         = self.text_wait_time.text()
-
-        param   = [self.selected_movement, self.angle, self.speed, self.nb_return, self.wait_time,
-                   self.text_area_comment.toPlainText()]
-
-        # Write Data into file with parameters and comment
-        create_file_with_curves(self.last_name+"_"+self.first_name+"_"+self.age+"/", data, param)
-
-    def add_comment(self, hour, comment):
-        # TODO DOC
+    def add_comment(self, hour_parameters, comments):
+        """
+        This function is used to fill in the comment text area with new comments.
+        If the area was not empty before, we append the content given
+        Otherwise we clear it and we put the given comments in it
+        We put comments like this:
+            hour & parameters :
+            Comment
+        :param hour_parameters: A string which will be the title of the comment
+                (normally DAY/MONTH/YEAR HH:MM:SS - Max_angle° - speed°/s
+        :param comments: string containing the comments we have to display
+        :return: Nothing
+        """
         old_content = "" if self.text_area_comment.toPlainText() == "" else self.text_area_comment.toPlainText() + "\n"
         self.text_area_comment.setPlainText(old_content +
-                                            hour + ":\n" +
-                                            comment)
+                                            hour_parameters + ":\n" +
+                                            comments)
 
     def clear_graph(self):
-        # TODO DOC
+        """
+        This function is used to empty the three displayed graph and the corresponding parameters
+        :return: Nothing
+        """
+        self.acquisition_controller.curves_on_graph = []
+        self.acquisition_controller.yaw_pitch_roll  = []
         self.canvas_up_right.clear()
         self.canvas_down_right.clear()
         self.canvas_down_left.clear()
 
     def update_ui(self, enable, first_name, last_name, age):
-        # TODO DOC
+        """
+        This function is used to enable or disable the displayed fields and to set the principal label
+        to the given first name, last name and age
+        It also clear the comment area, clear the graph and set the start button background to green
+        :param enable: Boolean used to enable or disable GUI fields
+        :param first_name: First name to display
+        :param last_name: Last name to display
+        :param age: Age to display
+        :return: Nothing
+        """
         # UPDATE NAME LABEL
         self.label_nom_prenom.setText(first_name.title() + " " + last_name.title() + " - " +
                                       age.strip("\n") + " ans")
@@ -406,13 +311,22 @@ class Acquisition(QWidget):
             self.startStopButton.setStyleSheet("background-color: green; color:white")
 
     def draw_curves(self, list_curves, directory_path):
-        # TODO DOC
+        """
+        This function is used to draw on the graph the curves given as parameters
+        It clear the comment area, clear the graph, go through each curves name and
+        for each it retrieve its values (yaw, pitch, roll) from the file in the directory_path and display it
+        on the three graph
+        :param list_curves: List of string containing the curves name to draw on the graph
+        :param directory_path: String containing the path where we have to look for the given curves names
+        :return: Nothing
+        """
         self.clear_graph()
         self.text_area_comment.clear()
-        self.curves_on_graph    = list_curves
+        self.acquisition_controller.curves_on_graph     = list_curves
+        self.acquisition_controller.yaw_pitch_roll      = []
         yaw_pitch_roll          = []
 
-        print("=== acquisition.py === selected curves: " + str(list_curves))
+        DEBUG and print("=== acquisition.py === selected curves: " + str(list_curves))
         for file_name in list_curves:
             [yaw_l, pitch_l, roll_l] = get_coord(os.path.join(directory_path, file_name))
             yaw_pitch_roll.append([yaw_l, pitch_l, roll_l])
@@ -437,3 +351,13 @@ class Acquisition(QWidget):
             self.canvas_up_right.plot(yaw_l, pitch_l, legend=legend, color=color)
             self.canvas_down_right.plot(pitch_l, roll_l, color=color)
             self.canvas_down_left.plot(yaw_l, roll_l, color=color)
+
+        # Update controller attribute
+        self.acquisition_controller.yaw_pitch_roll = yaw_pitch_roll
+
+    def get_curves_on_graph(self):
+        """
+        This function returns the list of curves names currently displayed on the graph
+        :return: List of String containing curves names
+        """
+        return self.acquisition_controller.curves_on_graph

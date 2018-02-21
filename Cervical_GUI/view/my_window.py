@@ -1,61 +1,45 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QPushButton, QInputDialog, QMessageBox, QWidget, QVBoxLayout
-import os
+from PyQt5.QtWidgets import QMainWindow, QWidget
 
-from model.file_manager import create_directory, get_file_name_from_absolute_path, \
-    create_last_profile_used_file, add_profile_used
+from controller.my_window_controller import MyWindowController
+from model.file_manager import create_last_profile_used_file
 
 from view.acquistion import Acquisition
-from view.model_generator_dialog import ModelGeneratorDialog
 from view.modelization import Modelization
 from view.new_profile_dialog import *
-from matplotlib.backends.qt_compat import QtCore, QtWidgets, is_pyqt5
-from view.curves_dialog import CurvesDialog
-import webbrowser
+from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
-PATH_TO_STORE_FILE      = "./data/"
-INFO_FILE_EXTENSION     = ".txt"
-GIT_LINK                = "https://github.com/guillaumehottin/projetlong"
-APP_ICON                = "./icone.ico"
-
-INIT_ANGLE      = 70.0
-INIT_SPEED      = 25
-INIT_NB_RETURN  = 5
-INIT_WAIT_TIME = 0.2
-LAST_PROFILE_USED_LIST_LIMIT = 5
+APP_ICON                        = "./icone.ico"
+LAST_PROFILE_USED_LIST_LIMIT    = 5
 
 
 class MyWindow(QMainWindow):
+    """
+    This class is used to define the main window GUI
+    Here you can find the menu bar & status bar set up, the tab instanciation and other set up on the window on itself
+    """
 
     def __init__(self, window):
+        """
+        This function is used to declare and instanciate all class attributes
+        :param window: The window in which this GUI will be displayed
+        """
         super(MyWindow, self).__init__()
 
-        # ATTRIBUTES
-        self.directory_path     = ""
-        self.first_name         = "Prénom"
-        self.last_name          = "Nom"
-        self.age                = "âge"
-        self.curves_on_graph    = []
-        self.selected_movement  = "Lacet"
-        self.angle              = INIT_ANGLE
-        self.speed              = INIT_SPEED
-        self.nb_return          = INIT_NB_RETURN
-        self.wait_time          = INIT_WAIT_TIME
-        self.yaw_pitch_roll     = []
+        # WINDOW SETTINGS
+        window.setObjectName("Cervical")
+        window.resize(814, 590)
+        window.setWindowIcon(QtGui.QIcon(APP_ICON))
 
-        ###################################################################
-        #### MAIN WINDOW
-        ###################################################################
+        # ATTRIBUTES
+        self.my_window_controller   = MyWindowController(self)
+        self.parent                 = window
 
         # TAB WIDGET
         self.tabs               = QtWidgets.QTabWidget(window)
         self.tab_acquisition    = Acquisition(self.tabs)
         self.tab_modelization   = Modelization(self.tabs)
-
-        window.setObjectName("Cervical")
-        window.resize(814, 590)
-        window.setWindowIcon(QtGui.QIcon(APP_ICON))
 
         # MENU BAR
         self.menubar            = QtWidgets.QMenuBar(window)
@@ -91,7 +75,8 @@ class MyWindow(QMainWindow):
                     self.last_profiles_actions.insert(i, QtWidgets.QAction(window))
                     self.last_profiles_actions[i].setObjectName("action_"+item)
                     self.last_profiles_actions[i].setText(item.replace("_", " "))
-                    self.last_profiles_actions[i].triggered.connect(self.load_last_profile_used)
+                    self.last_profiles_actions[i].triggered.connect(
+                        lambda: self.my_window_controller.load_last_profile_used())
                     self.menu_last_profile.addAction(self.last_profiles_actions[i])
 
                 i += 1
@@ -100,29 +85,26 @@ class MyWindow(QMainWindow):
 
         # Disable all fields in acquisition tab
         self.update_ui(False)
-        self.setup_ui(window)
+        self.setup_ui()
 
-    def setup_ui(self, window):
-
+    def setup_ui(self):
+        """
+        This function is used to set up the component position and logical
+        It fills in the menu bar, create action and link them to handler
+        :return: Nothing
+        """
         # TABS
         self.tabs.addTab(self.tab_acquisition, "Acquisition")
         self.tabs.addTab(self.tab_modelization, "Modélisation")
-        window.setCentralWidget(self.tabs)
-
-        ###################################################################
-        #### ACQUISITION TAB
-        ###################################################################
-
-        ###################################################################
-        #### MAIN WINDOW
-        ###################################################################
 
         #### MENUBAR
         self.menubar.setGeometry(QtCore.QRect(0, 0, 814, 21))
 
-        window.setMenuBar(self.menubar)
+        # WINDOW SETTINGS
+        self.parent.setCentralWidget(self.tabs)
+        self.parent.setMenuBar(self.menubar)
         self.statusbar.setObjectName("statusbar")
-        window.setStatusBar(self.statusbar)
+        self.parent.setStatusBar(self.statusbar)
 
         ## ACTIONS
         self.action_new_profile.setObjectName("actionNouveau_profil")
@@ -132,12 +114,13 @@ class MyWindow(QMainWindow):
         self.action_documentation.setObjectName("actionDocumentation")
 
         # ACTION LISTENER
-        self.action_new_profile.triggered.connect(self.new_profile_menu_handler)
-        self.action_load_profile.triggered.connect(self.load_profile_menu_handler)
-        self.action_load_curves.triggered.connect(self.load_curves_menu_handler)
-        self.action_load_files_model.triggered.connect(self.load_files_model_handler)
-        self.action_documentation.triggered.connect(self.about_menu_handler)
+        self.action_new_profile.triggered.connect(self.my_window_controller.new_profile_menu_handler)
+        self.action_load_profile.triggered.connect(self.my_window_controller.load_profile_menu_handler)
+        self.action_load_curves.triggered.connect(self.my_window_controller.load_curves_menu_handler)
+        self.action_load_files_model.triggered.connect(self.my_window_controller.load_files_model_handler)
+        self.action_documentation.triggered.connect(self.my_window_controller.about_menu_handler)
 
+        # MENU BAR SET UP
         self.menu_profile.addAction(self.action_new_profile)
         self.menu_profile.addAction(self.action_load_profile)
         self.menu_profile.addAction(self.menu_last_profile.menuAction())
@@ -149,12 +132,17 @@ class MyWindow(QMainWindow):
         self.menubar.addAction(self.menu_model.menuAction())
         self.menubar.addAction(self.menu_about.menuAction())
 
-        self.retranslate_ui(window)
-        QtCore.QMetaObject.connectSlotsByName(window)
+        self.retranslate_ui()
+        QtCore.QMetaObject.connectSlotsByName(self.parent)
 
-    def retranslate_ui(self, window):
+    def retranslate_ui(self):
+        """
+        This function is used to define the label of each displayable component according to the locale
+        THE CURRENT PROJECT (21/02/2018) DOES NOT SUPPORT MULTILANGUAGE
+        :return: Nothing
+        """
         _translate = QtCore.QCoreApplication.translate
-        window.setWindowTitle(_translate("MainWindow", "Cervical"))
+        self.parent.setWindowTitle(_translate("MainWindow", "Cervical"))
 
         # MENU
         self.menu_profile.setTitle(_translate("MainWindow", "Profil"))
@@ -168,159 +156,19 @@ class MyWindow(QMainWindow):
         self.action_load_files_model.setText(_translate("MainWindow", "Regénérer avec..."))
         self.action_documentation.setText(_translate("MainWindow", "Documentation"))
 
-    @pyqtSlot(name="new_profile_menu_handler")
-    def new_profile_menu_handler(self):
-        self.first_name, self.last_name, self.age, accepted = NewProfileDialog.get_info()
-
-        if accepted:
-            print("=== acquisition.py === User info : \n " +
-                    "FIRST NAME " + self.first_name + "\n" +
-                    "LAST NAME " + self.last_name + "\n" +
-                    "AGE " + self.age)
-            try:
-                self.directory_path = create_directory(self.last_name.lower() + "_" + self.first_name.lower() +
-                                                       "_" + self.age)
-                # Update label value
-                self.update_ui(True)
-
-                print("=== acquisition.py === DIRECTORY CREATED AT: " + self.directory_path)
-
-            except OSError:
-                print("=== acquisition.py === DIRECTORY ALREADY EXIST AT: " + self.directory_path)
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setText("Dossier déjà existant")
-                msg.setInformativeText("Le patient que vous avez voulu créé existe déjà, veuillez changer de nom")
-                msg.setWindowTitle("Erreur")
-                msg.exec()
-
-        else:
-            print("=== acquisition.py === OPERATION CANCELED")
-
-    @pyqtSlot(name="load_profile_menu_handler")
-    def load_profile_menu_handler(self):
-        new_path = str(QFileDialog.getExistingDirectory(self, "Sélectionner un dossier",
-                                                        PATH_TO_STORE_FILE , QFileDialog.ShowDirsOnly))
-
-        # If the user canceled
-        if not new_path:
-            return
-
-        old_directory_name = get_file_name_from_absolute_path(self.directory_path).strip("\n")
-        new_directory_name = get_file_name_from_absolute_path(new_path).strip("\n")
-
-        # If the user try to load the same profile as before
-        if old_directory_name != new_directory_name:
-            self.directory_path = new_path
-        else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Profil inchangé")
-            msg.setInformativeText("Le profil que vous avez chargé est déjà chargé dans l'application")
-            msg.setWindowTitle("Information")
-            msg.exec()
-            return
-
-        print("=== acquisition.py === FOLDER LOADED : " + self.directory_path)
-
-        directory_name = get_file_name_from_absolute_path(self.directory_path)
-
-        try:
-            [self.last_name, self.first_name, self.age] = directory_name.split("_")
-
-            # Add profile to "last_profile_used" file
-            add_profile_used(directory_name)
-
-            self.update_ui(True)
-
-            print("=== acquisition.py === User info : \n " +
-                  "FIRST NAME " + self.first_name + "\n" +
-                  "LAST NAME " + self.last_name + "\n" +
-                  "AGE " + self.age)
-
-        except ValueError:
-            # DISPLAY POP UP ERROR AND DO NOTHING
-            print("=== acquisition.py === INCORRECT FOLDER NAME")
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Format de dossier incorrect")
-            msg.setInformativeText("Le dossier que vous avez sélectionné ne suit pas la convention qui est : "
-                                   "Nom_prénom_age")
-            msg.setWindowTitle("Erreur")
-            msg.exec()
-            return
-
-    @pyqtSlot(name="load_last_profile_used")
-    def load_last_profile_used(self):
-        sending_button  = self.sender()
-        text_button     = sending_button.text()
-
-        try:
-            [new_last_name, new_first_name, new_age] = text_button.split(" ")
-            if new_last_name == self.last_name and new_first_name == self.first_name and \
-                    new_age.strip("\n") == self.age.strip("\n"):
-                print("TEST 2")
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setText("Profil inchangé")
-                msg.setInformativeText("Le profil récent que vous avez chargé est déjà chargé dans l'application")
-                msg.setWindowTitle("Information")
-                msg.exec()
-                return
-            else:
-                [self.last_name, self.first_name, self.age] = [new_last_name, new_first_name, new_age]
-                add_profile_used(self.last_name + "_" + self.first_name + "_" + self.age.strip("\n"))
-                self.directory_path = os.path.abspath(PATH_TO_STORE_FILE + text_button.replace(" ", "_")).strip("\n")
-                self.update_ui(True)
-
-        except ValueError:
-            # DISPLAY POP UP ERROR AND DO NOTHING
-            print("=== acquisition.py === INCORRECT FOLDER NAME")
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Format de dossier incorrect")
-            msg.setInformativeText("Le profil récent que vous avez sélectionné n'est plus valide... \n"
-                                   "Veuillez en créer ou en sélectionner un autre ")
-            msg.setWindowTitle("Erreur")
-            msg.exec()
-        return
-
-    @pyqtSlot(name="load_curves_menu_handler")
-    def load_curves_menu_handler(self):
-        print('LOAD CURVES' + self.directory_path)
-        self.curves_on_graph, accepted = CurvesDialog.get_result(self.directory_path, self.curves_on_graph)
-
-        # The user choose some curves
-        if accepted:
-            # Empty attributes and graph
-            self.yaw_pitch_roll = []
-            self.yaw_pitch_roll = self.tab_acquisition.draw_curves(self.curves_on_graph, self.directory_path)
-
-        else:  # The user cancel his operation
-            pass
-
-    @pyqtSlot(name="load_files_model_handler")
-    def load_files_model_handler(self):
-        print('LOAD FILES' + self.directory_path)
-        directories_for_model, accepted = ModelGeneratorDialog.get_result(self.directory_path, self.curves_on_graph)
-
-        # The user choose some directories
-        if accepted:
-            print("=== acquisition.py === selected directories: " + str(directories_for_model))
-
-        else:  # The user cancel his operation
-            pass
-
-    @pyqtSlot(name="about_menu_handler")
-    def about_menu_handler(self):
-        print('ABOUT')
-        webbrowser.open(GIT_LINK, new=2)
-
-    def update_ui(self, enable):
-        # TODO DOC
+    def update_ui(self, enable, first_name="Prénom", last_name="Nom", age="XX"):
+        """
+        This function is used to update the GUI
+        It calls update GUI on the acquisition tab and also enable or disable the load curves menu
+        :param enable: Boolean used to enable or disable fields
+        :param first_name: String containing first name to display
+        :param last_name: String containing last name to display
+        :param age: String containing age to display
+        :return: Nothing
+        """
 
         # REACTIVATE ALL FIELDS AND BUTTONS
-        self.tab_acquisition.update_ui(enable, self.first_name, self.last_name, self.age)
+        self.tab_acquisition.update_ui(enable, first_name, last_name, age)
 
         # MENU
         self.action_load_curves.setEnabled(enable)

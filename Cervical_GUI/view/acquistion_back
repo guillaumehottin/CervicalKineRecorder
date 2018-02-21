@@ -6,7 +6,7 @@ from PyQt5.QtGui import QFont, QTextDocument
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QPushButton, QInputDialog, QMessageBox, QWidget
 import os
 
-from model.file_manager import create_directory, get_file_name_from_absolute_path, create_file_with_curves, read_file, \
+from model.file_manager import create_directory, get_file_name_from_absolute_path, create_file_with_curves, \
     get_coord, create_last_profile_used_file, add_profile_used, get_param_from_file, get_all_directories
 from model.myutils import RGBA_arg
 from model.plot_canvas import PlotCanvas
@@ -350,6 +350,11 @@ class Acquisition(QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(window)
 
     def retranslate_ui(self, window):
+        """
+        This function is used to define the label of each displayable component according to the locale
+        THE CURRENT PROJECT (21/02/2018) DOES NOT SUPPORT MULTILANGUAGE
+        :return: Nothing
+        """
         _translate = QtCore.QCoreApplication.translate
         window.setWindowTitle(_translate("MainWindow", "MainWindow"))
         # LABELS
