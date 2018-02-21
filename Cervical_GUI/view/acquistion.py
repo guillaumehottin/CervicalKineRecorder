@@ -3,6 +3,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMessageBox, QWidget
+from model.socket_server import *
 import os
 
 from model.file_manager import create_file_with_curves,\
@@ -29,6 +30,8 @@ INIT_NB_RETURN  = 5
 INIT_WAIT_TIME = 0.2
 LAST_PROFILE_USED_LIST_LIMIT = 5
 
+HOST = "localhost"
+PORT = 50007
 
 class Acquisition(QWidget):
 
@@ -47,6 +50,8 @@ class Acquisition(QWidget):
         self.parent.setObjectName("Acquisition")
         self.centralwidget      = QtWidgets.QWidget(self.parent)
         self.gridLayoutWidget   = QtWidgets.QWidget(self.centralwidget)
+
+        self.sock_serv = None
 
         ###################################################################
         # ACQUISITION TAB
@@ -102,6 +107,8 @@ class Acquisition(QWidget):
         self.emptyGraph         = QtWidgets.QPushButton("emptyGraph", self.gridLayoutWidget)
 
         self.setup_ui()
+        self.sock_serv = SocketServer()
+        self.sock_serv.start(HOST, PORT)
 
     def setup_ui(self):
 
@@ -259,12 +266,36 @@ class Acquisition(QWidget):
             self.speed              = self.text_speed.text()
             self.nb_return          = self.text_nb_return.text()
             self.wait_time         = self.text_wait_time.text()
+
+            CONF = {"sphereSpeed": str(self.speed), "sphereLimitAngle": str(self.angle), "sphereWaitTime": str(self.wait_time),
+                    "sphereCountdownTime": "3", "sphereRoundTripNumber": str(self.nb_return),
+                    "profileName": "guillaumelethug", "sphereGreenToYellowAngle": "0.1", "sphereYellowToRedAngle": "0.2"}
+
+
             print("=== acquisition.py === Acquisition info : \n" +
                     "MOV: " + str(self.comboBox.currentText()) + "\n" +
                     "ANGLE: " + str(self.angle) + "\n" +
                     "SPEED: " + str(self.speed) + "\n" +
                     "NB RETURN: " + str(self.nb_return) + "\n" +
                     "TIME LIMIT: " + str(self.wait_time) + "\n")
+
+
+
+            message = build_startAcquisition_message(CONF)
+
+            self.sock_serv.send(message)
+            self.sock_serv.close()
+
+            self.sock_serv = SocketServer()
+            self.sock_serv.start(HOST, PORT)
+
+            print(self.sock_serv.receive())
+
+            time_to_wait = calculate_time_for_finish(CONF)
+            self.send_continue_thread = SendContinue(self.sock_serv, time_to_wait)
+            self.send_continue_thread.start()
+
+
 
             # TODO LAUNCH ACQUISITION
 
@@ -275,8 +306,20 @@ class Acquisition(QWidget):
         elif self.startStopButton.text() == "Arrêter acquisition":
             print('STOP')
             # TODO STOP ACQUISITION
+            self.sock_serv.send("stopAcquisition")
+            self.sock_serv.close()
+            print("SENT")
+            self.sock_serv = SocketServer()
+            print("NEW")
+            self.sock_serv.start(HOST, PORT)
+            print("started")
+            print(self.sock_serv.receive())
+            self.sock_serv.close()
             self.startStopButton.setText("Lancer acquisition")
             self.startStopButton.setStyleSheet("background-color: green; color:white")
+            # self.send_continue_thread.send = False
+            self.sock_serv = SocketServer()
+            self.sock_serv.start(HOST, PORT)
 
     @pyqtSlot(name="empty_graph_button_handler")
     def empty_graph_button_handler(self):
