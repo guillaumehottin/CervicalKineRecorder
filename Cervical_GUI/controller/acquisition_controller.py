@@ -16,11 +16,16 @@ class AcquisitionController(QObject):
     """
 
     # First values display when the GUI is launched
-    INIT_ANGLE = 70.0
-    INIT_SPEED = 25
-    INIT_NB_RETURN = 5
-    INIT_WAIT_TIME = 0.2
-    LAST_PROFILE_USED_LIST_LIMIT = 5
+    INIT_ANGLE                      = 70.0
+    INIT_SPEED                      = 25
+    INIT_NB_RETURN                  = 5
+    INIT_WAIT_TIME                  = 0.2
+
+    # OTHER CONSTANT
+    LAST_PROFILE_USED_LIST_LIMIT    = 5
+    COUNT_DOWN_TIME                 = "3"
+    SPHERE_GREEN_TO_YELLOW_ANGLE    = "0.1"
+    SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
 
     # Values used to create the socket and discuss with unity project
     HOST = "localhost"
@@ -77,19 +82,20 @@ class AcquisitionController(QObject):
         if self.view.startStopButton.text() == "Lancer acquisition":
             DEBUG and print('START')
             self.selected_movement = self.view.comboBox.currentText()
-            self.angle = self.view.text_angle.text()
-            self.speed = self.view.text_speed.text()
-            self.nb_return = self.view.text_nb_return.text()
-            self.wait_time = self.view.text_wait_time.text()
+            self.angle = self.view.text_angle.value()
+            self.speed = self.view.text_speed.value()
+            self.nb_return = self.view.text_nb_return.value()
+            self.wait_time = self.view.text_wait_time.value()
 
             # Clear graph to display the next acquisition
             self.view.clear_graph()
 
             self.params = {"sphereSpeed": str(self.speed), "sphereLimitAngle": str(self.angle),
                            "sphereWaitTime": str(self.wait_time),
-                           "sphereCountdownTime": "3", "sphereRoundTripNumber": str(self.nb_return),
-                           "profileName": "guillaumelethug", "sphereGreenToYellowAngle": "0.1",
-                           "sphereYellowToRedAngle": "0.2"}
+                           "sphereCountdownTime": self.COUNT_DOWN_TIME, "sphereRoundTripNumber": str(self.nb_return),
+                           "profileName": "guillaumelethug",
+                           "sphereGreenToYellowAngle": self.SPHERE_GREEN_TO_YELLOW_ANGLE,
+                           "sphereYellowToRedAngle": self.SPHERE_YELLOW_TO_RED_ANGLE}
 
             DEBUG and print("=== acquisition.py === Acquisition info : \n" +
                   "MOV: " + str(self.view.comboBox.currentText()) + "\n" +
@@ -132,7 +138,7 @@ class AcquisitionController(QObject):
         self.view.saveButton.setEnabled(True)
 
         # Update graph with tMP file content
-        self.view.draw_curves([TMP_FILE_PATH], ".")
+        # self.view.draw_curves([TMP_FILE_PATH], ".")
         #TODO ADD CONTENT
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
