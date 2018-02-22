@@ -184,21 +184,21 @@ def save_normalized(motion, name_dir, extension):
             f.write('{0} {1} {2}\n'.format(yaw_l[i],pitch_l[i],roll_l[i]))
         f.close()
 			
+        
 if __name__ == '__main__':
-    motions = ['Lacet','Roulis','test']
-    motions = ['test']
-    dir_name = 'bonnes_mesures/'
+    motions = ['']
+    dir_name = 'data/'
     list_dir = next(os.walk(dir_name))[1]
     list_dir = [dir_name+s for s in list_dir]
     save_fig = 1 # to save the figure
     scatter = 0
-    show = 1 # to plot the figure
+    show = 0 # to plot the figure
     norm = 1 # to normalize data before processing it
-    extension = 'txt'
+    extension = 'orpl'
     
     for directory in list_dir:
     	for motion in motions:
-    		#save_normalized(motion,directory,extension)
-    		plot_all(motion,directory,save_fig,show,scatter,norm,extension)
+    		save_normalized(motion,directory,extension)
+    		#plot_all(motion,directory,save_fig,show,scatter,norm,extension)
 
 # plot_all('Lacet','.',0,1,0)

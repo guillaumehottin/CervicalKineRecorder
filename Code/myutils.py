@@ -103,15 +103,10 @@ def RGBA_arg():
 #To fetch files in a specified folder and its sub folders, returns the list of the paths to theses files
 def fetch_files(dir_name='.',extension='.orpl',sub_dir=''):
     res = []
-    list_dir = next(os.walk(dir_name))[1]
-    for folder in list_dir:
-        if sub_dir == '':
-            path = dir_name+'/'+folder
-        else:
-            path = dir_name+'/'+folder+'/'+sub_dir
-        for file in os.listdir(path):
-            if extension in file:
-                res += [path+'/'+file] 
+    path = dir_name+sub_dir
+    for file in os.listdir(path):
+        if extension in file:
+            res += [path+'/'+file] 
     return res
 
 #Get list of coordinates in an ORPL file (yaw,pitch_roll)
@@ -132,7 +127,7 @@ def get_coord(file_path):
     yaw_l = np.array(list(map(float, yaw_l)))
     roll_l = np.array(list(map(float, roll_l)))
 
-    return (pitch_l,yaw_l,roll_l)
+    return (yaw_l, pitch_l, roll_l)
 
 #Convert n lists of m coordinates into a list of m n-dimensional vectors
 def coord2points(data):

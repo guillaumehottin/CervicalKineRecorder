@@ -7,6 +7,9 @@ from scipy.spatial import Delaunay
 import numpy as np
 import myutils
 
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.spatial import ConvexHull
+
 
 def plot_polygon_MP(polygon):
     """
@@ -248,6 +251,85 @@ def pts_out_poly(poly, pts):
     return n
 
 
+def in_cvx_hull3(hull, pt):
+    """
+    Check whether pt is in hull (3D).
+    
+    Parameters
+    ----------
+    hull : ConvexHull
+            3D points defining the hull
+    pt : array
+            The point
+    
+    Returns
+    -------
+    bool
+            True if pt is in hull.
+    """
+    new_hull = ConvexHull(np.concatenate((hull.points, [pt])))
+    return np.array_equal(new_hull.vertices, hull.vertices)
+
+
+def pts_out_hull3(hull, pts):
+    """
+    Number of points of pts which are in hull (3D).
+    
+    Parameters
+    ----------
+    hull : ConvexHull
+            3D points defining the hull
+    pts : array
+            The set of points
+    
+    Returns
+    -------
+    int
+            Number of points in hull
+    array
+            Coordinates of the points not in hull
+    """
+    
+    """
+    n = 0
+    x = []
+    for pt in pts:
+        if not in_cvx_hull3(hull, pt):
+            n += 1
+            x.append(pt)
+    return n, x
+    """
+    
+    if not isinstance(hull.points,Delaunay):
+        hull = Delaunay(hull.points)
+
+    x = hull.find_simplex(pts)<0
+    indices_out = np.where(x)[0]
+    n = len(indices_out)
+    return n, indices_out
+
+
+def create_model(array_data):
+    """
+    Generate a convex hull which is the union of all convex hulls in the training set.
+    
+    Parameters
+    ----------
+    array_data : array of arrays of points
+            Each element is an array of points.
+            
+    Returns
+    -------
+    Polygon
+            The convex hull
+    """
+    pts = array_data.pop([0])
+    model = pts.convex_hull
+    for pts in array_data:
+        hull = pts.convex_hull
+        model = model.union(hull)
+    return model
+
 #############################################################
 
 if __name__ == '__main__':
@@ -278,4 +360,26 @@ if __name__ == '__main__':
     plot_polygon_MP(hull)
     plt.plot(yaw,pitch)
     print(matching_grid(hull))
+    
+    
+    """
+    pts = np.array(myutils.coord2points([yaw,pitch,roll]))
+    
+    hull = ConvexHull(pts)
 
+    n, notl = pts_out_hull3(hull, pts)
+    
+    #l = [np.where(pts == y)[0][0] for y in x]
+    l = [k for k in range(len(pts)) if k not in notl]
+    
+    fig = plt.figure()
+    ax = plt.subplot(111, projection='3d')
+    ax.scatter(yaw[l], pitch[l], roll[l])
+    
+    x = yaw[notl]
+    y = pitch[notl]
+    z = roll[notl]
+    
+    ax.scatter(x,y,z,'r')
+    plt.show()
+"""

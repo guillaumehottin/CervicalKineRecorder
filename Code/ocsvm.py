@@ -30,7 +30,7 @@ def test_prediction(model, data, target, file):
     file.write("\t\t\t f1: {0}\n\n".format(metrics.f1_score(target, preds)))  
     
 #Testing function for One Class SVM
-def test_ocsvm(m_list, buff_size_list, alpha_list, directory = 'bonnes_mesures/', signal = True):
+def test_ocsvm(m_list, buff_size_list, alpha_list, directory = '.', signal = True):
     """
     A function to test the OneClassSVM algorithm using concave hull discretization.
     
@@ -48,7 +48,7 @@ def test_ocsvm(m_list, buff_size_list, alpha_list, directory = 'bonnes_mesures/'
             Whether to make an audio signal at the end of the execution or not.
     """
     #Fetch the files in which the data will be read
-    files = myutils.fetch_files(dir_name=directory,sub_dir='Normalized')
+    files = myutils.fetch_files(dir_name=directory,sub_dir='Normalized',extension='.txt')
     with open("test_results.txt","a+") as f:
         #Write the date of the beginning of the execution.
         date = datetime.datetime.now()
@@ -101,4 +101,4 @@ if __name__ == '__main__':
     buff_size_list = [0.05]
     alpha_list = [2.8]
     
-    test_ocsvm(m_list, buff_size_list, alpha_list)
+    test_ocsvm(m_list, buff_size_list, alpha_list, directory = 'data')
