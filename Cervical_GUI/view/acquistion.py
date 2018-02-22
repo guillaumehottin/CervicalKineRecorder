@@ -215,6 +215,9 @@ class Acquisition(QWidget):
         self.text_wait_time.setMaximum(10)
         self.text_wait_time.setSingleStep(0.05)
 
+        # Disable save button independently
+        self.saveButton.setEnabled(False)
+
         self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(self.parent)
 
@@ -303,7 +306,6 @@ class Acquisition(QWidget):
         self.text_nb_return.setEnabled(enable)
         self.text_wait_time.setEnabled(enable)
         self.startStopButton.setEnabled(enable)
-        self.saveButton.setEnabled(enable)
         self.emptyGraph.setEnabled(enable)
 
         if enable:

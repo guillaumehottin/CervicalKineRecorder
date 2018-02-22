@@ -21,8 +21,7 @@ class SocketServer:
 
     def __init__(self):
         self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self._s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
+        # self._s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def start(self, host, port_counter):
         self.port = port_counter.get_port()

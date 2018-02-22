@@ -1,17 +1,18 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-from view.acquistion import Acquisition
 from view.my_window import MyWindow
 import subprocess
 
-subprocess.Popen([r"C:\Users\Guillaume\Desktop\cervical.exe"])
-app = QApplication(sys.argv)
-window = QMainWindow()
-# ui = Acquisition(window)
-ui = MyWindow(window)
+# try:
+subprocess.Popen([r"C:\Users\Florian\Documents\projet_long\projetlong\Cervical_GUI\cervical.exe"])
+# except OSError:
+    # print("Application 'Cervical' Oculus non trouvée")
+
+app     = QApplication(sys.argv)
+window  = QMainWindow()
+ui      = MyWindow(window)
 #
-#TODO RUN UNITY APP
 window.show()
 sys.exit(app.exec_())
 
