@@ -15,7 +15,6 @@ from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
 
-INFO_FILE_EXTENSION = ".txt"
 DEBUG               = False
 
 #TODO CHANGE CONST LOCATION TO CONTROLLER
@@ -336,18 +335,22 @@ class Acquisition(QWidget):
             # Pick a random color
             color = RGBA_arg()
 
-            # split the file name
-            # EXAMPLE FILE NAME: 13-2-2018_16_11_46.txt
-            file_name_splitted = file_name.replace("-", "_").split("_")
-            [_, angle, speed, _, _, comment] = get_param_from_file(os.path.join(directory_path, file_name))
+            # If the curve we are going to draw is the curve given by the Unity app
+            if file_name == self.acquisition_controller.TMP_FILE_PATH :
+                legend = "Dernière acquisition"
+            else:
+                # split the file name
+                # EXAMPLE FILE NAME: 13-2-2018_16_11_46.txt
+                file_name_splitted = file_name.replace("-", "_").split("_")
+                [_, angle, speed, _, _, comment] = get_param_from_file(os.path.join(directory_path, file_name))
 
-            #           YEAR                              MONTH                       DAY
-            legend = file_name_splitted[0] + "/" + file_name_splitted[1] + "/" + file_name_splitted[2] + \
-                     " " + file_name_splitted[3] + "h" + file_name_splitted[4] + \
-                     " - " + str(angle) + "° - " + str(speed) + "°/s"
+                #           YEAR                              MONTH                       DAY
+                legend = file_name_splitted[0] + "/" + file_name_splitted[1] + "/" + file_name_splitted[2] + \
+                         " " + file_name_splitted[3] + "h" + file_name_splitted[4] + \
+                         " - " + str(angle) + "° - " + str(speed) + "°/s"
 
-            # LOAD COMMENT
-            self.add_comment(legend, comment)
+                # LOAD COMMENT
+                self.add_comment(legend, comment)
 
             # PLOT DATA
             self.canvas_up_right.plot(yaw_l, pitch_l, legend=legend, color=color)

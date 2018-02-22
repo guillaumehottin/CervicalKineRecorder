@@ -109,13 +109,16 @@ def get_coord(file_path):
             found = True
         j += 1
 
-    # Pop data until the list of coord
-    # Remove also the header:
-    # yaw   pitch   roll
-    data_position = data[j+1:]
+    if not found:
+        data_position = data[2:]
+    else:
+        # Pop data until the list of coord
+        # Remove also the header:
+        # yaw   pitch   roll
+        data_position = data[j+1:]
 
     for i in range(len(data_position)):
-        elems = data_position[i].split(" ")
+        elems = data_position[i].strip("\n").split(" ")
         yaw_l.append(elems[0])
         pitch_l.append(elems[1])
         roll_l.append(elems[2])

@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox
 
@@ -7,7 +9,7 @@ from model.file_manager import create_file_with_curves, get_coord
 from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
 
 DEBUG = False
-TMP_FILE_PATH = "./tmp.orpl"
+
 
 class AcquisitionController(QObject):
     """
@@ -26,6 +28,7 @@ class AcquisitionController(QObject):
     COUNT_DOWN_TIME                 = "3"
     SPHERE_GREEN_TO_YELLOW_ANGLE    = "0.1"
     SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
+    TMP_FILE_PATH                   = "tmp1.orpl"
 
     # Values used to create the socket and discuss with unity project
     HOST = "localhost"
@@ -138,8 +141,8 @@ class AcquisitionController(QObject):
         self.view.saveButton.setEnabled(True)
 
         # Update graph with tMP file content
-        # self.view.draw_curves([TMP_FILE_PATH], ".")
-        #TODO ADD CONTENT
+        self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
+        # TODO ADD CONTENT
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
