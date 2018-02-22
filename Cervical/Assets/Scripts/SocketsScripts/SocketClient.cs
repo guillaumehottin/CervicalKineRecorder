@@ -70,7 +70,8 @@ public class SocketClient : MonoBehaviour {
             bytes = s.Receive(bytesReceived, bytesReceived.Length, 0);
             receivedString = receivedString + Encoding.ASCII.GetString(bytesReceived, 0, bytes);
         } while (bytes > 0);
-
+        s.Shutdown(SocketShutdown.Both);
+        s.Close();
         return receivedString;
     }
 

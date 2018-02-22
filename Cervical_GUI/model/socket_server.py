@@ -1,19 +1,34 @@
 import socket
 import time
+from PyQt5 import QtCore
+
 from threading import Thread
+
+class PortCount:
+
+    def __init__(self, starting_port):
+        self.starting_port = starting_port
+        self.port = starting_port
+
+    def get_port(self):
+        self.port = self.port + 1
+        return self.port - 1
+
+    def reset(self):
+        self.port = self.starting_port
 
 class SocketServer:
 
     def __init__(self):
         self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self._s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 
-    def start(self, host, port):
-        print("bind")
-        self._s.bind((host, port))
-        print("listen")
+    def start(self, host, port_counter):
+        self.port = port_counter.get_port()
+        self._s.bind((host, self.port))
         self._s.listen(1)
-        print("Server started at {0} on port {1}.".format(host, port))
+        print("Server started at {0} on port {1}.".format(host, self.port))
         self._conn, self._addr = self._s.accept()
         print('Connected by {0}.'.format(self._addr[0], self._addr[1]))
 
@@ -37,27 +52,6 @@ class SocketServer:
         self._conn.close()
 
 
-class SendContinue(Thread):
-
-    def __init__(self, socket_server, wait_time):
-        Thread.__init__(self)
-        self.send = False
-        self.socket_server = socket_server
-        self.wait_time = wait_time
-
-    def run(self):
-        print("run thread")
-        time.sleep(calculate_time_for_finish(CONF))
-        print("end sleep")
-
-        if self.send:
-            print("send")
-            self.socket_server.send("finishAcquisition")
-            self.socket_server.close()
-
-            self.socket_server = SocketServer()
-            self.socket_server.start(HOST, PORT)
-
 
 def build_startAcquisition_message(params):
     message = "startAcquisition"
@@ -75,62 +69,3 @@ def calculate_time_for_finish(params):
 
 HOST = "localhost"
 PORT = 50007
-
-CONF = {"sphereSpeed":"20", "sphereLimitAngle":"40", "sphereWaitTime":"0.2",
-        "sphereCountdownTime":"3", "sphereRoundTripNumber":"4",
-        "profileName":"salut", "sphereGreenToYellowAngle":"0.1", "sphereYellowToRedAngle":"0.2"}
-
-# for i in range(3):
-#     print("\n======BEGIN=====")
-#     sock_serv = SocketServer()
-#     sock_serv.start(HOST, PORT)
-#
-#     input("Press return to send 'startAcquisition'.")
-#
-#     message = build_startAcquisition_message(CONF)
-#
-#     sock_serv.send(message)
-#     sock_serv.close()
-#
-#     sock_serv = SocketServer()
-#     sock_serv.start(HOST, PORT)
-#
-#     print(sock_serv.receive())
-#
-#     print(calculate_time_for_finish(CONF))
-#
-#     time.sleep(calculate_time_for_finish(CONF))
-#     sock_serv.send("finishAcquisition")
-#     sock_serv.close()
-#
-#     sock_serv = SocketServer()
-#     sock_serv.start(HOST, PORT)
-#
-#     print(sock_serv.receive())
-#     sock_serv.close()
-
-##    res_input = input("Press s to send 'stopAcquisition', c send 'finishAcquisition'.")
-##    if res_input == "s":
-##        sock_serv.send("stopAcquisition")
-##        sock_serv.close()
-##
-##        sock_serv = SocketServer()
-##        sock_serv.start(HOST, PORT)
-##
-##        print(sock_serv.receive())
-##        sock_serv.close()
-##    elif res_input == "c":
-##        sock_serv.send("finishAcquisition")
-##        sock_serv.close()
-##        
-##        sock_serv = SocketServer()
-##        sock_serv.start(HOST, PORT)
-##        
-##        print(sock_serv.receive())
-##        sock_serv.close()
-#print(repr(sock_serv.receive()))
-#while True:
-#    continue(
-
-
-    
