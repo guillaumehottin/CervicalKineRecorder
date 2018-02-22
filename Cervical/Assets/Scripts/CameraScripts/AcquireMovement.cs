@@ -26,7 +26,7 @@ public class AcquireMovement : MonoBehaviour {
     private bool write;
     // Use this for initialization
     void Start () {
-        outputFilePath = ".orpl";
+        outputFilePath = "tmp.orpl";
         mainCamera = Camera.main;
         start = false;
         stop = false;
@@ -47,7 +47,7 @@ public class AcquireMovement : MonoBehaviour {
             Directory.CreateDirectory("tests/" + profileName);
         }
 
-        outputFilePath = "tests/" + profileName + "/" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "_" + outputFilePath;
+        //outputFilePath = "tests/" + profileName + "/" + System.DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "_" + outputFilePath;
         sr = File.CreateText(outputFilePath);
         sr.WriteLine("yaw pitch roll");
         sr.Close();
