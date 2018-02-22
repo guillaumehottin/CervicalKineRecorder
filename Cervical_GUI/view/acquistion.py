@@ -103,6 +103,8 @@ class Acquisition(QWidget):
         self.setup_ui()
         # self.sock_serv = SocketServer()
         # self.sock_serv.start(HOST, PORT)
+        self.connected = False
+        self.profile_loaded = False
 
     def setup_ui(self):
         """
@@ -288,6 +290,7 @@ class Acquisition(QWidget):
         :param age: Age to display
         :return: Nothing
         """
+        self.profile_loaded = enable
         # UPDATE NAME LABEL
         self.label_nom_prenom.setText(first_name.title() + " " + last_name.title() + " - " +
                                       age.strip("\n") + " ans")
@@ -305,10 +308,10 @@ class Acquisition(QWidget):
         self.text_speed.setEnabled(enable)
         self.text_nb_return.setEnabled(enable)
         self.text_wait_time.setEnabled(enable)
-        self.startStopButton.setEnabled(enable)
+        self.startStopButton.setEnabled(enable and self.connected)
         self.emptyGraph.setEnabled(enable)
 
-        if enable:
+        if enable and self.connected:
             # BUTTONS
             self.startStopButton.setStyleSheet("background-color: green; color:white")
 

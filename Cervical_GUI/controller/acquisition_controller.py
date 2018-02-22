@@ -65,6 +65,7 @@ class AcquisitionController(QObject):
         self.start_server_thread.start()
 
         self.number_of_finish_handlers_to_ignore = 0
+        self.send_continue_thread_id = 0
 
     @pyqtSlot(name="start_stop_button_handler")
     def start_stop_button_handler(self):
@@ -116,7 +117,7 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_finish_thread_completion_handler")
     def handle_send_finish_thread_completion(self, e):
-        if self.number_of_finish_handlers_to_ignore == 0:
+        if self.number_of_finish_handlers_to_ignore == int(e):
             if self.send:
                 self.socket_server.send("finishAcquisition")
                 self.socket_server.close()
@@ -126,8 +127,7 @@ class AcquisitionController(QObject):
                 self.start_server_thread.completeSignal.connect(
                     self.handle_start_server_thread_acquisition_finished_completion)
                 self.start_server_thread.start()
-        else:
-            self.number_of_finish_handlers_to_ignore = self.number_of_finish_handlers_to_ignore - 1
+                self.number_of_finish_handlers_to_ignore += 1
 
     @pyqtSlot(str, name="start_server_thread_acquisition_finished_completion_handler")
     def handle_start_server_thread_acquisition_finished_completion(self, e):
@@ -144,6 +144,10 @@ class AcquisitionController(QObject):
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
         print("server started")
+        self.view.connected = True
+        if self.view.profile_loaded:
+            self.view.startStopButton.setEnabled(True)
+            self.view.startStopButton.setStyleSheet("background-color: green; color:white")
 
     @pyqtSlot(str, name="start_server_thread_acquisition_started_completion_handler")
     def handle_start_server_thread_acquisition_started_completion(self, e):
@@ -151,7 +155,9 @@ class AcquisitionController(QObject):
         time_to_wait = calculate_time_for_finish(self.params)
         self.send = True
         self.send_continue_thread = SendContinueThread(self.socket_server, self.start_server_thread, time_to_wait,
-                                                       self.port_counter)
+                                                       self.port_counter, self.send_continue_thread_id)
+        
+        self.send_continue_thread_id += 1
         self.send_continue_thread.completeSignal.connect(self.handle_send_finish_thread_completion)
         self.send_continue_thread.start()
 

@@ -6,14 +6,15 @@ class SendContinueThread(QtCore.QThread):
     # Signals to relay thread progress to the main GUI thread
     completeSignal = QtCore.pyqtSignal(str)
 
-    def __init__(self, socket_server, socket_server_thread, wait_time, port_count, parent=None):
+    def __init__(self, socket_server, socket_server_thread, wait_time, port_count, id, parent=None):
         super(SendContinueThread, self).__init__(parent)
         # You can change variables defined here after initialization - but before calling start()
         self.send = True
         self.socket_server = socket_server
         self.socket_server_thread = socket_server_thread
         self.wait_time = wait_time
-        self.completion_message = "done"
+        self.id = id
+        self.completion_message = str(self.id)
         self.port_count = port_count
 
     def run(self):
