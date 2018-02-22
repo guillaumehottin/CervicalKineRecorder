@@ -4,7 +4,7 @@ from model.socket_server import *
 
 class SendContinueThread(QtCore.QThread):
     # Signals to relay thread progress to the main GUI thread
-    completeSignal = QtCore.Signal(str)
+    completeSignal = QtCore.pyqtSignal(str)
 
     def __init__(self, socket_server, socket_server_thread, wait_time, port_count, parent=None):
         super(SendContinueThread, self).__init__(parent)
@@ -25,7 +25,7 @@ class SendContinueThread(QtCore.QThread):
 
 
 class StartSocketServerThread(QtCore.QThread):
-    completeSignal = QtCore.Signal(str)
+    completeSignal = QtCore.pyqtSignal(str)
 
     def __init__(self, socket_server, port_count, parent=None):
         super(StartSocketServerThread, self).__init__(parent)
@@ -40,7 +40,7 @@ class StartSocketServerThread(QtCore.QThread):
 
 
 class StartAcquisitionThread(QtCore.QThread):
-    completeSignal = QtCore.Signal(str)
+    completeSignal = QtCore.pyqtSignal(str)
 
     def __init__(self, socket_server, conf, parent=None):
         super(StartAcquisitionThread, self).__init__(parent)
@@ -56,7 +56,7 @@ class StartAcquisitionThread(QtCore.QThread):
 
 
 class StopAcquisitionThread(QtCore.QThread):
-    completeSignal = QtCore.Signal(str)
+    completeSignal = QtCore.pyqtSignal(str)
 
     def __init__(self, socket_server, parent=None):
         super(StopAcquisitionThread, self).__init__(parent)
