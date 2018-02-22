@@ -29,6 +29,11 @@ public class LimitsControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        leftLimit = GameObject.Find("LeftLimit");
+        rightLimit = GameObject.Find("RightLimit");
+        leftLimit.transform.eulerAngles = new Vector3(0, -sphereLimitAngle, 0);
+
+        rightLimit.transform.eulerAngles = new Vector3(0, sphereLimitAngle, 0);
     }
 
 

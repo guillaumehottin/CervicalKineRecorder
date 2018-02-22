@@ -15,7 +15,6 @@ from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
 
-INFO_FILE_EXTENSION = ".txt"
 DEBUG               = False
 
 #TODO CHANGE CONST LOCATION TO CONTROLLER
@@ -103,6 +102,8 @@ class Acquisition(QWidget):
         self.setup_ui()
         # self.sock_serv = SocketServer()
         # self.sock_serv.start(HOST, PORT)
+        self.connected = False
+        self.profile_loaded = False
 
     def setup_ui(self):
         """
@@ -215,6 +216,9 @@ class Acquisition(QWidget):
         self.text_wait_time.setMaximum(10)
         self.text_wait_time.setSingleStep(0.05)
 
+        # Disable save button independently
+        self.saveButton.setEnabled(False)
+
         self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(self.parent)
 
@@ -285,6 +289,7 @@ class Acquisition(QWidget):
         :param age: Age to display
         :return: Nothing
         """
+        self.profile_loaded = enable
         # UPDATE NAME LABEL
         self.label_nom_prenom.setText(first_name.title() + " " + last_name.title() + " - " +
                                       age.strip("\n") + " ans")
@@ -302,11 +307,10 @@ class Acquisition(QWidget):
         self.text_speed.setEnabled(enable)
         self.text_nb_return.setEnabled(enable)
         self.text_wait_time.setEnabled(enable)
-        self.startStopButton.setEnabled(enable)
-        self.saveButton.setEnabled(enable)
+        self.startStopButton.setEnabled(enable and self.connected)
         self.emptyGraph.setEnabled(enable)
 
-        if enable:
+        if enable and self.connected:
             # BUTTONS
             self.startStopButton.setStyleSheet("background-color: green; color:white")
 
@@ -334,18 +338,22 @@ class Acquisition(QWidget):
             # Pick a random color
             color = RGBA_arg()
 
-            # split the file name
-            # EXAMPLE FILE NAME: 13-2-2018_16_11_46.txt
-            file_name_splitted = file_name.replace("-", "_").split("_")
-            [_, angle, speed, _, _, comment] = get_param_from_file(os.path.join(directory_path, file_name))
+            # If the curve we are going to draw is the curve given by the Unity app
+            if file_name == self.acquisition_controller.TMP_FILE_PATH :
+                legend = "Dernière acquisition"
+            else:
+                # split the file name
+                # EXAMPLE FILE NAME: 13-2-2018_16_11_46.txt
+                file_name_splitted = file_name.replace("-", "_").split("_")
+                [_, angle, speed, _, _, comment] = get_param_from_file(os.path.join(directory_path, file_name))
 
-            #           YEAR                              MONTH                       DAY
-            legend = file_name_splitted[0] + "/" + file_name_splitted[1] + "/" + file_name_splitted[2] + \
-                     " " + file_name_splitted[3] + "h" + file_name_splitted[4] + \
-                     " - " + str(angle) + "° - " + str(speed) + "°/s"
+                #           YEAR                              MONTH                       DAY
+                legend = file_name_splitted[0] + "/" + file_name_splitted[1] + "/" + file_name_splitted[2] + \
+                         " " + file_name_splitted[3] + "h" + file_name_splitted[4] + \
+                         " - " + str(angle) + "° - " + str(speed) + "°/s"
 
-            # LOAD COMMENT
-            self.add_comment(legend, comment)
+                # LOAD COMMENT
+                self.add_comment(legend, comment)
 
             # PLOT DATA
             self.canvas_up_right.plot(yaw_l, pitch_l, legend=legend, color=color)

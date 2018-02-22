@@ -44,11 +44,12 @@ public class StartScripts : MonoBehaviour {
     private string message;
     private string state;
 
-    private float waitTime = 1.0f;
+    private float waitTime = 0.3f;
     private float waitedTime;
 
     private bool conf = false;
     private bool connected = false;
+    private int port = 50007;
 
     // Use this for initialization
     void Start () {
@@ -114,9 +115,12 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("connect"))
             {
-                connected = SocketClient.connectSocket("127.0.0.1", 50007);
+                connected = SocketClient.connectSocket("127.0.0.1", port);
                 if (connected)
                 {
+                    Debug.Log("connected new");
+                    Debug.Log(port);
+                    port++;
                     state = "receive";
                 }
 
@@ -130,9 +134,11 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("checkReceive"))
             {
+                Debug.Log("checkReveice");
                 if (socketReceiveJob.Update())
                 {
                     message = socketReceiveJob.message;
+                    Debug.Log(message);
                     if (message != null)
                     {
                         if (message.Contains("startAcquisition"))
@@ -213,13 +219,27 @@ public class StartScripts : MonoBehaviour {
                 limitsControlScript.sphereLimitAngle = sphereLimitAngleLimits;
 
                 sphereControlScript.start = true;
+                state = "sendStartAcquisitionAck";
+                waitedTime = 0.0f;
 
-                SocketClient.connectSocket("127.0.0.1", 50007);
-                socketReceiveJob = new SocketReceive();
+            } else if (state.Equals("sendStartAcquisitionAck"))
+            {
+                waitedTime += Time.deltaTime;
 
-                SocketClient.socketSend("startAcquisitionAck");
-                socketReceiveJob.Start();
-                state = "checkReceiveOrFinished";
+                if (waitedTime > waitTime)
+                {
+                    Debug.Log("connect laaa");
+                    connected = SocketClient.connectSocket("127.0.0.1", port);
+                    if (connected) {
+                        socketReceiveJob = new SocketReceive();
+                        port++;
+
+                        SocketClient.socketSend("startAcquisitionAck");
+                        socketReceiveJob.Start();
+                        state = "checkReceiveOrFinished";
+                    }
+                    
+                }
             }
             else if (state.Equals("checkReceiveOrFinished"))
             {
@@ -250,12 +270,13 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("finished"))
             {
-                connected = SocketClient.connectSocket("127.0.0.1", 50007);
+                connected = SocketClient.connectSocket("127.0.0.1", port);
                 if (connected)
                 {
+                    port++;
                     SocketClient.socketSend("endAcquisition");
 
-                    state = "wait";
+                    state = "receive";
                     waitedTime = 0.0f;
                     float mean = (float)sphereColorScript.acquisitionScore.Sum(x => Convert.ToInt32(x)) / acquireMovementScript.numberOfFrames;
                     Debug.Log(mean);
@@ -265,14 +286,17 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("stopAcquisition"))
             {
+                Debug.Log("stopped");
                 sphereControlScript.stop = true;
 
-                connected = SocketClient.connectSocket("127.0.0.1", 50007);
+                connected = SocketClient.connectSocket("127.0.0.1", port);
 
                 if (connected)
                 {
+                    Debug.Log("connected");
+                    port++;
                     SocketClient.socketSend("stopAcquisitionAck");
-                    state = "wait";
+                    state = "receive";
                     waitedTime = 0.0f;
                 }
 

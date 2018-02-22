@@ -1,7 +1,12 @@
+import os
+
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox
 
-from model.file_manager import create_file_with_curves
+from controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
+    SendContinueThread
+from model.file_manager import create_file_with_curves, get_coord
+from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
 
 DEBUG = False
 
@@ -13,11 +18,17 @@ class AcquisitionController(QObject):
     """
 
     # First values display when the GUI is launched
-    INIT_ANGLE = 70.0
-    INIT_SPEED = 25
-    INIT_NB_RETURN = 5
-    INIT_WAIT_TIME = 0.2
-    LAST_PROFILE_USED_LIST_LIMIT = 5
+    INIT_ANGLE                      = 70.0
+    INIT_SPEED                      = 25
+    INIT_NB_RETURN                  = 5
+    INIT_WAIT_TIME                  = 0.2
+
+    # OTHER CONSTANT
+    LAST_PROFILE_USED_LIST_LIMIT    = 5
+    COUNT_DOWN_TIME                 = "3"
+    SPHERE_GREEN_TO_YELLOW_ANGLE    = "0.1"
+    SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
+    TMP_FILE_PATH                   = "tmp1.orpl"
 
     # Values used to create the socket and discuss with unity project
     HOST = "localhost"
@@ -38,10 +49,26 @@ class AcquisitionController(QObject):
         self.nb_return          = AcquisitionController.INIT_NB_RETURN
         self.wait_time          = AcquisitionController.INIT_WAIT_TIME
         self.comment            = ""
+        self.send_start_thread  = None
+        self.send_stop_thread   = None
+        self.send               = False
+        self.send_continue_thread = None
+        self.params             = {}
         # Attribute curves_on_graph used to list the curves names currently displayed on the graph
         self.curves_on_graph    = []
         # Attribute yaw_pitch_roll used to list the curves values currently displayed on the graph
         self.yaw_pitch_roll     = []
+
+        # THREADS AND SOCKET SERVER
+        self.socket_server = SocketServer()
+
+        self.port_counter = PortCount(50007)
+        self.start_server_thread = StartSocketServerThread(self.socket_server, self.port_counter)
+        self.start_server_thread.completeSignal.connect(self.handle_start_server_thread_completion)
+        self.start_server_thread.start()
+
+        self.number_of_finish_handlers_to_ignore = 0
+        self.send_continue_thread_id = 0
 
     @pyqtSlot(name="start_stop_button_handler")
     def start_stop_button_handler(self):
@@ -57,66 +84,114 @@ class AcquisitionController(QObject):
         :return: Nothing
         """
         if self.view.startStopButton.text() == "Lancer acquisition":
-            DEBUG and print('=== acquisition_controller.py === START')
+            DEBUG and print('START')
             self.selected_movement = self.view.comboBox.currentText()
-            self.angle = self.view.text_angle.text()
-            self.speed = self.view.text_speed.text()
-            self.nb_return = self.view.text_nb_return.text()
-            self.wait_time = self.view.text_wait_time.text()
+            self.angle = self.view.text_angle.value()
+            self.speed = self.view.text_speed.value()
+            self.nb_return = self.view.text_nb_return.value()
+            self.wait_time = self.view.text_wait_time.value()
 
-            # CONF = {"sphereSpeed": str(self.speed), "sphereLimitAngle": str(self.angle), "sphereWaitTime": str(self.wait_time),
-            #         "sphereCountdownTime": "3", "sphereRoundTripNumber": str(self.nb_return),
-            #         "profileName": "guillaumelethug", "sphereGreenToYellowAngle": "0.1", "sphereYellowToRedAngle": "0.2"}
-            #
-            #
-            # DEBUG and print("=== acquisition.py === Acquisition info : \n" +
-            #         "MOV: " + str(self.comboBox.currentText()) + "\n" +
-            #         "ANGLE: " + str(self.angle) + "\n" +
-            #         "SPEED: " + str(self.speed) + "\n" +
-            #         "NB RETURN: " + str(self.nb_return) + "\n" +
-            #         "TIME LIMIT: " + str(self.wait_time) + "\n")
-            #
-            #
-            #
-            # message = build_startAcquisition_message(CONF)
-            #
-            # self.sock_serv.send(message)
-            # self.sock_serv.close()
-            #
-            # self.sock_serv = SocketServer()
-            # self.sock_serv.start(HOST, PORT)
-            #
-            # DEBUG and print(self.sock_serv.receive())
-            #
-            # time_to_wait = calculate_time_for_finish(CONF)
-            # self.send_continue_thread = SendContinue(self.sock_serv, time_to_wait)
-            # self.send_continue_thread.start()
-            #
-            #
+            # Clear graph to display the next acquisition
+            self.view.clear_graph()
 
-            # TODO LAUNCH ACQUISITION
+            self.params = {"sphereSpeed": str(self.speed), "sphereLimitAngle": str(self.angle),
+                           "sphereWaitTime": str(self.wait_time),
+                           "sphereCountdownTime": self.COUNT_DOWN_TIME, "sphereRoundTripNumber": str(self.nb_return),
+                           "profileName": "guillaumelethug",
+                           "sphereGreenToYellowAngle": self.SPHERE_GREEN_TO_YELLOW_ANGLE,
+                           "sphereYellowToRedAngle": self.SPHERE_YELLOW_TO_RED_ANGLE}
 
-            # UPDATE BUTTON START/STOP
-            self.view.startStopButton.setText("Arrêter acquisition")
-            self.view.startStopButton.setStyleSheet("background-color: red; color:white")
+            DEBUG and print("=== acquisition.py === Acquisition info : \n" +
+                  "MOV: " + str(self.view.comboBox.currentText()) + "\n" +
+                  "ANGLE: " + str(self.angle) + "\n" +
+                  "SPEED: " + str(self.speed) + "\n" +
+                  "NB RETURN: " + str(self.nb_return) + "\n" +
+                  "TIME LIMIT: " + str(self.wait_time) + "\n")
+
+            self.send_start_thread = StartAcquisitionThread(self.socket_server, self.params)
+            self.send_start_thread.completeSignal.connect(self.handle_send_start_thread_completion)
+            self.send_start_thread.start()
 
         elif self.view.startStopButton.text() == "Arrêter acquisition":
-            DEBUG and print('=== acquisition_controller.py === STOP')
-            # TODO STOP ACQUISITION
-            # self.sock_serv.send("stopAcquisition")
-            # self.sock_serv.close()
-            # DEBUG and print("SENT")
-            # self.sock_serv = SocketServer()
-            # DEBUG and print("NEW")
-            # self.sock_serv.start(AcquisitionController.HOST, AcquisitionController.PORT)
-            # DEBUG and print("started")
-            # DEBUG and print(self.sock_serv.receive())
-            # self.sock_serv.close()
-            self.view.startStopButton.setText("Lancer acquisition")
+            DEBUG and print('STOP')
+            self.send_stop_thread = StopAcquisitionThread(self.socket_server)
+            self.send_stop_thread.completeSignal.connect(self.handle_send_stop_thread_completion)
+            self.send_stop_thread.start()
+
+    @pyqtSlot(str, name="send_finish_thread_completion_handler")
+    def handle_send_finish_thread_completion(self, e):
+        if self.number_of_finish_handlers_to_ignore == int(e):
+            if self.send:
+                self.socket_server.send("finishAcquisition")
+                self.socket_server.close()
+
+                self.socket_server = SocketServer()
+                self.start_server_thread = StartSocketServerThread(self.socket_server, self.port_counter)
+                self.start_server_thread.completeSignal.connect(
+                    self.handle_start_server_thread_acquisition_finished_completion)
+                self.start_server_thread.start()
+                self.number_of_finish_handlers_to_ignore += 1
+
+    @pyqtSlot(str, name="start_server_thread_acquisition_finished_completion_handler")
+    def handle_start_server_thread_acquisition_finished_completion(self, e):
+        print(self.socket_server.receive())
+        # UPDATE BUTTON START/STOP
+        self.view.startStopButton.setText("Lancer acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.view.saveButton.setEnabled(True)
+
+        # Update graph with tMP file content
+        self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
+        # TODO ADD CONTENT
+
+    @pyqtSlot(str, name="start_server_thread_completion_handler")
+    def handle_start_server_thread_completion(self, e):
+        print("server started")
+        self.view.connected = True
+        if self.view.profile_loaded:
+            self.view.startStopButton.setEnabled(True)
             self.view.startStopButton.setStyleSheet("background-color: green; color:white")
-            # self.send_continue_thread.send = False
-            # self.sock_serv = SocketServer()
-            # self.sock_serv.start(AcquisitionController.HOST, AcquisitionController.PORT)
+
+    @pyqtSlot(str, name="start_server_thread_acquisition_started_completion_handler")
+    def handle_start_server_thread_acquisition_started_completion(self, e):
+        print(self.socket_server.receive())
+        time_to_wait = calculate_time_for_finish(self.params)
+        self.send = True
+        self.send_continue_thread = SendContinueThread(self.socket_server, self.start_server_thread, time_to_wait,
+                                                       self.port_counter, self.send_continue_thread_id)
+        
+        self.send_continue_thread_id += 1
+        self.send_continue_thread.completeSignal.connect(self.handle_send_finish_thread_completion)
+        self.send_continue_thread.start()
+
+    @pyqtSlot(str, name="handle_start_server_thread_acquisition_stopped_completion")
+    def handle_start_server_thread_acquisition_stopped_completion(self, e):
+        print(self.socket_server.receive())
+
+    @pyqtSlot(str, name="handle_send_start_thread_completion")
+    def handle_send_start_thread_completion(self, e):
+        # UPDATE BUTTON START/STOP
+        self.view.startStopButton.setText("Arrêter acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: red; color:white")
+        self.socket_server.close()
+        self.socket_server = SocketServer()
+        self.start_server_thread = StartSocketServerThread(self.socket_server, self.port_counter)
+        self.start_server_thread.completeSignal.connect(self.handle_start_server_thread_acquisition_started_completion)
+        self.start_server_thread.start()
+
+    @pyqtSlot(str, name="send_stop_thread_completion_handler")
+    def handle_send_stop_thread_completion(self, e):
+        # UPDATE BUTTON START/STOP
+        self.view.startStopButton.setText("Lancer acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.socket_server.close()
+        self.send_continue_thread.quit()
+        self.send = False
+        self.number_of_finish_handlers_to_ignore = self.number_of_finish_handlers_to_ignore + 1
+        self.socket_server = SocketServer()
+        self.start_server_thread = StartSocketServerThread(self.socket_server, self.port_counter)
+        self.start_server_thread.completeSignal.connect(self.handle_start_server_thread_acquisition_stopped_completion)
+        self.start_server_thread.start()
 
     @pyqtSlot(name="empty_graph_button_handler")
     def empty_graph_button_handler(self):
@@ -152,6 +227,9 @@ class AcquisitionController(QObject):
                 # Empty attribute
                 self.curves_on_graph    = []
 
+                # Disable save button
+                self.view.saveButton.setEnabled(True)
+
             else:
                 DEBUG and print("=== acquisition_controller.py === ANNULATION")
 
@@ -165,8 +243,8 @@ class AcquisitionController(QObject):
         """
         DEBUG and print('=== acquisition_controller.py === SAVE CURVES')
 
-        # TODO CHECK USE
-        data = self.yaw_pitch_roll
+        # RETRIEVE THE FIRST ELEMENT BECAUSE IT MUST HAVE ONLY ONE CURVE ON THE GRAPH
+        data = self.yaw_pitch_roll[0]
 
         self.selected_movement  = self.view.comboBox.currentText()
         self.angle              = self.view.text_angle.text()

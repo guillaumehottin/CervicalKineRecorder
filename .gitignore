@@ -245,3 +245,4 @@ ModelManifest.xml
 Code/test*.txt
 Cervical_GUI/.idea/
 __pycache__/
+Cervical_GUI/tmp.orpl
