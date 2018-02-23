@@ -5,13 +5,11 @@ import ntpath
 from datetime import datetime
 from PyQt5.QtWidgets import QMessageBox
 
-FILE_EXTENSION      = ".txt"
-# TODO CHANGE TO ORPL
-# FILE_EXTENSION      = ".orpl"
+FILE_EXTENSION      = ".orpl"
 PATH_TO_STORE_FILES  = "./data/"
 LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
 # DEBUG
-DEBUG = False
+DEBUG = True
 
 
 def get_all_directory_files(directory_path_string):
@@ -261,14 +259,10 @@ def create_file_with_curves(directory, data, param):
                 file.write(str(y) + " " + str(p) + " " + str(r) + "\n")
 
             file.close()
+            return True
     except IOError as e:
         DEBUG and print("=== file_manager.py === I/O error file not saved({0}): {1}".format(e.errno, e.strerror))
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText("Une erreur est survenue")
-        msg.setInformativeText("La sauvegarde de la courbe n'a pas pu être effectuée, veuillez réessayer")
-        msg.setWindowTitle("Erreur")
-        msg.exec()
+        return False
 
 
 def get_param_from_file(file_path):

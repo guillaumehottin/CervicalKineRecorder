@@ -9,7 +9,6 @@ try:
     app = QApplication(sys.argv)
     window = QMainWindow()
     ui = MyWindow(window)
-    #
     window.show()
     sys.exit(app.exec_())
 except OSError:

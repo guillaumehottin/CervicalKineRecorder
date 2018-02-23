@@ -3,18 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Script that controls the two lines on the floor to show the limit of the ball movement
+/// </summary>
 public class LimitsControl : MonoBehaviour
 {
-    public float sphereLimitAngle;
-
-    private float angle;
+    public float sphereLimitAngle; // The limit angle of the sphere in degrees
+    
     private GameObject leftLimit;
     private GameObject rightLimit;
-    private float waitedTime;
-    private bool waitingLimit;
-    private bool waitingCountdown;
-    private int tripsDone;
-    private bool stop;
 
     // Use this for initialization
     void Start()
@@ -22,7 +19,6 @@ public class LimitsControl : MonoBehaviour
         leftLimit = GameObject.Find("LeftLimit");
         rightLimit = GameObject.Find("RightLimit");
         leftLimit.transform.eulerAngles = new Vector3(0, -sphereLimitAngle, 0);
-
         rightLimit.transform.eulerAngles = new Vector3(0, sphereLimitAngle, 0);
     }
 
@@ -32,7 +28,6 @@ public class LimitsControl : MonoBehaviour
         leftLimit = GameObject.Find("LeftLimit");
         rightLimit = GameObject.Find("RightLimit");
         leftLimit.transform.eulerAngles = new Vector3(0, -sphereLimitAngle, 0);
-
         rightLimit.transform.eulerAngles = new Vector3(0, sphereLimitAngle, 0);
     }
 

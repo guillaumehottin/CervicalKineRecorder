@@ -1,0 +1,18 @@
+@startuml
+GUI -> GUI: 			create socket server
+
+UnityProcess -> GUI: 	connect
+GUI --> UnityProcess: 	connected
+
+GUI -> UnityProcess: 	startAcquisition + parameters
+UnityProcess --> GUI: 	startAcquisitionAck
+
+alt stopAcquisition button clicked
+	GUI -> UnityProcess: 	stopAcquisition
+	UnityProcess --> GUI: 	stopAcquisitionAck
+else acquisition not stopped
+	GUI -> UnityProcess: 	finishAcquisition
+	UnityProcess --> GUI: 	endAcquisitionAck + parameters
+end
+
+@enduml

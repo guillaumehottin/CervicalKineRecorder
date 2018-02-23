@@ -81,7 +81,7 @@ class MyWindowController(QObject):
         If everything is ok, It automagically update the UI according to the selected profile
         :return: Nothing
         """
-        new_path = str(QFileDialog.getExistingDirectory(self, "Sélectionner un dossier",
+        new_path = str(QFileDialog.getExistingDirectory(self.view, "Sélectionner un dossier",
                                                         self.PATH_TO_STORE_FILE, QFileDialog.ShowDirsOnly))
 
         # If the user canceled

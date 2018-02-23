@@ -246,3 +246,5 @@ Code/test*.txt
 Cervical_GUI/.idea/
 __pycache__/
 Cervical_GUI/tmp.orpl
+Cervical_GUI/last_profile_used.conf
+Cervical_GUI/tmp.orpl

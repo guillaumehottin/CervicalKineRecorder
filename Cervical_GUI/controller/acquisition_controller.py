@@ -8,7 +8,7 @@ from controller.threads import StartSocketServerThread, StartAcquisitionThread, 
 from model.file_manager import create_file_with_curves, get_coord
 from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
 
-DEBUG = False
+DEBUG = True
 
 
 class AcquisitionController(QObject):
@@ -28,7 +28,7 @@ class AcquisitionController(QObject):
     COUNT_DOWN_TIME                 = "3"
     SPHERE_GREEN_TO_YELLOW_ANGLE    = "0.1"
     SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
-    TMP_FILE_PATH                   = "tmp1.orpl"
+    TMP_FILE_PATH                   = "tmp.orpl"
 
     # Values used to create the socket and discuss with unity project
     HOST = "localhost"
@@ -120,8 +120,13 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_finish_thread_completion_handler")
     def handle_send_finish_thread_completion(self, e):
+        DEBUG and print("handle_send_finish_thread_completion")
         if self.number_of_finish_handlers_to_ignore == int(e):
             if self.send:
+                # UPDATE BUTTON START/STOP
+                self.view.startStopButton.setText("Fin Acquisition...")
+                self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
+                self.view.startStopButton.setEnabled(False)
                 self.socket_server.send("finishAcquisition")
                 self.socket_server.close()
 
@@ -134,19 +139,49 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_acquisition_finished_completion_handler")
     def handle_start_server_thread_acquisition_finished_completion(self, e):
-        print(self.socket_server.receive())
+        DEBUG and print("handle_start_server_thread_acquisition_finished_completion")
+        end_acquisition_message = self.socket_server.receive()
+        [_, mean, standard_deviation] = end_acquisition_message.decode('utf-8').split(',')
+        mean = float(mean.split(':')[1])
+        standard_deviation = float(standard_deviation.split(':')[1])
+
+        if not self.is_acquition_correct(mean, standard_deviation):
+            confirmation_msg = "L'acquisition ne semble pas correcte. Souhaitez-vous la conserver ?"
+            reply = QMessageBox.question(self.view, 'Mauvaise acquisitioe',
+                                         confirmation_msg, QMessageBox.Yes, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                DEBUG and print("=== acquisition_controller.py === CONSERVER ACQUISITION")
+                # Update graph with tMP file content
+                self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
+                self.view.saveButton.setEnabled(True)
+
+            else:
+                DEBUG and print("=== acquisition_controller.py === SUPPRIMER ACQUISITION")
+                self.view.clear_graph()
+
+                # Empty attribute
+                self.curves_on_graph = []
+
+                # Disable save button
+                self.view.saveButton.setEnabled(False)
+
+        else:
+            self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
+            self.view.saveButton.setEnabled(True)
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")
         self.view.startStopButton.setStyleSheet("background-color: green; color:white")
-        self.view.saveButton.setEnabled(True)
+        self.view.startStopButton.setEnabled(True)
 
-        # Update graph with tMP file content
-        self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
+
+
+
         # TODO ADD CONTENT
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
-        print("server started")
+        DEBUG and print("handle_start_server_thread_completion")
         self.view.connected = True
         if self.view.profile_loaded:
             self.view.startStopButton.setEnabled(True)
@@ -154,7 +189,12 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_acquisition_started_completion_handler")
     def handle_start_server_thread_acquisition_started_completion(self, e):
-        print(self.socket_server.receive())
+        DEBUG and print("handle_start_server_thread_acquisition_started_completion")
+        self.socket_server.receive()
+        # UPDATE BUTTON START/STOP
+        self.view.startStopButton.setText("Arrêter acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: red; color:white")
+        self.view.startStopButton.setEnabled(True)
         time_to_wait = calculate_time_for_finish(self.params)
         self.send = True
         self.send_continue_thread = SendContinueThread(self.socket_server, self.start_server_thread, time_to_wait,
@@ -163,16 +203,25 @@ class AcquisitionController(QObject):
         self.send_continue_thread_id += 1
         self.send_continue_thread.completeSignal.connect(self.handle_send_finish_thread_completion)
         self.send_continue_thread.start()
+        #self.port_counter.reset()
 
     @pyqtSlot(str, name="handle_start_server_thread_acquisition_stopped_completion")
     def handle_start_server_thread_acquisition_stopped_completion(self, e):
-        print(self.socket_server.receive())
+        DEBUG and print("handle_start_server_thread_acquisition_stopped_completion")
+        self.socket_server.receive()
+        self.view.startStopButton.setText("Lancer acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.view.startStopButton.setEnabled(True)
+        self.view.saveButton.setEnabled(False)
 
     @pyqtSlot(str, name="handle_send_start_thread_completion")
     def handle_send_start_thread_completion(self, e):
-        # UPDATE BUTTON START/STOP
-        self.view.startStopButton.setText("Arrêter acquisition")
-        self.view.startStopButton.setStyleSheet("background-color: red; color:white")
+        DEBUG and print("handle_send_start_thread_completion")
+        # UPDATE BUTTON START/STOP OIZHUIAHDIUZAHOIDZL
+        self.view.startStopButton.setText("Lancement Acquisition...")
+        self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
+        self.view.startStopButton.setEnabled(False)
+        self.view.saveButton.setEnabled(False)
         self.socket_server.close()
         self.socket_server = SocketServer()
         self.start_server_thread = StartSocketServerThread(self.socket_server, self.port_counter)
@@ -181,11 +230,12 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_stop_thread_completion_handler")
     def handle_send_stop_thread_completion(self, e):
+        DEBUG and print("handle_send_stop_thread_completion")
         # UPDATE BUTTON START/STOP
-        self.view.startStopButton.setText("Lancer acquisition")
-        self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.view.startStopButton.setText("Arrêt Acquisition...")
+        self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
+        self.view.startStopButton.setEnabled(False)
         self.socket_server.close()
-        self.send_continue_thread.quit()
         self.send = False
         self.number_of_finish_handlers_to_ignore = self.number_of_finish_handlers_to_ignore + 1
         self.socket_server = SocketServer()
@@ -256,4 +306,22 @@ class AcquisitionController(QObject):
         param = [self.selected_movement, self.angle, self.speed, self.nb_return, self.wait_time, self.comment]
 
         # Write Data into file with parameters and comment
-        create_file_with_curves(self.last_name + "_" + self.first_name + "_" + self.age + "/", data, param)
+        directory = self.view.main_window_controller.last_name.strip("\n") + "_" + \
+                    self.view.main_window_controller.first_name.strip("\n") + "_" + \
+                    self.view.main_window_controller.age.strip("\n") + "/"
+        success = create_file_with_curves(directory, data, param)
+
+        if success:
+            self.view.saveButton.setEnabled(False)
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Une erreur est survenue")
+            msg.setInformativeText("La sauvegarde de la courbe n'a pas pu être effectuée, veuillez réessayer")
+            msg.setWindowTitle("Erreur")
+            msg.exec()
+            pass
+
+
+    def is_acquition_correct(self, mean, standard_deviation):
+        return mean > 1.7 and standard_deviation < 0.5
