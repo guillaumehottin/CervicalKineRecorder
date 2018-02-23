@@ -281,4 +281,18 @@ class AcquisitionController(QObject):
         param = [self.selected_movement, self.angle, self.speed, self.nb_return, self.wait_time, self.comment]
 
         # Write Data into file with parameters and comment
-        create_file_with_curves(self.last_name + "_" + self.first_name + "_" + self.age + "/", data, param)
+        directory = self.view.main_window_controller.last_name.strip("\n") + "_" + \
+                    self.view.main_window_controller.first_name.strip("\n") + "_" + \
+                    self.view.main_window_controller.age.strip("\n") + "/"
+        success = create_file_with_curves(directory, data, param)
+
+        if success:
+            self.view.saveButton.setEnabled(False)
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Une erreur est survenue")
+            msg.setInformativeText("La sauvegarde de la courbe n'a pas pu être effectuée, veuillez réessayer")
+            msg.setWindowTitle("Erreur")
+            msg.exec()
+            pass

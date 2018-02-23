@@ -38,7 +38,7 @@ class MyWindow(QMainWindow):
 
         # TAB WIDGET
         self.tabs               = QtWidgets.QTabWidget(window)
-        self.tab_acquisition    = Acquisition(self.tabs)
+        self.tab_acquisition    = Acquisition(self.tabs, self.my_window_controller)
         self.tab_modelization   = Modelization(self.tabs)
 
         # MENU BAR

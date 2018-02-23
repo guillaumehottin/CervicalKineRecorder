@@ -1,0 +1,8 @@
+@startuml
+
+class AcquisitionController{}
+class MyWindowController{}
+class AcquisitionController{}
+
+
+@enduml

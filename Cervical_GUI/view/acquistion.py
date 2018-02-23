@@ -29,15 +29,16 @@ class Acquisition(QWidget):
     The logical behind this GUI is located in acquisition_controller.py
     """
 
-    def __init__(self, window):
+    def __init__(self, parent, main_window_controller):
         """
         This function is used to define and instanciate all class attributes of this class
-        :param window: Window in which is displayed this GUI
+        :param parent: Window in which is displayed this GUI
         """
         super(Acquisition, self).__init__()
 
         # ATTRIBUTES
-        self.parent                 = window
+        self.parent                 = parent
+        self.main_window_controller = main_window_controller
         self.acquisition_controller = AcquisitionController(self)
 
         self.parent.setObjectName("Acquisition")
