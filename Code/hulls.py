@@ -311,24 +311,32 @@ def pts_out_hull3(hull, pts):
 
 def create_model(array_data):
     """
-    Generate a convex hull which is the union of all convex hulls in the training set.
+    Generate a concave hull which is the union of all concave hulls in the training set.
     
     Parameters
     ----------
-    array_data : array of arrays of points
-            Each element is an array of points.
+    array_data : array of arrays of arrays of floats
+            Each element is an array of 3 arrays, each corresponding to a coordinate.
             
     Returns
     -------
     Polygon
-            The convex hull
+            Concave hull
     """
-    pts = array_data.pop(0)
-    model = alpha_shape(myutils.array2MP(pts),alpha=3)[0].buffer(0.01)
-    for pts in array_data:
-        hull = alpha_shape(myutils.array2MP(pts),alpha=3)[0].buffer(0.01)
-        model = model.union(hull)
-    return model
+    array_data = [myutils.coord2points(d) for d in array_data]
+    first_acq = array_data.pop(0)
+    p = [x[0:2] for x in first_acq]
+    r = [x[0:3:2] for x in first_acq]
+    model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0]
+    model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0]
+    for one_acq in array_data:
+        p = [x[0:2] for x in one_acq]
+        r = [x[0:3:2] for x in one_acq]
+        hull_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0]
+        hull_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0]
+        model_pitch = model_pitch.union(hull_pitch)
+        model_roll = model_roll.union(hull_roll)
+    return model_pitch, model_roll
 
 #############################################################
 

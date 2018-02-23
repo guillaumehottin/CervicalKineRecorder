@@ -76,6 +76,26 @@ def array2MP(pts):
     return geometry.MultiPoint(list(points))
 
 
+def get_axes(list_coord, axes):
+    """
+    Get the coordinates of certain axes.
+    
+    Parameters
+    ----------
+    list_coord : array
+            List of coordinates.
+    axes : tuple of tuples of int
+            Axes which need to be taken.
+    
+    Returns
+    -------
+    list of list of array of float
+    """
+    res = []
+    for i,j in axes:
+        res += [[list_coord[i-1], list_coord[j-1]]]
+    return res
+    
 def check_letter(x):
     return x == 'f' or x == 'e' or x == 'd'
 
@@ -100,7 +120,7 @@ def RGBA_arg():
         hex_str = res_str
     return '#'+hex_str
     
-#To fetch files in a specified folder and its sub folders, returns the list of the paths to theses files
+#To fetch files in a specified folder, returns the list of the paths to theses files
 def fetch_files(dir_name='.',extension='.orpl',sub_dir=''):
     res = []
     path = dir_name+sub_dir
@@ -109,12 +129,22 @@ def fetch_files(dir_name='.',extension='.orpl',sub_dir=''):
             res += [path+'/'+file] 
     return res
 
+
+def fetch_from_dirs(list_dir, extension='.orpl', sub_dir=''):
+    list_coord = []
+    for folder in list_dir:
+        files = fetch_files(folder, extension, sub_dir)
+        for f in files:
+            list_coord += [get_coord(f)]
+    return list_coord
+
+
 #Get list of coordinates in an ORPL file (yaw,pitch_roll)
 def get_coord(file_path):
-    f = open(file_path,"r")
-    data = f.readlines()
-    f.close()
-    yaw_l, pitch_l, roll_l = [],[],[]
+    with open(file_path,"r") as f:
+        data = f.readlines()
+        
+    yaw_l, pitch_l, roll_l = [], [], []
 
     data.pop(0)
     for i in range(len(data)):

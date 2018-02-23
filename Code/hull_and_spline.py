@@ -69,23 +69,24 @@ def plot_hull_curve(curve, hull):
     plt.show()
 
     
-def save_model(array_data, directory):
+def save_model(list_dir, directory):
     """
     Generate and save a model.
     
     Parameters
     ----------
-    array_data : array of arrays of points
-            Each element is an array of points.
+    list_dir : array of str
+            List of directories where to find the files used to generate the model.
     directory : str
             Path to the directory where the model must be saved.
     """
-    hull_model = hulls.create_model(array_data)
-    spline_model = splines.create_model(array_data)
+    array_data = myutils.fetch_from_dirs(list_dir)
+    hull_model_p, hull_model_r = hulls.create_model(array_data)
+    spline_pitch, spline_roll = splines.create_model(array_data)
     now = datetime.datetime.now()
-    file_name = directory + '/spline_hull_' + now.strftime("%m-%d-%Y_%H%M") + '.mdl'
+    file_name = directory + '/has_' + now.strftime("%m-%d-%Y_%H%M") + '.mlhas'
     with open(file_name, 'w+') as file:
-        file.write(hull_model.wkt + '\n' + spline_model)
+        file.write(hull_model_p.wkt + '\n' + hull_model_r.wkt + '\n' + str(spline_pitch) + '\n' + str(spline_roll))
         
     
 def load_model(file_path):
@@ -104,22 +105,15 @@ def load_model(file_path):
     """
     with open(file_path, 'r+') as file:
         data = file.readlines()
-        hull = loads(data[0][:-2])
-        spline = []
+        hull_pitch = loads(data[0])
+        hull_roll = loads(data[1])
+        spline_std_pitch = float(data[2])
+        spline_std_roll = float(data[3])
     #spline = data[1]
-    return hull, spline
+    return hull_pitch, hull_roll, spline_std_pitch, spline_std_roll
 
 
 if __name__ == '__main__':
-    direct = 'data/guillaume2/'
-    list_files = myutils.fetch_files(dir_name=direct,sub_dir='Normalized',extension='.orpl')
-    yaw_pitch = [myutils.get_coord(f)[0:2] for f in list_files]
-    yaw_roll = [myutils.get_coord(f)[0:3:2] for f in list_files]
-    list_all_points_pitch = np.array(yaw_pitch)
-    list_all_points_roll= np.array(yaw_roll)
-    hull_pitch = hulls.create_model([myutils.coord2points(coord) for coord in list_all_points_pitch])
-    hull_roll = hulls.create_model([myutils.coord2points(coord) for coord in list_all_points_roll])
-    angle_x,angle_y,xsp,ysp = splines.interpolate_spline(list_all_points_pitch[0], 150)
-    angle_x,angle_y,xsr,ysr = splines.interpolate_spline(list_all_points_roll[0], 150)
-    plot_spline_curve(yaw_pitch[0], (xsp, ysp))
-    plot_spline_curve(yaw_roll[0], (xsr, ysr))
+    direct = 'data/guillaume2/Normalized'
+    #save_model([direct], '.')
+        load_model("has_02-23-2018_1808.mlhas")
