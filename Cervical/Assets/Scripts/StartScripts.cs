@@ -130,6 +130,7 @@ public class StartScripts : MonoBehaviour {
                         port++;
                     }
                     state = "receive";
+                    Debug.Log("Waiting for startAcquisition...");
                 }
 
             }
@@ -149,7 +150,6 @@ public class StartScripts : MonoBehaviour {
                     {
                         if (message.Contains("startAcquisition"))
                         {
-                            Debug.Log(message);
                             state = "startAcquisition";
                         }
                     }
@@ -157,6 +157,7 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("startAcquisition"))
             {
+                Debug.Log("Parsing Acquisition parameters...");
                 socketToParams(message);
                 sphereSpeed = sphereSpeed * Mathf.Deg2Rad;
                 sphereLimitAngleLimits = sphereLimitAngle;
@@ -227,6 +228,7 @@ public class StartScripts : MonoBehaviour {
                 sphereControlScript.start = true;
                 state = "sendStartAcquisitionAck";
                 waitedTime = 0.0f;
+                Debug.Log("Acquisition started.");
 
             } else if (state.Equals("sendStartAcquisitionAck"))
             {
@@ -260,13 +262,14 @@ public class StartScripts : MonoBehaviour {
                     message = socketReceiveJob.message;
                     if (message != null && !message.Equals(""))
                     {
-                        Debug.Log(message);
                         if (message.Equals("stopAcquisition"))
                         {
+                            Debug.Log("Stopping acquisition...");
                             state = "stopAcquisition";
                         }
                         else if (message.Equals("finishAcquisition"))
                         {
+                            Debug.Log("Finishing acquisition...");
                             state = "finishAcquisition";
                         }
 
@@ -277,6 +280,7 @@ public class StartScripts : MonoBehaviour {
             {
                 if (sphereControlScript.finished)
                 {
+                    Debug.Log("Acquisition finished.");
                     state = "finished";
                 }
             }
@@ -293,18 +297,19 @@ public class StartScripts : MonoBehaviour {
                     {
                         port++;
                     }
-                    SocketClient.socketSend("endAcquisition");
-
-                    state = "receive";
                     waitedTime = 0.0f;
                     float mean = (float)sphereColorScript.acquisitionScore.Sum(x => Convert.ToInt32(x)) / acquireMovementScript.numberOfFrames;
-                    Debug.Log(mean);
+                    float standardDeviation = (float)((float)sphereColorScript.acquisitionScore.Sum(x => (Convert.ToInt32(x) - mean) * (Convert.ToInt32(x) - mean)) / acquireMovementScript.numberOfFrames);
+                   
+                    SocketClient.socketSend("endAcquisition,mean:" + mean.ToString() + ",standardDeviation:" + standardDeviation.ToString());
 
-                    Debug.Log((float) ((float) sphereColorScript.acquisitionScore.Sum(x => (Convert.ToInt32(x) - mean)* (Convert.ToInt32(x) - mean)) /acquireMovementScript.numberOfFrames));
+                    state = "receive";
+                    Debug.Log("Waiting for startAcquisition...");
                 }
             }
             else if (state.Equals("stopAcquisition"))
             {
+                Debug.Log("Acquisition stopped.");
                 sphereControlScript.stop = true;
 
                 connected = SocketClient.connectSocket("127.0.0.1", port);
@@ -323,6 +328,7 @@ public class StartScripts : MonoBehaviour {
                     SocketClient.socketSend("stopAcquisitionAck");
                     state = "receive";
                     waitedTime = 0.0f;
+                    Debug.Log("Waiting for startAcquisition...");
                 }
 
             }
