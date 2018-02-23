@@ -253,7 +253,7 @@ def pts_out_poly(poly, pts):
 
 def in_cvx_hull3(hull, pt):
     """
-    Check whether pt is in hull (3D).
+    Check whether pt is in hull (3D). (Not always working!)
     
     Parameters
     ----------
@@ -273,7 +273,7 @@ def in_cvx_hull3(hull, pt):
 
 def pts_out_hull3(hull, pts):
     """
-    Number of points of pts which are in hull (3D).
+    Number of points of pts which are in hull (3D). (Not always working!)
     
     Parameters
     ----------
@@ -323,37 +323,17 @@ def create_model(array_data):
     Polygon
             The convex hull
     """
-    pts = array_data.pop([0])
-    model = pts.convex_hull
+    pts = array_data.pop(0)
+    model = alpha_shape(myutils.array2MP(pts),alpha=3)[0].buffer(0.01)
     for pts in array_data:
-        hull = pts.convex_hull
+        hull = alpha_shape(myutils.array2MP(pts),alpha=3)[0].buffer(0.01)
         model = model.union(hull)
     return model
 
 #############################################################
 
 if __name__ == '__main__':
-    """
-    c = [[0,0],[3,7],[-3,4],[-6,-4],[4,-7],[-4,-8]]
-    r = [4,4,3,3,5,2]
-    c2 = [[1,2],[-3,-4],[2,3]]
-    r2 = [2,5,5]
-    n = 100
-    
-    x,y,pts = myutils.generate_clusters(c,r,n)
-    x2,y2,pts2 = myutils.generate_clusters(c2,r2,n)
-    
-    polys = myutils.generate_MP(12,cl_max=1,alpha=0.5)
-    
-    plot_many_polygons([alpha_shape(p,alpha=0.6)[0] for p in polys])
-    f = fclusterdata(np.arange(len(polys)).reshape((len(polys),1)),1.0,metric=hull_dist_indices)
-    print(f)
-    
-    concave_hull, edge_points = alpha_shape(myutils.array2MP(pts),alpha=0.7)
-    plot_polygon_MP(concave_hull.buffer(1,resolution=1))
-    plt.plot(x,y,'o', color='#f16824')
-    """
-
+   
     yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
     yaw_pitch = myutils.coord2points([yaw,pitch])
     hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)

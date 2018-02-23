@@ -122,7 +122,7 @@ def normalize(pitch_l,yaw_l,roll_l):
     return normalized_pitch,normalized_yaw,normalized_roll
 """
 
-def normalize(pitch_l,yaw_l,roll_l):
+def normalize(yaw_l, pitch_l, roll_l):
     """
     Normalize the data. This is done using the global maximum and minimum values of the
     three angles. For every value x, the normalized value is:
@@ -142,12 +142,16 @@ def normalize(pitch_l,yaw_l,roll_l):
             Contains three lists, each corresponding to an angle, with the 
             normalized value. 
     """
+    
     amin = np.amin([np.amin(pitch_l),np.amin(yaw_l),np.amin(roll_l)])    
     amax = np.amax([np.amax(pitch_l),np.amax(yaw_l),np.amax(roll_l)])    
-    normalized_pitch = (pitch_l-amin)/(amax-amin)
     normalized_yaw = (yaw_l-amin)/(amax-amin)
+    normalized_pitch = (pitch_l-amin)/(amax-amin)
+    normalized_pitch = normalized_pitch - np.mean(normalized_pitch) + 0.5
     normalized_roll = (roll_l-amin)/(amax-amin)
-    return normalized_pitch,normalized_yaw,normalized_roll
+    normalized_roll = normalized_roll - np.mean(normalized_roll) + 0.5
+    return normalized_yaw, normalized_pitch, normalized_roll
+    
     
 def save_normalized(motion, name_dir, extension):
     """
@@ -172,8 +176,8 @@ def save_normalized(motion, name_dir, extension):
             l += [name]
 
     for name in l:
-        (pitch_l,yaw_l,roll_l) = myutils.get_coord(name_dir+'/'+name)
-        (pitch_l,yaw_l,roll_l) = normalize(pitch_l,yaw_l,roll_l)
+        (yaw_l, pitch_l, roll_l) = myutils.get_coord(name_dir+'/'+name)
+        (yaw_l, pitch_l, roll_l) = normalize(yaw_l, pitch_l, roll_l)
         try:
             os.mkdir(name_dir+'/Normalized')
         except FileExistsError:
@@ -181,7 +185,7 @@ def save_normalized(motion, name_dir, extension):
         f = open(name_dir+'/Normalized/'+name,'w')
         f.write('yaw pitch roll\n')
         for i in range(len(pitch_l)):
-            f.write('{0} {1} {2}\n'.format(yaw_l[i],pitch_l[i],roll_l[i]))
+            f.write('{0} {1} {2}\n'.format(yaw_l[i], pitch_l[i], roll_l[i]))
         f.close()
 			
         

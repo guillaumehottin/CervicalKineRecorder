@@ -2,20 +2,21 @@ import hulls
 import splines
 import datetime
 from shapely.wkt import loads
+import matplotlib.pyplot as plt
+import myutils
+import numpy as np
 
-def check_new_data(model_hull, new_data, hull_threshold, spline_threshold):
+
+def check_healthy(score_spline, score_hull, hull_threshold, spline_threshold):
     """
     Checks whether a new piece of data matches the model.
     
     Parameters
     ----------
-    model_hull : Polygon
-            Hull representing the boundaries whithin which the new points
-            must be.
-    model_spline : array
-            Mean spline with which to compare the new data.
-    new_data : array
-            Array of points representing the new data.
+    score_hull : int
+            Number of points out of the model hull.
+    score_spline : real
+            Standard deviation of the distance to the model spline.
     hull_threshold : int
             Number of points outside the hull from which the data is deemed 
             unmatching.
@@ -25,15 +26,49 @@ def check_new_data(model_hull, new_data, hull_threshold, spline_threshold):
     Returns
     -------
     bool
-            True if the new data matches the model.
+            True if the patient is healthy, False otherwise.
     """
-    if splines.score_model(new_data, 300) > spline_threshold:
+    if score_spline > spline_threshold:
         return False
-    if hulls.score_model(model_hull, new_data) > hull_threshold:
+    if score_hull > hull_threshold:
         return False
     return True
 
 
+def plot_spline_curve(curve, spline):
+    """
+    Plot the curve of the acquisition and the spline.
+    
+    Parameters
+    ----------
+    curve : array of arrays
+            First array is x-axis component of the acquisition, second is y-axis.
+    spline : array of array
+            Same as curve but for the spline.
+    """
+    plt.figure()
+    plt.plot(curve[0], curve[1])
+    plt.plot(spline[0], spline[1])
+    plt.show()
+    
+    
+def plot_hull_curve(curve, hull):
+    """
+    Plot the curve of the acquisition and the hull.
+    
+    Parameters
+    ----------
+    curve : array of arrays
+            First array is x-axis component of the acquisition, second is y-axis.
+    hull : Polygon
+            Model hull.
+    """
+    plt.figure()
+    hulls.plot_polygon_MP(hull)
+    plt.plot(curve[0], curve[1])
+    plt.show()
+
+    
 def save_model(array_data, directory):
     """
     Generate and save a model.
@@ -75,3 +110,16 @@ def load_model(file_path):
     return hull, spline
 
 
+if __name__ == '__main__':
+    direct = 'data/guillaume2/'
+    list_files = myutils.fetch_files(dir_name=direct,sub_dir='Normalized',extension='.orpl')
+    yaw_pitch = [myutils.get_coord(f)[0:2] for f in list_files]
+    yaw_roll = [myutils.get_coord(f)[0:3:2] for f in list_files]
+    list_all_points_pitch = np.array(yaw_pitch)
+    list_all_points_roll= np.array(yaw_roll)
+    hull_pitch = hulls.create_model([myutils.coord2points(coord) for coord in list_all_points_pitch])
+    hull_roll = hulls.create_model([myutils.coord2points(coord) for coord in list_all_points_roll])
+    angle_x,angle_y,xsp,ysp = splines.interpolate_spline(list_all_points_pitch[0], 150)
+    angle_x,angle_y,xsr,ysr = splines.interpolate_spline(list_all_points_roll[0], 150)
+    plot_spline_curve(yaw_pitch[0], (xsp, ysp))
+    plot_spline_curve(yaw_roll[0], (xsr, ysr))

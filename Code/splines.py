@@ -4,7 +4,7 @@
 #We consider three  planes:
 #    _Pitch = f(Yaw)    (We associate the id_curve number 1)
 #    _Roll  = f(Pitch)  (id_curve 2)
-#    _Yaw   = f(Roll)   (id_curve 3)
+#    _Roll   = f(Yaw)   (id_curve 3)
 #This file permits to approximate the motion by a BSpline.
 #For each two ways, we compute control points and mean it.
 #At the end, we get a mean Bspline of two ways.
@@ -72,47 +72,14 @@ def get_normalize_curves(list_path):
     return list_all_points,list_name
 
 
-
-##################################################################
-#We consider three  planes:
-#    _Pitch = f(Yaw)    (We associate the id_curve number 1)
-#    _Roll  = f(Pitch)  (id_curve 2)
-#    _Yaw   = f(Roll)   (id_curve 3)
-# It extracts adapted points according to id_curve
-#Input : list_points : list [..., (yaw,pitch,roll), ...]
-##################################################################
-
-def get_points_curve(list_points,id_curve):
-    if(id_curve==1):
-        angle_x = [list_points[i][0] for i in range(len(list_points))]
-        angle_y = [list_points[i][1] for i in range(len(list_points))]
-    elif(id_curve==2):
-        angle_x = [list_points[i][1] for i in range(len(list_points))]
-        angle_y = [list_points[i][2] for i in range(len(list_points))]
-    elif(id_curve==3):
-        angle_x = [list_points[i][0] for i in range(len(list_points))]
-        angle_y = [list_points[i][2] for i in range(len(list_points))]
-    else:
-        angle_x = []
-        angle_y = []
-    return angle_x,angle_y
-
 ########################################################
 #Compute distance between two consecutives points
 #for the main axis of motion
 #For yaw motion -> Main axis = yaw
 ########################################################
-def compute_difference_list_motion(angle_x,angle_y,id_curve):
-    if(id_curve==1 ):  
-        #Detect two ways
-        diff_l = [angle_x[i]-angle_x[i+1] for i in range(len(angle_x)-1)]
+def compute_difference_list_motion(angle_x):
+    return [angle_x[i]-angle_x[i+1] for i in range(len(angle_x)-1)]
             
-    elif(id_curve==2 or id_curve==3):#Roll = f(pitch)
-        diff_l = [angle_y[i]-angle_y[i+1] for i in range(len(angle_y)-1)]
-    else:          
-        diff_l = []
-    return diff_l
-
 
 def positive_values(array):
     """
@@ -149,7 +116,7 @@ def detect_back_for(diff_l,list_angle):
     Returns
     -------
     array of int
-            Indices of the elements where a backward and forward movement begins.
+            Indices of the elements where the movement changes its way.
     """
     global ll,lr
     window_size = 20
@@ -171,7 +138,6 @@ def detect_back_for(diff_l,list_angle):
         else:
             i += 1
     ll = list(index_change_l)[1:][::2]
-    index_change_l = index_change_l[::2]
     lr = index_change_l
     
     return index_change_l
@@ -216,20 +182,17 @@ def mean_control_points(two_ways_x,two_ways_y):
 #     _ Control points
 ########################################################
 
-def get_control_points(angle_x,angle_y,id_curve,step):
+def get_control_points(angle_x, angle_y, step):
 
     #Compute difference between two consecutives points    
-    diff_l = compute_difference_list_motion(angle_x,angle_y,id_curve)
+    diff_l = compute_difference_list_motion(angle_x)
 
-    index_change_l = detect_back_for(diff_l, angle_x)    
+    index_change_l = detect_back_for(diff_l, angle_x)[::2]  
     #Build list for each two ways
     two_ways_x, two_ways_y = [],[]
     for i in range(len(index_change_l)-1):
-        two_ways_x += [angle_x[index_change_l[i]:index_change_l[i+1]]]
-        two_ways_y += [angle_y[index_change_l[i]:index_change_l[i+1]]]
-        #Add point to have : end two_ways nb 1 == beginning two_ways nb 2
-        two_ways_x[-1].append(angle_x[index_change_l[i+1]])
-        two_ways_y[-1].append(angle_y[index_change_l[i+1]])
+        two_ways_x += [angle_x[index_change_l[i]:index_change_l[i+1]+1]]
+        two_ways_y += [angle_y[index_change_l[i]:index_change_l[i+1]+1]]
 
     two_ways_x += [angle_x[index_change_l[-1]:]]
     two_ways_y += [angle_y[index_change_l[-1]:]]
@@ -308,23 +271,36 @@ def score_model(list_pts, npts):
     return distance_curve_to_spline(list_pts, spline)[1]
 
 
-########################################################
-# Compute control points and Interpolate data
-# Inputs:
-#     _ list_points : List of points
-#     _ id_curve: int
-#Outputs:
-#     _ Spline curve
-########################################################
-
-def interpolate_spline(list_points,id_curve,nb_points=700,step=20):
+def interpolate_spline(list_coord,nb_points=700,step=20):
+    """
+    Compute control points and create the spline.
+    
+    Parameters
+    ----------
+    list_points : array
+            Array of points.
+    id_curve : int
+            1 for pitch = f(yaw), 2 for roll = f(pitch), 3 for roll = f(yaw)
+    nb_points : int
+            Number of points in the spline.
+    step : int
+            Controls points are taken every step points.
+    
+    Returns
+    -------            
+    tuple of 4 arrays
+            [0] is the x-axis coordinates of the curve
+            [1] is the y-axis coordinates of the curve
+            [2] is the x-axis coordinates of the spline
+            [3] is the y-axis coordinates of the spline
+    """
     global l
 
     #Get data according to id_curve
-    angle_x, angle_y = get_points_curve(list_points,id_curve)
+    angle_x, angle_y = list_coord
     #1) Choose control points
-    x_control, y_control = get_control_points(angle_x,angle_y,id_curve,step)
-    l = [x_control,y_control]
+    x_control, y_control = get_control_points(angle_x, angle_y, step)
+    l = [x_control, y_control]
     #2)Interpolate
     #Inputs  :
     #    s: smoothing condition
@@ -366,6 +342,6 @@ if __name__ == "__main__":
         plt.close()
         """
         
-print("%s seconds" % (time.time() - start_time))
-print(scores)
-print(np.mean(scores))
+    print("%s seconds" % (time.time() - start_time))
+    print(scores)
+    print(np.mean(scores))
