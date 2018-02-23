@@ -1,8 +1,36 @@
 @startuml
 
-class AcquisitionController{}
-class MyWindowController{}
-class AcquisitionController{}
+package Controller {
+	class AcquisitionController
+	class MyWindowController
+	class SplineAndHullController
+	class HullsController
+	class WaveletController
+	class SendContinueThread
+}
 
+package Model {
+	class FileManager
+	class MyUtils
+	class PlotCanvas
+	class SocketServer
+}
+
+package View {
+	class Acquisition
+	class MyWindow 
+	class CurvesDialog
+	class ModelGeneratorDialog
+	class NewProfileDialog
+	class SplineAndHull
+	class Hulls
+	class Wavelet
+} 
+
+/'Acquisition 	*--* AcquisitionController
+MyWindow 		*--* MyWindowController
+SplineAndHull 	*--* SplineAndHullController
+Hulls 			*--* HullsController
+Wavelet 		*--* WaveletController'/
 
 @enduml
