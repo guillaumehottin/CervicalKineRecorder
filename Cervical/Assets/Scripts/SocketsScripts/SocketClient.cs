@@ -37,7 +37,7 @@ public class SocketClient : MonoBehaviour {
         //foreach (IPAddress address in hostEntry.AddressList)
         //{
         IPAddress address = IPAddress.Parse("127.0.0.1");
-        Debug.Log(address);
+        Debug.Log("Connecting to " + server + ":" + port.ToString()+ "...");
         IPEndPoint ipe = new IPEndPoint(address, port);
         Socket tempSocket =
             new Socket(ipe.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -52,6 +52,7 @@ public class SocketClient : MonoBehaviour {
         if (tempSocket.Connected)
         {
             s = tempSocket;
+            Debug.Log("Connected!");
             return true;
         }
         else

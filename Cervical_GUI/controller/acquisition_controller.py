@@ -8,7 +8,7 @@ from controller.threads import StartSocketServerThread, StartAcquisitionThread, 
 from model.file_manager import create_file_with_curves, get_coord
 from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
 
-DEBUG = False
+DEBUG = True
 
 
 class AcquisitionController(QObject):
@@ -120,8 +120,13 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_finish_thread_completion_handler")
     def handle_send_finish_thread_completion(self, e):
+        DEBUG and print("handle_send_finish_thread_completion")
         if self.number_of_finish_handlers_to_ignore == int(e):
             if self.send:
+                # UPDATE BUTTON START/STOP
+                self.view.startStopButton.setText("Fin Acquisition...")
+                self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
+                self.view.startStopButton.setEnabled(False)
                 self.socket_server.send("finishAcquisition")
                 self.socket_server.close()
 
@@ -134,11 +139,15 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_acquisition_finished_completion_handler")
     def handle_start_server_thread_acquisition_finished_completion(self, e):
+        DEBUG and print("handle_start_server_thread_acquisition_finished_completion")
         print(self.socket_server.receive())
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")
         self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.view.startStopButton.setEnabled(True)
         self.view.saveButton.setEnabled(True)
+
+
 
         # Update graph with tMP file content
         self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
@@ -146,6 +155,7 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
+        DEBUG and print("handle_start_server_thread_completion")
         print("server started")
         self.view.connected = True
         if self.view.profile_loaded:
@@ -154,7 +164,12 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_acquisition_started_completion_handler")
     def handle_start_server_thread_acquisition_started_completion(self, e):
+        DEBUG and print("handle_start_server_thread_acquisition_started_completion")
         print(self.socket_server.receive())
+        # UPDATE BUTTON START/STOP
+        self.view.startStopButton.setText("Arrêter acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: red; color:white")
+        self.view.startStopButton.setEnabled(True)
         time_to_wait = calculate_time_for_finish(self.params)
         self.send = True
         self.send_continue_thread = SendContinueThread(self.socket_server, self.start_server_thread, time_to_wait,
@@ -163,16 +178,25 @@ class AcquisitionController(QObject):
         self.send_continue_thread_id += 1
         self.send_continue_thread.completeSignal.connect(self.handle_send_finish_thread_completion)
         self.send_continue_thread.start()
+        #self.port_counter.reset()
 
     @pyqtSlot(str, name="handle_start_server_thread_acquisition_stopped_completion")
     def handle_start_server_thread_acquisition_stopped_completion(self, e):
+        DEBUG and print("handle_start_server_thread_acquisition_stopped_completion")
         print(self.socket_server.receive())
+        self.view.startStopButton.setText("Lancer acquisition")
+        self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.view.startStopButton.setEnabled(True)
+        self.view.saveButton.setEnabled(False)
 
     @pyqtSlot(str, name="handle_send_start_thread_completion")
     def handle_send_start_thread_completion(self, e):
-        # UPDATE BUTTON START/STOP
-        self.view.startStopButton.setText("Arrêter acquisition")
-        self.view.startStopButton.setStyleSheet("background-color: red; color:white")
+        DEBUG and print("handle_send_start_thread_completion")
+        # UPDATE BUTTON START/STOP OIZHUIAHDIUZAHOIDZL
+        self.view.startStopButton.setText("Lancement Acquisition...")
+        self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
+        self.view.startStopButton.setEnabled(False)
+        self.view.saveButton.setEnabled(False)
         self.socket_server.close()
         self.socket_server = SocketServer()
         self.start_server_thread = StartSocketServerThread(self.socket_server, self.port_counter)
@@ -181,11 +205,12 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_stop_thread_completion_handler")
     def handle_send_stop_thread_completion(self, e):
+        DEBUG and print("handle_send_stop_thread_completion")
         # UPDATE BUTTON START/STOP
-        self.view.startStopButton.setText("Lancer acquisition")
-        self.view.startStopButton.setStyleSheet("background-color: green; color:white")
+        self.view.startStopButton.setText("Arrêt Acquisition...")
+        self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
+        self.view.startStopButton.setEnabled(False)
         self.socket_server.close()
-        self.send_continue_thread.quit()
         self.send = False
         self.number_of_finish_handlers_to_ignore = self.number_of_finish_handlers_to_ignore + 1
         self.socket_server = SocketServer()
