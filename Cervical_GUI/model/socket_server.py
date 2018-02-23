@@ -9,8 +9,11 @@ class PortCount:
     def __init__(self, starting_port):
         self.starting_port = starting_port
         self.port = starting_port
+        self.ending_port = 51000
 
     def get_port(self):
+        if self.port > self.ending_port:
+            self.port = self.starting_port
         self.port = self.port + 1
         return self.port - 1
 
@@ -21,10 +24,11 @@ class SocketServer:
 
     def __init__(self):
         self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self._s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        #self._s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def start(self, host, port_counter):
         self.port = port_counter.get_port()
+        print("Starting server at {0}:{1}".format(host, self.port))
         self._s.bind((host, self.port))
         self._s.listen(1)
         print("Server started at {0} on port {1}.".format(host, self.port))

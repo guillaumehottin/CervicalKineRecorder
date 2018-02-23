@@ -18,7 +18,6 @@ import numpy as np
 from scipy import interpolate
 from plot_save import normalize
 import glob
-import sklearn.decomposition as skd
 import shapely.geometry as geo
 import myutils
 import time
@@ -91,8 +90,8 @@ def get_points_curve(list_points,id_curve):
         angle_x = [list_points[i][1] for i in range(len(list_points))]
         angle_y = [list_points[i][2] for i in range(len(list_points))]
     elif(id_curve==3):
-        angle_x = [list_points[i][2] for i in range(len(list_points))]
-        angle_y = [list_points[i][0] for i in range(len(list_points))]
+        angle_x = [list_points[i][0] for i in range(len(list_points))]
+        angle_y = [list_points[i][2] for i in range(len(list_points))]
     else:
         angle_x = []
         angle_y = []
@@ -116,21 +115,42 @@ def compute_difference_list_motion(angle_x,angle_y,id_curve):
 
 
 def positive_values(array):
+    """
+    Number of positive values in an array-like.
+    
+    Parameters
+    ----------
+    array : array
+            The array.
+    
+    Returns
+    -------
+    int
+    """
     n = 0
     for i in array:
         if i >= 0:
             n += 1
     return n
 
-########################################################
-# Detect each two ways
-# Input:
-#     _ diff : List of differences between 2 consecutives points
-# Output:
-#     _ List with indexes for all two ways beginning
-########################################################
 
-def detect_two_ways(diff_l,list_angle):
+def detect_back_for(diff_l,list_angle):
+    """
+    Detect when a movement changes its way.
+    
+    Parameters
+    ----------
+    diff_l : array
+            Array of the differences between consecutive elements. The result of
+            the function is based on the sign of its elements.
+    list_angle : array
+            Array of corresponding coordinates.
+            
+    Returns
+    -------
+    array of int
+            Indices of the elements where a backward and forward movement begins.
+    """
     global ll,lr
     window_size = 20
     sign_l = np.sign(diff_l)
@@ -201,13 +221,7 @@ def get_control_points(angle_x,angle_y,id_curve,step):
     #Compute difference between two consecutives points    
     diff_l = compute_difference_list_motion(angle_x,angle_y,id_curve)
 
-    #Two ways
-    if(id_curve==1 ):
-        list_angle = angle_x
-    else:
-        list_angle = angle_y
-
-    index_change_l = detect_two_ways(diff_l,list_angle)    
+    index_change_l = detect_back_for(diff_l, angle_x)    
     #Build list for each two ways
     two_ways_x, two_ways_y = [],[]
     for i in range(len(index_change_l)-1):
@@ -235,15 +249,14 @@ def distance_to_spline(pt, spline):
     ----------
     pt : array
             Array/list/tuple of two coordinates.
-    spline : array
-            Array of points.
+    spline : MultiPoint
+            Points which make the spline.
     
     Returns
     -------
     float
             Distance from the point to the spline.
     """
-    
     point = geo.Point(pt)
     return point.distance(spline)
 
@@ -270,34 +283,6 @@ def distance_curve_to_spline(curve, spline):
     return np.mean(distances), np.std(distances)
 
 
-# =============================================================================
-# =============================================================================
- # from rtree import index
- # def distance_curve_to_spline2(curve, spline):
- # """
- # Compute the mean and standard deviation distance from a curve to a spline.
- # 
- # Parameters
- # ----------
- # curve : array
- #         Array of points of the curve.
- # spline : array
- #         Array of points of the spline.
- # 
- # Returns
- # float, float
- #         Mean and standard deviation of the distance.
- # """
- # distances = []
- # idx = index.Index()
- # for i,p in enumerate(spline):
- #     idx.insert(i, p)
- # for p in curve:
- #     distances += [idx.nearest(p)]
-# =============================================================================
-# return np.mean(distances), np.std(distances)
-# =============================================================================
-
 def score_model(list_pts, npts):
     """
     Compute a score, i.e. the standard deviation of the distance to the spline.
@@ -318,7 +303,7 @@ def score_model(list_pts, npts):
     float
             Standard deviation of the distance from each point to the mean spline.
     """
-    angle_x,angle_y,xs,ys = interpolate_spline(list_points,1,npts)
+    angle_x,angle_y,xs,ys = interpolate_spline(list_pts,1,npts)
     spline = myutils.coord2points([xs, ys])
     return distance_curve_to_spline(list_pts, spline)[1]
 
@@ -336,9 +321,9 @@ def interpolate_spline(list_points,id_curve,nb_points=700,step=20):
     global l
 
     #Get data according to id_curve
-    angle_x,angle_y = get_points_curve(list_points,id_curve)
+    angle_x, angle_y = get_points_curve(list_points,id_curve)
     #1) Choose control points
-    x_control,y_control = get_control_points(angle_x,angle_y,id_curve,step)
+    x_control, y_control = get_control_points(angle_x,angle_y,id_curve,step)
     l = [x_control,y_control]
     #2)Interpolate
     #Inputs  :
@@ -346,10 +331,10 @@ def interpolate_spline(list_points,id_curve,nb_points=700,step=20):
     #Outputs : 
     #    tck : tuple (t,c,k) vector of knots, B-spline coeff and the degree
     #    u   : weighted sum of squared residuals of the approximation
-    tck,u=interpolate.splprep([x_control,y_control],s=0.0)
-    x_spline,y_spline= interpolate.splev(np.linspace(0,1,nb_points),tck)
+    tck, u = interpolate.splprep([x_control, y_control], s=0.0)
+    x_spline, y_spline = interpolate.splev(np.linspace(0, 1, nb_points), tck)
 
-    return angle_x,angle_y,x_spline,y_spline
+    return angle_x, angle_y, x_spline, y_spline
 
 
 #####################################################################
@@ -359,28 +344,19 @@ if __name__ == "__main__":
     ll,lr = [],[]
     
     direct = 'data/guillaume2/'
-    """
-    list_dir = next(os.walk(direct))[1]
-    list_dir = [direct+s for s in list_dir]
-    """
-    list_path=[]
-    #Get all paths for orpl files
-    #for path in list_dir:
-    list_path.extend(glob.glob(direct+'/*.orpl'))
-    #Get all data
-    list_all_points,names = get_normalize_curves(list_path)
-"""
-    try:
-        os.mkdir(direct+'Splines')
-    except FileExistsError:
-        pass
+    
+    list_files = myutils.fetch_files(dir_name=direct,sub_dir='Normalized',extension='.orpl')
+    list_all_points = np.array([myutils.get_coord(f) for f in list_files])
+
+    npts = 150
     scores = []
-    for i in range(len(list_path)):
-        #Get ith list of points
-        list_points = list_all_points[i]
-        scores += [score_model(list_points)]
+    start_time = time.time()
+    for i, list_coord in enumerate(list_all_points):
+        list_points = myutils.coord2points(list_coord)
+        scores += [score_model(list_points, npts)]
         #Interpolate curve
-        angle_x,angle_y,xs,ys = interpolate_spline(list_points,1,500)
+        """
+        angle_x,angle_y,xs,ys = interpolate_spline(list_points,1,npts)
         #Plot
         plt.plot(angle_x,angle_y,'r--',xs,ys)
         plt.plot(l[0],l[1],'bo')
@@ -388,9 +364,8 @@ if __name__ == "__main__":
         plt.plot(np.array(angle_x)[lr],np.array(angle_y)[lr],'yo')
         plt.savefig(direct+'Splines/spline_nb_'+str(i)+'.png')
         plt.close()
-"""
-
-list_points2 = list_all_points[0]
-start_time = time.time()
-x=score_model(list_points2, 300)
+        """
+        
 print("%s seconds" % (time.time() - start_time))
+print(scores)
+print(np.mean(scores))

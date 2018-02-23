@@ -49,8 +49,9 @@ public class StartScripts : MonoBehaviour {
 
     private bool conf = false;
     private bool connected = false;
-    private int port = 50007;
-
+    private int STARTING_PORT = 50007;
+    private int ENDING_PORT = 51000;
+    private int port;
     // Use this for initialization
     void Start () {
         if (conf)
@@ -110,17 +111,24 @@ public class StartScripts : MonoBehaviour {
                 waitedTime += Time.deltaTime;
                 if (waitedTime > waitTime)
                 {
+                    port = STARTING_PORT;
                     state = "connect";
                 }
             }
             else if (state.Equals("connect"))
             {
+                port = STARTING_PORT;
                 connected = SocketClient.connectSocket("127.0.0.1", port);
                 if (connected)
                 {
-                    Debug.Log("connected new");
-                    Debug.Log(port);
-                    port++;
+                    if (port > 50017)
+                    {
+                        port = STARTING_PORT;
+                    }
+                    else
+                    {
+                        port++;
+                    }
                     state = "receive";
                 }
 
@@ -134,11 +142,9 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("checkReceive"))
             {
-                Debug.Log("checkReveice");
                 if (socketReceiveJob.Update())
                 {
                     message = socketReceiveJob.message;
-                    Debug.Log(message);
                     if (message != null)
                     {
                         if (message.Contains("startAcquisition"))
@@ -228,11 +234,17 @@ public class StartScripts : MonoBehaviour {
 
                 if (waitedTime > waitTime)
                 {
-                    Debug.Log("connect laaa");
                     connected = SocketClient.connectSocket("127.0.0.1", port);
                     if (connected) {
                         socketReceiveJob = new SocketReceive();
-                        port++;
+                        if (port == ENDING_PORT)
+                        {
+                            port = STARTING_PORT;
+                        }
+                        else
+                        {
+                            port++;
+                        }
 
                         SocketClient.socketSend("startAcquisitionAck");
                         socketReceiveJob.Start();
@@ -273,7 +285,14 @@ public class StartScripts : MonoBehaviour {
                 connected = SocketClient.connectSocket("127.0.0.1", port);
                 if (connected)
                 {
-                    port++;
+                    if (port == ENDING_PORT)
+                    {
+                        port = STARTING_PORT;
+                    }
+                    else
+                    {
+                        port++;
+                    }
                     SocketClient.socketSend("endAcquisition");
 
                     state = "receive";
@@ -286,15 +305,21 @@ public class StartScripts : MonoBehaviour {
             }
             else if (state.Equals("stopAcquisition"))
             {
-                Debug.Log("stopped");
                 sphereControlScript.stop = true;
 
                 connected = SocketClient.connectSocket("127.0.0.1", port);
 
                 if (connected)
                 {
-                    Debug.Log("connected");
-                    port++;
+                    if (port == ENDING_PORT)
+                    {
+                        port = STARTING_PORT;
+                    }
+                    else
+                    {
+                        port++;
+                    }
+
                     SocketClient.socketSend("stopAcquisitionAck");
                     state = "receive";
                     waitedTime = 0.0f;
