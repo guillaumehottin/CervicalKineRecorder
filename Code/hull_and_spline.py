@@ -4,7 +4,6 @@ import datetime
 from shapely.wkt import loads
 import matplotlib.pyplot as plt
 import myutils
-import numpy as np
 
 
 def check_healthy(score_spline, score_hull, hull_threshold, spline_threshold):
@@ -68,6 +67,28 @@ def plot_hull_curve(curve, hull):
     plt.plot(curve[0], curve[1])
     plt.show()
 
+
+def preprocess_data(array_data, type_norm = 'global'):
+    """
+    Normalize data for all acquisitions of a list.
+    
+    Parameters
+    ----------
+    array_data : list
+            List of lists of coordinates.
+    type_norm : str
+            Type of normalization (see normalize function in myutils).
+            
+    Returns
+    -------
+    list
+         Normalized data.
+    """
+    norm_array = []
+    for one_acq in array_data:
+        norm_array.append(myutils.normalize(one_acq[0], one_acq[1], one_acq[2], type_norm))
+    return norm_array
+
     
 def save_model(list_dir, directory):
     """
@@ -81,6 +102,7 @@ def save_model(list_dir, directory):
             Path to the directory where the model must be saved.
     """
     array_data = myutils.fetch_from_dirs(list_dir)
+    array_data = preprocess_data(array_data)
     hull_model_p, hull_model_r = hulls.create_model(array_data)
     spline_pitch, spline_roll = splines.create_model(array_data)
     now = datetime.datetime.now()
@@ -109,11 +131,10 @@ def load_model(file_path):
         hull_roll = loads(data[1])
         spline_std_pitch = float(data[2])
         spline_std_roll = float(data[3])
-    #spline = data[1]
     return hull_pitch, hull_roll, spline_std_pitch, spline_std_roll
 
 
 if __name__ == '__main__':
-    direct = 'data/guillaume2/Normalized'
-    #save_model([direct], '.')
-        load_model("has_02-23-2018_1808.mlhas")
+    direct = 'data/guillaume2/'
+    save_model([direct], '.')
+    #load_model("has_02-23-2018_1808.mlhas")

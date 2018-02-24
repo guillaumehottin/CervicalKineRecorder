@@ -113,44 +113,6 @@ def plot_all(motion,name_dir,save_fig,show,scatter,norm,extension):
             l += [name]
     for name in l:
         plot_from_file(name,name_dir,save_fig,show,scatter,norm)
-
-"""
-def normalize(pitch_l,yaw_l,roll_l):
-    normalized_pitch = (pitch_l-np.amin(pitch_l))/(np.amax(pitch_l)-np.amin(pitch_l))
-    normalized_yaw = (yaw_l-np.amin(yaw_l))/(np.amax(yaw_l)-np.amin(yaw_l))
-    normalized_roll = (roll_l-np.amin(roll_l))/(np.amax(roll_l)-np.amin(roll_l))
-    return normalized_pitch,normalized_yaw,normalized_roll
-"""
-
-def normalize(yaw_l, pitch_l, roll_l):
-    """
-    Normalize the data. This is done using the global maximum and minimum values of the
-    three angles. For every value x, the normalized value is:
-        (x-min)/(max-min)
-        
-    Parameters
-    ----------
-    pitch_l : list
-            The pitch angles.
-    roll_l : list
-            The roll angles.
-    yaw_l : list
-            The yaw angles.
-    Returns
-    -------
-    tuple
-            Contains three lists, each corresponding to an angle, with the 
-            normalized value. 
-    """
-    
-    amin = np.amin([np.amin(pitch_l),np.amin(yaw_l),np.amin(roll_l)])    
-    amax = np.amax([np.amax(pitch_l),np.amax(yaw_l),np.amax(roll_l)])    
-    normalized_yaw = (yaw_l-amin)/(amax-amin)
-    normalized_pitch = (pitch_l-amin)/(amax-amin)
-    normalized_pitch = normalized_pitch - np.mean(normalized_pitch) + 0.5
-    normalized_roll = (roll_l-amin)/(amax-amin)
-    normalized_roll = normalized_roll - np.mean(normalized_roll) + 0.5
-    return normalized_yaw, normalized_pitch, normalized_roll
     
     
 def save_normalized(motion, name_dir, extension):

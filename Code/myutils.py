@@ -171,6 +171,54 @@ def coord2points(data):
         points += [point]
     return points
 
+
+def normalize(yaw_l, pitch_l, roll_l, type_norm = 'global'):
+    """
+    Normalize the data. This is done using the global maximum and minimum values of the
+    three angles. For every value x, the normalized value is:
+        (x-min)/(max-min)
+        
+    Parameters
+    ----------
+    pitch_l : list
+            The pitch angles.
+    roll_l : list
+            The roll angles.
+    yaw_l : list
+            The yaw angles.
+    type_norm : str
+            For each of the possible values, the normalization of x is done as follows:
+            'stat': (x-mean)/std
+            'global': (x-global_min)/(global_max-global_min) (pitch & roll centered around 0.5)
+            'local': (x-angle_min)/(angle_max-angle_min)
+            
+    Returns
+    -------
+    tuple
+            Contains three lists, each corresponding to an angle, with the 
+            normalized value. 
+    """
+    if type_norm == 'stat':
+        normalized_pitch = (pitch_l-np.mean(pitch_l))/np.std(pitch_l)
+        normalized_yaw = (yaw_l-np.mean(yaw_l))/np.std(yaw_l)
+        normalized_roll = (roll_l-np.mean(roll_l))/np.std(roll_l)
+    elif type_norm == 'global':
+        amin = np.amin([np.amin(pitch_l),np.amin(yaw_l),np.amin(roll_l)])    
+        amax = np.amax([np.amax(pitch_l),np.amax(yaw_l),np.amax(roll_l)])    
+        normalized_yaw = (yaw_l-amin)/(amax-amin)
+        normalized_pitch = (pitch_l-amin)/(amax-amin)
+        normalized_pitch = normalized_pitch - np.mean(normalized_pitch) + 0.5
+        normalized_roll = (roll_l-amin)/(amax-amin)
+        normalized_roll = normalized_roll - np.mean(normalized_roll) + 0.5
+    elif type_norm == 'local':
+        normalized_pitch = (pitch_l-np.amin(pitch_l))/(np.amax(pitch_l)-np.amin(pitch_l))
+        normalized_yaw = (yaw_l-np.amin(yaw_l))/(np.amax(yaw_l)-np.amin(yaw_l))
+        normalized_roll = (roll_l-np.amin(roll_l))/(np.amax(roll_l)-np.amin(roll_l))
+    else:
+        raise ValueError('type_norm must take one of these values: "global", "local" or "stat"')
+    return normalized_yaw, normalized_pitch, normalized_roll
+
+
 def mean_succ_diff(data):
     """
     The mean difference beween successive elements of an array.

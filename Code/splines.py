@@ -11,17 +11,11 @@
 #####################################################################
 
 
-import matplotlib.pyplot as plt
-import os
 import numpy as np
 from scipy import interpolate
-from plot_save import normalize
-import glob
 import shapely.geometry as geo
 import myutils
-import time
 
-global plot,cpt, patho_stg
 
 def get_file_data(path):
     f = open(path,"r")
@@ -40,35 +34,7 @@ def get_file_data(path):
         pitch_l = list(map(float, pitch_l))
         roll_l = list(map(float, roll_l))
 
-    return yaw_l,pitch_l,roll_l
-
-
-
-    
-########################################################
-# Get data in list_path and normalize it
-# Inputs:
-#     _ list_path: List
-#     _ id_curve: int
-#Outputs:
-#     _ List of List with all angles : ith element = (yaw_i,pitch_i,roll_i)
-#     _ list_name : List with names of all patients
-########################################################
-    
-def get_normalize_curves(list_path):
-    list_all_points = []
-    list_name = []
-    list_sym = []
-    
-    for path in list_path:    
-        #Get data and normalize it
-        yaw,pitch,roll  = get_file_data(path)
-        yaw,pitch,roll  = normalize(yaw,pitch,roll)
-        list_points = [(yaw[j],pitch[j],roll[j]) for j in range(len(yaw))]
-        list_all_points += [list_points]
-        list_name.append(path.split('/')[1])
-
-    return list_all_points,list_name
+    return yaw_l, pitch_l, roll_l
 
 
 ########################################################
@@ -136,30 +102,28 @@ def detect_oscillations(diff_l,list_angle):
                 i += 1
         else:
             i += 1
-    ll = list(index_change_l)[1:][::2]
-    lr = index_change_l
     
     return index_change_l
 
 
 
 ########################################################
-#Have same number of control points for each oscillations and compute mean
+#Have same number of control points for each oscillation and compute mean
 #Inputs:
-#    _ oscillations_x : List of List with each oscillations for axis x
-#    _ oscillations_y : Same with axis y
+#    _ two_ways_x : List of List with each two ways for axis x
+#    _ two_ways_y : Same with axis y
 #Outputs:
 #    _ Mean control points : Two lists
 ########################################################
 
-def mean_control_points(oscillations_x,oscillations_y):
-    #Get same number of points of each oscillations
+def mean_control_points(oscillations_x, oscillations_y):
+#Get same number of points of each oscillation
     len_list = list(map(len, oscillations_x))
     min_len = min(len_list)    
     index = len_list.index(min_len)
         
     for i in range(len(oscillations_x)):
-        if (i!=index):
+        if (i != index):
             n = len(oscillations_x[i])
             oscillations_x[i] = [oscillations_x[i][int(j + j*(n-min_len)/min_len)] for j in range(min_len)]
             oscillations_y[i] = [oscillations_y[i][int(j + j*(n-min_len)/min_len)] for j in range(min_len)]
@@ -171,7 +135,7 @@ def mean_control_points(oscillations_x,oscillations_y):
 
 ########################################################
 # Compute mean control points for oscillations
-# Detect each oscillations, get same number of points
+# Detect each oscillation, get same number of points
 # and mean each list
 # Inputs:
 #     _ angle_x : List
@@ -186,8 +150,9 @@ def get_control_points(angle_x, angle_y, step):
     #Compute difference between two consecutives points    
     diff_l = compute_difference_list_motion(angle_x)
 
-    index_change_l = detect_oscillations(diff_l, angle_x)[::2]  
-    #Build list for each oscillations
+    index_change_l_res = detect_oscillations(diff_l, angle_x)  
+    index_change_l = index_change_l_res[::2]
+    #Build list for each oscillation
     oscillations_x, oscillations_y = [],[]
     for i in range(len(index_change_l)-1):
         oscillations_x += [angle_x[index_change_l[i]:index_change_l[i+1]+1]]
@@ -200,7 +165,7 @@ def get_control_points(angle_x, angle_y, step):
     mean_control_x, mean_control_y = mean_control_points(oscillations_x,oscillations_y)
     mean_control_x, mean_control_y = mean_control_x[::step], mean_control_y[::step]
     
-    return mean_control_x,mean_control_y
+    return mean_control_x, mean_control_y, index_change_l
 
 
 def distance_to_spline(pt, spline):
@@ -223,7 +188,7 @@ def distance_to_spline(pt, spline):
     return point.distance(spline)
 
 
-def distance_curve_to_spline(curve, spline):
+def distance_curve_to_spline(curve, spline, indices_curve):
     """
     Compute the mean and standard deviation distance from a curve to a spline.
     
@@ -233,87 +198,79 @@ def distance_curve_to_spline(curve, spline):
             Array of points of the curve.
     spline : array
             Array of points of the spline.
-    
-    Returns++++++++++++++
+    indices_curve : array
+            Indices of the points of the curve when the motion changes way.
+            
+    Returns
+    -------
     float, float
             Mean and standard deviation of the distance.
     """
+    
     distances = []
-
+    
     #Compute list of differences between two points
-    diff_curve  = compute_difference_list_motion(curve[:,0])
-    diff_spline = compute_difference_list_motion(spline[:,0])
+    diff_spline = compute_difference_list_motion(spline[:, 0])
     #Detect oscillations beginning
-    index_change_curve  = detect_oscillations(diff_curve,curve[:,0])
-    index_change_spline = detect_oscillations(diff_spline,spline[:,0])
+    index_change_spline = detect_oscillations(diff_spline, spline[:, 0])
     #Build multi points for splines
-    one_way_spline = np.array(spline[:index_change_spline[-1]+1,:])
-    return_spline  = np.array(spline[index_change_spline[-1]:,:])
-    one_way_spline_mp = geo.MultiPoint(one_way_spline)
-    return_spline_mp  = geo.MultiPoint(return_spline)
+    forth_spline = np.array(spline[:index_change_spline[-1]+1])
+    back_spline  = np.array(spline[index_change_spline[-1]:])
+    forth_spline_mp = geo.MultiPoint(forth_spline)
+    back_spline_mp  = geo.MultiPoint(back_spline)
+    
 
     #Compute distance for each oscillation
-    for index in range(0,len(index_change_curve)-2,2):
-        one_way_curve = np.array(curve[index_change_curve[index]:index_change_curve[index+1]+1,:])     
-        return_curve  = np.array(curve[index_change_curve[index+1]:index_change_curve[index+2]+1,:])    
-        for p in one_way_curve:
-            distances += [distance_to_spline(p, one_way_spline_mp)]
-        for p in return_curve:
-            distances += [distance_to_spline(p, return_spline_mp)]
+    for index in range(0,len(indices_curve)-2,2):
+        forth_curve = np.array(curve[indices_curve[index]:indices_curve[index+1]])     
+        back_curve  = np.array(curve[indices_curve[index+1]:indices_curve[index+2]+1])    
+        for p in forth_curve:
+            distances += [distance_to_spline(p, forth_spline_mp)]
+        for p in back_curve:
+            distances += [distance_to_spline(p, back_spline_mp)]
  
-    one_way_curve = np.array(curve[index_change_curve[-2]:index_change_curve[-1]+1,:])     
-    return_curve  = np.array(curve[index_change_curve[-1]:,:])    
-    for p in one_way_curve:
-        distances += [distance_to_spline(p, one_way_spline_mp)]
-    for p in return_curve:
-        distances += [distance_to_spline(p, return_spline_mp)]
-
+    forth_curve = np.array(curve[indices_curve[-2]:indices_curve[-1]])    
+    back_curve  = np.array(curve[indices_curve[-1]:])    
+    for p in forth_curve:
+        distances += [distance_to_spline(p, forth_spline_mp)]
+    for p in back_curve:
+        distances += [distance_to_spline(p, back_spline_mp)]
+    
     return np.mean(distances), np.std(distances)
 
 
-def score_model(list_pts, npts):
-    global plot, cpt, patho_stg
+def score_model(list_coord, xs, ys, indices_change):
     """
     Compute a score, i.e. the standard deviation of the distance to the spline.
     
     Parameters
     ----------
-    list_pts : array
-            Array of points.
-    x_spline : array
+    list_coord : array
+            Array of coordinates.
+    xs : array
             X-axis coordinates of the points of the mean spline.
-    y_spline : array
+    ys : array
             Y-axis coordinates of the points of the mean spline.
-    npts : int
-            Number of points in the spline.
-    
+    indices_change : array
+            Indices of the points of the curve where the motion changes way.
+            
     Returns
     -------
     float
             Standard deviation of the distance from each point to the mean spline.
-    """
-    angle_x,angle_y,xs,ys = interpolate_spline(list_pts,npts)
+    """    
     spline = np.array(myutils.coord2points([xs, ys]))
-    sd_distance = distance_curve_to_spline(list_pts, spline)[1]
-    if plot:
-        plt.plot(angle_x,angle_y,'r--',xs,ys,'b')
-        plt.title('Standard deviation of distances : ' + str(sd_distance))
-        plt.savefig('../Splines/spline_' + str(cpt)+'_'+patho_stg + '.png')
-        cpt +=1
-        plt.close()
-    return sd_distance
+    return distance_curve_to_spline(myutils.coord2points(list_coord), spline, indices_change)[1]
 
 
-def interpolate_spline(list_coord,nb_points=700,step=10):
+def interpolate_spline(list_coord,nb_points=700,step=20):
     """
     Compute control points and create the spline.
     
     Parameters
     ----------
-    list_points : array
-            Array of points.
-    id_curve : int
-            1 for pitch = f(yaw), 2 for roll = f(pitch), 3 for roll = f(yaw)
+    list_coord : array
+            Array of two coordinates.
     nb_points : int
             Number of points in the spline.
     step : int
@@ -321,18 +278,16 @@ def interpolate_spline(list_coord,nb_points=700,step=10):
     
     Returns
     -------            
-    tuple of 4 arrays
-            [0] is the x-axis coordinates of the curve
-            [1] is the y-axis coordinates of the curve
-            [2] is the x-axis coordinates of the spline
-            [3] is the y-axis coordinates of the spline
+    tuple of 3 arrays
+            [0] is the x-axis coordinates of the spline
+            [1] is the y-axis coordinates of the spline
+            [2] is the indices of when the curve changes way
     """
 
     #Get data according to id_curve
-    angle_x, angle_y = list_coord[:,0],list_coord[:,1]
+    angle_x, angle_y = list_coord
     #1) Choose control points
-    x_control, y_control = get_control_points(angle_x, angle_y, step)
-    l = [x_control, y_control]
+    x_control, y_control, indices_change = get_control_points(angle_x, angle_y, step)
     #2)Interpolate
     #Inputs  :
     #    s: smoothing condition
@@ -342,38 +297,51 @@ def interpolate_spline(list_coord,nb_points=700,step=10):
     tck, u = interpolate.splprep([x_control, y_control], s=0.0)
     x_spline, y_spline = interpolate.splev(np.linspace(0, 1, nb_points), tck)
 
-    return angle_x, angle_y, x_spline, y_spline
+    return x_spline, y_spline, indices_change
 
 
-#####################################################################
+def create_model(array_data):
+    """
+    Create the model for the variability of the distance to the mean spline.
+    
+    Parameters
+    ----------
+    array_data : array of arrays of arrays of float
+            Each element is an array of coordinates.
+    
+    Returns
+    -------
+    float, float
+            Mean standard deviation for pitch=f(yaw) and roll=f(yaw) respectively.
+    """
+    yaw_pitch = []
+    yaw_roll = []
+    for one_acq in array_data:
+        p, r = myutils.get_axes(one_acq, ((1, 2), (1, 3)))
+        yaw_pitch += [p]
+        yaw_roll += [r]
+    std_pitch = []
+    std_roll = []
+    npts = 150
+    for i in range(len(yaw_pitch)):
+        xsp, ysp, indices_p = interpolate_spline(yaw_pitch[i], npts)
+        xsr, ysr, indices_r = interpolate_spline(yaw_roll[i], npts)
+        std_pitch += [score_model(yaw_pitch[i], xsp, ysp, indices_p)]
+    print(std_pitch)
+    #We use the mean for now, but might take a quantile or other measure later.
+    return np.mean(std_pitch), np.mean(std_roll)
+    
+
 if __name__ == "__main__":
-
-    plot = True
-    cpt = 0
-    patho_stg = "patho"
-    direct = '../gui/guillaume/'
     
-    list_files = myutils.fetch_files(dir_name=direct,sub_dir='Normalized',extension='.txt')
+    direct = 'data/guillaume2/'
     
-    patho = []
-    for i in range(len(list_files)):
-        if "patho" in list_files[i]:
-            patho.append(list_files[i])
-
-    list_files = patho 
-   
-    list_all_points = np.array([myutils.get_coord(f) for f in list_files])
+    list_dir = ['data/guillaume2/Normalized']
+    list_coord = myutils.fetch_from_dirs(list_dir)
+    #TODO: ON THE FLY NORMALIZATION
 
     npts = 150
-    scores = []
-    start_time = time.time()
-    for i, list_coord in enumerate(list_all_points):
-        list_points = myutils.coord2points(list_coord)
-        #Only two angles : Yaw and Pitch
-        list_points = np.array([list_points[k][:2] for k in range(len(list_points))])
-        scores += [score_model(list_points, npts)]
-
+    
+    p, r = create_model(list_coord)
         
-    print("%s seconds" % (time.time() - start_time))
-    print(scores)
-    print(np.mean(scores))
+    
