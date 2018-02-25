@@ -127,6 +127,8 @@ def alpha_shape(points, alpha):
 		  
     coords = np.array([point.coords[0] for point in points])
     tri = Delaunay(coords)
+    print("Delaunay done...")
+    print(str(len(tri.vertices))+" vertices")
     edges = set()
     edge_points = []
     # loop over triangles:
@@ -153,10 +155,11 @@ def alpha_shape(points, alpha):
             add_edge(edges, edge_points, coords, ic, ia)
     m = geometry.MultiLineString(edge_points)
     triangles = list(polygonize(m))
+    print("Triangles polygonized")
     return cascaded_union(triangles), edge_points
 
 
-def hull_distance(polyA,polyB):
+def hull_distance(polyA, polyB):
     """
     Distance between two hulls, defined by the sum of their differences areas.
     
@@ -172,7 +175,7 @@ def hull_distance(polyA,polyB):
     return AmB.area + BmA.area
 
 
-def matching_grid(polygon,axis=[0,1],npts=20):
+def matching_grid(polygon, axis=[0,1], npts=20):
     """
     Discretize a space to match a polygon.
     
@@ -245,7 +248,6 @@ def pts_out_poly(poly, pts):
     """
     n = 0
     for pt in pts:
-        
         if not poly.contains(pt):
             n += 1
     return n
@@ -309,6 +311,74 @@ def pts_out_hull3(hull, pts):
     return n, indices_out
 
 
+def points_in_area(x_coords, y_coords, xlims, ylims):
+    """
+    Get the points that are in a delimited area.
+    
+    Parameters
+    ----------
+    x_coords : array_like
+            X-axis coordinates.
+    y_coords : array_like
+            Y-axis coordinates.
+    xlims : array_like
+            The area limits for the x-axis, [x_low, x_up]
+    ylims : array_like
+            The area limits for the y-axis, [y_low, y_up]
+    """
+    pts = []
+    x_low, x_up = xlims
+    y_low, y_up = ylims
+    for i in range(len(x_coords)):
+        x, y = x_coords[i], y_coords[i]
+        if x >= x_low and x < x_up and y >= y_low and y < y_up:
+            pts += [[x, y]]
+    return pts
+            
+
+def build_set_for_hull(array_data, bins, threshold):
+    """
+    Build the set of points that will be kept to make the hull (i.e., we do not 
+    consider points in areas whose density is too low).
+    
+    Parameters
+    ----------
+    array_data : array_like
+            Contains three arrays of floats, for each angle (yaw, pitch ,roll) respectively.
+    bins : array_like
+            Bins for the 2D histograms, in the shape [xbins, ybins].
+    threshold : int
+            Minimum number of points in an area for which we keep the area.
+            
+    Returns
+    -------
+    tuple of 2 arrays
+            The first array is the points kept for pitch=f(yaw), the second
+            for roll=f(yaw).
+    """
+    #Build 2D histograms
+    yaw = [x[0] for x in array_data]
+    pitch = [x[1] for x in array_data]
+    roll = [x[2] for x in array_data]
+    print('Total of points = '+str(len(yaw)))
+    hp, xedge, yedge = np.histogram2d(yaw, pitch, bins=bins, range=[[0,1],[0.43,0.57]])
+    hr, _, _ = np.histogram2d(yaw, roll, bins=bins, range=[[0,1],[0.43,0.57]])
+    
+    #Determine points to be kept
+    pts_pitch = []
+    pts_roll = []
+    for j in range(bins[1]):
+        for i in range(bins[0]):
+            #Keep areas that contain enough points
+            xlims = xedge[i:i+2]
+            ylims = yedge[j:j+2]
+            if hp[i, j] >= threshold:
+                pts_pitch += points_in_area(yaw, pitch, xlims, ylims)
+            if hr[i, j] >= threshold:
+                pts_roll += points_in_area(yaw, roll, xlims, ylims)
+    return pts_pitch, pts_roll
+
+
 def create_model(array_data):
     """
     Generate a concave hull which is the union of all concave hulls in the training set.
@@ -320,22 +390,52 @@ def create_model(array_data):
             
     Returns
     -------
-    Polygon
-            Concave hull
+    tuple of Polygon
+            Concave hull for both pitch and roll.
+    """
+    
     """
     array_data = [myutils.coord2points(d) for d in array_data]
     first_acq = array_data.pop(0)
-    p = [x[0:2] for x in first_acq]
-    r = [x[0:3:2] for x in first_acq]
+    
+    bins = [10, 5]
+    threshold = 10
+    #p = [x[0:2] for x in first_acq]
+    #r = [x[0:3:2] for x in first_acq]
+    
+    p, r = build_set_for_hull(first_acq, bins, threshold)
     model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0]
     model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0]
     for one_acq in array_data:
-        p = [x[0:2] for x in one_acq]
-        r = [x[0:3:2] for x in one_acq]
+        p, r = build_set_for_hull(one_acq, bins, threshold)
+        #p = [x[0:2] for x in first_acq]
+        #r = [x[0:3:2] for x in first_acq]
+    
         hull_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0]
         hull_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0]
         model_pitch = model_pitch.union(hull_pitch)
         model_roll = model_roll.union(hull_roll)
+    return model_pitch, model_roll
+    """
+    
+    all_points = np.concatenate([myutils.coord2points(d) for d in array_data])
+    
+    bins = [50, 20]
+    threshold = len(all_points)/(bins[0]*bins[1])
+    
+    p, r = build_set_for_hull(all_points, bins, threshold)
+    print("Point set built...")
+    print(str(len(p))+" points in pitch")
+    print(str(len(r))+" points in roll")
+    model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0].buffer(0.005)
+    print("Pitch model built...")
+    model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0].buffer(0.005)
+    print("Roll model built...\nBoth models built...")
+    
+    plot_polygon_MP(model_pitch)
+    plt.scatter([x[0] for x in p], [x[1] for x in p])
+    plot_polygon_MP(model_roll)
+    plt.scatter([x[0] for x in r], [x[1] for x in r])
     return model_pitch, model_roll
 
 #############################################################

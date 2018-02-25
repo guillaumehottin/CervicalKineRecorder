@@ -4,7 +4,8 @@ import datetime
 from shapely.wkt import loads
 import matplotlib.pyplot as plt
 import myutils
-
+import numpy as np
+import time
 
 def check_healthy(score_spline, score_hull, hull_threshold, spline_threshold):
     """
@@ -34,7 +35,7 @@ def check_healthy(score_spline, score_hull, hull_threshold, spline_threshold):
     return True
 
 
-def plot_spline_curve(curve, spline):
+def plot_spline_curve(spline, curve):
     """
     Plot the curve of the acquisition and the spline.
     
@@ -51,7 +52,7 @@ def plot_spline_curve(curve, spline):
     plt.show()
     
     
-def plot_hull_curve(curve, hull):
+def plot_hull_curve(hull, curve):
     """
     Plot the curve of the acquisition and the hull.
     
@@ -62,7 +63,6 @@ def plot_hull_curve(curve, hull):
     hull : Polygon
             Model hull.
     """
-    plt.figure()
     hulls.plot_polygon_MP(hull)
     plt.plot(curve[0], curve[1])
     plt.show()
@@ -105,11 +105,13 @@ def save_model(list_dir, directory):
     array_data = preprocess_data(array_data)
     hull_model_p, hull_model_r = hulls.create_model(array_data)
     spline_pitch, spline_roll = splines.create_model(array_data)
+    
     now = datetime.datetime.now()
-    file_name = directory + '/has_' + now.strftime("%m-%d-%Y_%H%M") + '.mlhas'
+    file_name = directory + '/has_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlhs'
     with open(file_name, 'w+') as file:
         file.write(hull_model_p.wkt + '\n' + hull_model_r.wkt + '\n' + str(spline_pitch) + '\n' + str(spline_roll))
-        
+    
+    return hull_model_p, hull_model_r
     
 def load_model(file_path):
     """
@@ -123,7 +125,8 @@ def load_model(file_path):
     Returns
     -------
     tuple
-            First element is the hull model (a Polygon), second is the spline.
+            First two elements are the hull models (Polygons), next two are the 
+            splines mean standard deviations.
     """
     with open(file_path, 'r+') as file:
         data = file.readlines()
@@ -135,6 +138,11 @@ def load_model(file_path):
 
 
 if __name__ == '__main__':
-    direct = 'data/guillaume2/'
-    save_model([direct], '.')
-    #load_model("has_02-23-2018_1808.mlhas")
+    direct = ['data/guillaume2/']
+    
+    start = time.process_time()
+    hullp, hullr  = save_model(direct, '.')
+    elapsed = time.process_time()-start
+    print("Time elapsed: {0}".format(elapsed))
+    #load_model("")
+    myutils.audio_signal()
