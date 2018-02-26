@@ -6,8 +6,8 @@
 #    _Roll  = f(Pitch)  (id_curve 2)
 #    _Roll   = f(Yaw)   (id_curve 3)
 #This file permits to approximate the motion by a BSpline.
-#For each oscillations, we compute control points and mean it.
-#At the end, we get a mean Bspline of oscillations.
+#For each cycles, we compute control points and mean it.
+#At the end, we get a mean Bspline of cycles.
 #####################################################################
 
 
@@ -66,7 +66,7 @@ def positive_values(array):
     return n
 
 
-def detect_oscillations(diff_l,list_angle):
+def detect_cycles(diff_l,list_angle):
     """
     Detect when a movement changes its way.
     
@@ -108,7 +108,7 @@ def detect_oscillations(diff_l,list_angle):
 
 
 ########################################################
-#Have same number of control points for each oscillation and compute mean
+#Have same number of control points for each cycle and compute mean
 #Inputs:
 #    _ two_ways_x : List of List with each two ways for axis x
 #    _ two_ways_y : Same with axis y
@@ -116,26 +116,26 @@ def detect_oscillations(diff_l,list_angle):
 #    _ Mean control points : Two lists
 ########################################################
 
-def mean_control_points(oscillations_x, oscillations_y):
-#Get same number of points of each oscillation
-    len_list = list(map(len, oscillations_x))
+def mean_control_points(cycles_x, cycles_y):
+#Get same number of points of each cycle
+    len_list = list(map(len, cycles_x))
     min_len = min(len_list)    
     index = len_list.index(min_len)
         
-    for i in range(len(oscillations_x)):
+    for i in range(len(cycles_x)):
         if (i != index):
-            n = len(oscillations_x[i])
-            oscillations_x[i] = [oscillations_x[i][int(j + j*(n-min_len)/min_len)] for j in range(min_len)]
-            oscillations_y[i] = [oscillations_y[i][int(j + j*(n-min_len)/min_len)] for j in range(min_len)]
+            n = len(cycles_x[i])
+            cycles_x[i] = [cycles_x[i][int(j + j*(n-min_len)/min_len)] for j in range(min_len)]
+            cycles_y[i] = [cycles_y[i][int(j + j*(n-min_len)/min_len)] for j in range(min_len)]
     
-    mean_control_x = [float(sum(col))/len(col) for col in zip(*oscillations_x)]
-    mean_control_y = [float(sum(col))/len(col) for col in zip(*oscillations_y)]
+    mean_control_x = [float(sum(col))/len(col) for col in zip(*cycles_x)]
+    mean_control_y = [float(sum(col))/len(col) for col in zip(*cycles_y)]
     return mean_control_x, mean_control_y
 
 
 ########################################################
-# Compute mean control points for oscillations
-# Detect each oscillation, get same number of points
+# Compute mean control points for cycles
+# Detect each cycle, get same number of points
 # and mean each list
 # Inputs:
 #     _ angle_x : List
@@ -150,19 +150,19 @@ def get_control_points(angle_x, angle_y, step):
     #Compute difference between two consecutives points    
     diff_l = compute_difference_list_motion(angle_x)
 
-    index_change_l_res = detect_oscillations(diff_l, angle_x)  
+    index_change_l_res = detect_cycles(diff_l, angle_x)  
     index_change_l = index_change_l_res[::2]
-    #Build list for each oscillation
-    oscillations_x, oscillations_y = [],[]
+    #Build list for each cycle
+    cycles_x, cycles_y = [],[]
     for i in range(len(index_change_l)-1):
-        oscillations_x += [angle_x[index_change_l[i]:index_change_l[i+1]+1]]
-        oscillations_y += [angle_y[index_change_l[i]:index_change_l[i+1]+1]]
+        cycles_x += [angle_x[index_change_l[i]:index_change_l[i+1]+1]]
+        cycles_y += [angle_y[index_change_l[i]:index_change_l[i+1]+1]]
 
-    oscillations_x += [angle_x[index_change_l[-1]:]]
-    oscillations_y += [angle_y[index_change_l[-1]:]]
+    cycles_x += [angle_x[index_change_l[-1]:]]
+    cycles_y += [angle_y[index_change_l[-1]:]]
     
     #Mean
-    mean_control_x, mean_control_y = mean_control_points(oscillations_x,oscillations_y)
+    mean_control_x, mean_control_y = mean_control_points(cycles_x,cycles_y)
     mean_control_x, mean_control_y = mean_control_x[::step], mean_control_y[::step]
     
     return mean_control_x, mean_control_y, index_change_l
@@ -211,8 +211,8 @@ def distance_curve_to_spline(curve, spline, indices_curve):
     
     #Compute list of differences between two points
     diff_spline = compute_difference_list_motion(spline[:, 0])
-    #Detect oscillations beginning
-    index_change_spline = detect_oscillations(diff_spline, spline[:, 0])
+    #Detect cycles beginning
+    index_change_spline = detect_cycles(diff_spline, spline[:, 0])
     #Build multi points for splines
     forth_spline = np.array(spline[:index_change_spline[-1]+1])
     back_spline  = np.array(spline[index_change_spline[-1]:])
@@ -220,7 +220,7 @@ def distance_curve_to_spline(curve, spline, indices_curve):
     back_spline_mp  = geo.MultiPoint(back_spline)
     
 
-    #Compute distance for each oscillation
+    #Compute distance for each cycle
     for index in range(0,len(indices_curve)-2,2):
         forth_curve = np.array(curve[indices_curve[index]:indices_curve[index+1]])     
         back_curve  = np.array(curve[indices_curve[index+1]:indices_curve[index+2]+1])    
@@ -327,7 +327,7 @@ def create_model(array_data):
         xsp, ysp, indices_p = interpolate_spline(yaw_pitch[i], npts)
         xsr, ysr, indices_r = interpolate_spline(yaw_roll[i], npts)
         std_pitch += [score_model(yaw_pitch[i], xsp, ysp, indices_p)]
-    print(std_pitch)
+        std_roll += [score_model(yaw_roll[i], xsr, ysr, indices_r)]
     #We use the mean for now, but might take a quantile or other measure later.
     return np.mean(std_pitch), np.mean(std_roll)
     
