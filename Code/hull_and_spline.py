@@ -80,28 +80,6 @@ def plot_hull_curve(hull, curve):
     plt.plot(curve[0], curve[1])
     plt.show()
 
-
-def preprocess_data(array_data, type_norm = 'global'):
-    """
-    Normalize data for all acquisitions of a list.
-    
-    Parameters
-    ----------
-    array_data : list
-            List of lists of coordinates.
-    type_norm : str
-            Type of normalization (see normalize function in myutils).
-            
-    Returns
-    -------
-    list
-         Normalized data.
-    """
-    norm_array = []
-    for one_acq in array_data:
-        norm_array.append(myutils.normalize(one_acq[0], one_acq[1], one_acq[2], type_norm))
-    return norm_array
-
     
 def save_model(list_dir, directory):
     """
@@ -116,8 +94,8 @@ def save_model(list_dir, directory):
     """
     array_data = myutils.fetch_from_dirs(list_dir)
     bins = [50, 20]
-    array_data = preprocess_data(array_data)
-    hull_model_p, hull_model_r = hulls.create_model(array_data, bins)
+    array_data = myutils.preprocess_data(array_data)
+    hull_model_p, hull_model_r = hulls.create_model(array_data,type_model = 'has', bins)
     spline_pitch, spline_roll = splines.create_model(array_data)
     
     now = datetime.datetime.now()
@@ -159,7 +137,6 @@ def load_model(file_path):
 if __name__ == '__main__':
     direct = ['data/guillaume2/']
     
-    """
     start = time.process_time()
     hullp, hullr  = save_model(direct, '.')
     elapsed = time.process_time()-start
@@ -168,3 +145,4 @@ if __name__ == '__main__':
     model = load_model("has_02-26-2018_1154.mdlhs")
     acq = preprocess_data([myutils.get_coord('data/tests/2018_02_21_13_48_59_.orpl')])[0]
     print(compare_to_model(acq, model))
+    """

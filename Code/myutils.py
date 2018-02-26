@@ -2,6 +2,7 @@ import random as rd
 import shutil
 import shapely.geometry as geometry
 import numpy as np
+import myutils
 import os
 import time
 from shapely.wkt import loads
@@ -217,6 +218,28 @@ def normalize(yaw_l, pitch_l, roll_l, type_norm = 'global'):
     else:
         raise ValueError('type_norm must take one of these values: "global", "local" or "stat"')
     return normalized_yaw, normalized_pitch, normalized_roll
+
+
+def preprocess_data(array_data, type_norm = 'global'):
+    """
+    Normalize data for all acquisitions of a list.
+    
+    Parameters
+    ----------
+    array_data : list
+            List of lists of coordinates.
+    type_norm : str
+            Type of normalization (see normalize function in myutils).
+            
+    Returns
+    -------
+    list
+         Normalized data.
+    """
+    norm_array = []
+    for one_acq in array_data:
+        norm_array.append(myutils.normalize(one_acq[0], one_acq[1], one_acq[2], type_norm))
+    return norm_array
 
 
 def mean_succ_diff(data):

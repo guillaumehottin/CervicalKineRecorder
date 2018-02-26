@@ -6,6 +6,9 @@ from shapely.ops import cascaded_union, polygonize
 from scipy.spatial import Delaunay
 import numpy as np
 import myutils
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+import sklearn.svm as svm
 
 
 def plot_polygon_MP(polygon):
@@ -153,8 +156,8 @@ def hull_distance(polyA, polyB):
     polyB : MultiPoint 
             Second set of points
     """
-    alphaA,_ = alpha_shape(polyA,1.0)
-    alphaB,_ = alpha_shape(polyB,1.0)
+    alphaA = alpha_shape(polyA, 1.0)[0]
+    alphaB = alpha_shape(polyB, 1.0)[0]
     AmB = alphaA.difference(alphaB)
     BmA = alphaB.difference(alphaA)
     return AmB.area + BmA.area
@@ -188,7 +191,7 @@ def matching_grid(polygon, axis=[0,1], npts=20):
     return grid       
 
 
-def hull_grid(x, y, m, alpha, buff_size):
+def discrete_hull(x, y, m, alpha, buff_size):
     """
     Make a concave hull of a set of points and return the corresponding discretization.
     
@@ -307,40 +310,130 @@ def build_set_for_hull(array_data, bins, threshold):
     return pts_pitch, pts_roll
 
 
-def create_model(array_data, bins):
+def train_test_model(dataset, indices_patho):
+    """
+    Train and test a model using the discretization of hulls.
+    
+    Parameters
+    ----------
+    dataset : array
+            Each row is a discretization of a hull.
+    indices_patho : array_like
+            Indices of the acquisitions in array_data which correspond to unhealthy 
+            patients.
+    
+    Returns
+    -------
+    OneClassSVM, float, float
+            [0]: the model
+            [1]: accuracy of the model at predicting the training set
+            [2]: accuracy of the model at predicting the testing set
+    """
+    labels = []
+    for i in range(len(dataset)):
+        if i in indices_patho:
+            labels.append(0)
+        else:
+            labels.append(1)
+            
+    train_data, test_data, train_target, test_target = train_test_split(dataset, 
+                labels, shuffle=True, train_size = 0.8)
+    model = svm.OneClassSVM(kernel='rbf', nu = len(indices_patho)/len(dataset))
+    model.fit(train_data)
+    
+    preds_train = model.predict(train_data)
+    accuracy_train = metrics.accuracy_score(train_target, preds_train)
+    preds_test = model.predict(test_data)
+    accuracy_test = metrics.accuracy_score(test_target, preds_test)
+    
+    return model, accuracy_train, accuracy_test
+
+
+def create_model(array_data, type_model, bins=None, size_grid=None, indices_patho=None):
     """
     Generate a concave hull which is the union of all concave hulls in the training set.
     
     Parameters
     ----------
-    array_data : array of arrays of arrays of floats
+    array_data : array of floats, shape (m,3,n)
             Each element is an array of 3 arrays, each corresponding to a coordinate.
     bins : array_like
-            Bins for 2D histograms, [xbins, ybins]
+            Bins for 2D histograms, [xbins, ybins]. Ignored if type_model != 'has'.
+    size_grid : int
+            Number of points of a side in the discretization of the hull. 
+            Ignored if type_model != 'hull'.
+    indices_patho : array_like
+            Indices of the acquisitions in array_data which correspond to unhealthy 
+            patients. Ignored if type_model != 'hull'.
     
     Returns
     -------
-    tuple of Polygon
+    Polygon, Polygon if type_model == 'has'
             Concave hull for both pitch and roll.
-    """    
-    all_points = np.concatenate([myutils.coord2points(d) for d in array_data])
+    OneClassSVM, float, float if type_model == 'hull'
+            The model and its accuracies at predicting training and testing sets, 
+            respectively.
+    """
+    acq_points = [myutils.coord2points(d) for d in array_data]
+    if type_model == 'has':
+        all_points = np.concatenate(acq_points)
+        
+        threshold = len(all_points)/(bins[0]*bins[1])
+        
+        p, r = build_set_for_hull(all_points, bins, threshold)
+        print("Point set built...")
+        print(str(len(p))+" points in pitch")
+        print(str(len(r))+" points in roll")
+        model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0].buffer(0.005)
+        print("Pitch model built...")
+        model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0].buffer(0.005)
+        print("Roll model built...\nBoth models built...")
+        
+        return model_pitch, model_roll
     
-    threshold = len(all_points)/(bins[0]*bins[1])
+    elif type_model == 'hull':
+        #B uild dataset
+        dataset = []
+        alpha = 3.0
+        buffer = 0
+        for one_acq in acq_points:
+            grid_p = discrete_hull(one_acq[0], one_acq[1], alpha, buffer)
+            grid_r = discrete_hull(one_acq[0], one_acq[2], alpha, buffer)
+            dataset += [[grid_p] + [grid_r]]
+        # Reshape data into the proper shape: n is the number of files 
+        # considered, 2*m**2 is the size of each piece of data.
+        n = len(acq_points)
+        m = size_grid
+        dataset = np.array(dataset).reshape(n, 2*m**2)
+        
+        return train_test_model(dataset, indices_patho)
     
-    p, r = build_set_for_hull(all_points, bins, threshold)
-    print("Point set built...")
-    print(str(len(p))+" points in pitch")
-    print(str(len(r))+" points in roll")
-    model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0].buffer(0.005)
-    print("Pitch model built...")
-    model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0].buffer(0.005)
-    print("Roll model built...\nBoth models built...")
+    else:
+        raise ValueError('type_model should be either "has" or "hull"')
+
+
+def save_model(list_dir, directory):
+    """
+    Generate and save a model.
     
-    plot_polygon_MP(model_pitch)
-    plt.scatter([x[0] for x in p], [x[1] for x in p])
-    plot_polygon_MP(model_roll)
-    plt.scatter([x[0] for x in r], [x[1] for x in r])
-    return model_pitch, model_roll
+    Parameters
+    ----------
+    list_dir : array of str
+            List of directories where to find the files used to generate the model.
+    directory : str
+            Path to the directory where the model must be saved.
+    """
+    array_data = myutils.fetch_from_dirs(list_dir)
+    array_data = myutils.preprocess_data(array_data)
+    hull_model = hulls.create_model(array_data, type_model='hull', size_grid=50)
+    
+    now = datetime.datetime.now()
+    file_name = directory + '/hull_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlhl'
+    with open(file_name, 'w+') as file:
+        #use pickle here
+    
+    return hull_model
+
 
 
 if __name__ == '__main__':
