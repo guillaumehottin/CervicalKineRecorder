@@ -63,7 +63,7 @@ def get_wavelet(pitch_l, yaw_l, roll_l, type_wavelet):
     :return: for each list, returns 2 list corresponding to the wavelet transformation
     ex : (pitch_coef, pitch_freq) for pitch_l, etc...
     """
-    scale = 2*np.sqrt(len(yaw_l))
+    scale = 2 * np.sqrt(len(yaw_l))
     pitch_coef, pitch_freq = pywt.cwt(pitch_l, scale, type_wavelet)
     yaw_coef, yaw_freq = pywt.cwt(yaw_l, scale, type_wavelet)
     roll_coef, roll_freq = pywt.cwt(roll_l, scale, type_wavelet)
@@ -178,7 +178,8 @@ def get_all_wavelet(dir_name, type_wavelet='morl', norm=1):
             (pitch_l, yaw_l, roll_l) = normalize(pitch_l, yaw_l, roll_l)
 
         # Make fourier decomposition
-        pitch_coef, pitch_freq, yaw_coef, yaw_freq, roll_coef, roll_freq = get_wavelet(pitch_l, yaw_l, roll_l, type_wavelet)
+        pitch_coef, pitch_freq, yaw_coef, yaw_freq, roll_coef, roll_freq = get_wavelet(pitch_l, yaw_l, roll_l,
+                                                                                       type_wavelet)
 
         all_wavelet_pitch.append(pitch_coef)
         all_wavelet_yaw.append(yaw_coef)
@@ -282,7 +283,8 @@ def plot_one(current_file, type_plot, type_wavelet='morl', norm=1, save=0):
     Plot curves corresponding to a single data set
     :param type_wavelet: type of the wavelet family used
     :param current_file: path which leads to the data set
-    :param type_plot: which type of ploting : fourier decomposition, time movement, 3d movement, wavelet transformation,correlation
+    :param type_plot: which type of ploting : fourier decomposition, time movement, 3d movement, wavelet transformation,
+    correlation
     :param norm: optional, 1 if you want to norm your data set, 0 if not
     :param save: optional, 1 if you want to save the figures, 0 if not
     :return: Void
@@ -295,7 +297,7 @@ def plot_one(current_file, type_plot, type_wavelet='morl', norm=1, save=0):
     fig = plt.figure()
 
     (pitch_l, yaw_l, roll_l) = get_coord(current_file)
-
+    title = ""
     # Normalize data
     if norm:
         (pitch_l, yaw_l, roll_l) = normalize(pitch_l, yaw_l, roll_l)
