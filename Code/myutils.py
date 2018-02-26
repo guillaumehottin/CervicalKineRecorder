@@ -84,7 +84,7 @@ def get_axes(list_coord, axes):
     ----------
     list_coord : array
             List of coordinates.
-    axes : tuple of tuples of int
+    axes : array_like of tuples of int
             Axes which need to be taken.
     
     Returns

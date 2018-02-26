@@ -7,9 +7,6 @@ from scipy.spatial import Delaunay
 import numpy as np
 import myutils
 
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.spatial import ConvexHull
-
 
 def plot_polygon_MP(polygon):
     """
@@ -31,6 +28,7 @@ def plot_polygon_MP(polygon):
                          zorder=-1)
     ax.add_patch(patch)
     return fig
+
 
 def plot_many_polygons(lst_poly):
     """
@@ -75,28 +73,6 @@ def plot_many_polygons(lst_poly):
     ax.legend([str(i+1) for i in range(len(lst_poly))])
     return fig
 
-#Convex hull
-def plot_convex_hull(pts):
-    """
-    Plot a convex hull.
-    
-    Parameters
-    ----------
-    pts : array(Point)
-            The points whose the convex hull is expected.
-            
-    Returns
-    -------
-    figure
-            The corresponding figure.
-    """
-    point_collection = myutils.array2MP(pts)
-    plt.figure(figsize=(10,10))
-    fig = plot_polygon_MP(point_collection.convex_hull)
-    return fig
-
-###############################################
-#Concave hull
 
 def add_edge(edges, edge_points, coords, i, j):
     """ 
@@ -119,6 +95,13 @@ def alpha_shape(points, alpha):
             alpha value to influence the gooeyness of the border. Smaller numbers
             don't fall inward as much as larger numbers.
             Too large, and you lose everything!
+    
+    Returns
+    -------
+    Polygon
+            The concave hull.
+    list
+            Edge points of the concave hull.
     """
     if len(points) < 4:
         # When you have a triangle, there is no sense
@@ -163,6 +146,8 @@ def hull_distance(polyA, polyB):
     """
     Distance between two hulls, defined by the sum of their differences areas.
     
+    Parameters
+    ----------
     polyA : MultiPoint
             First set of points
     polyB : MultiPoint 
@@ -239,7 +224,7 @@ def pts_out_poly(poly, pts):
     poly : Polygon
             The polygon.
     pts : array
-            Array of points.
+            Array of points coordinates.
             
     Returns
     -------
@@ -248,67 +233,10 @@ def pts_out_poly(poly, pts):
     """
     n = 0
     for pt in pts:
-        if not poly.contains(pt):
+        point = geometry.asPoint(pt)
+        if not poly.contains(point):
             n += 1
     return n
-
-
-def in_cvx_hull3(hull, pt):
-    """
-    Check whether pt is in hull (3D). (Not always working!)
-    
-    Parameters
-    ----------
-    hull : ConvexHull
-            3D points defining the hull
-    pt : array
-            The point
-    
-    Returns
-    -------
-    bool
-            True if pt is in hull.
-    """
-    new_hull = ConvexHull(np.concatenate((hull.points, [pt])))
-    return np.array_equal(new_hull.vertices, hull.vertices)
-
-
-def pts_out_hull3(hull, pts):
-    """
-    Number of points of pts which are in hull (3D). (Not always working!)
-    
-    Parameters
-    ----------
-    hull : ConvexHull
-            3D points defining the hull
-    pts : array
-            The set of points
-    
-    Returns
-    -------
-    int
-            Number of points in hull
-    array
-            Coordinates of the points not in hull
-    """
-    
-    """
-    n = 0
-    x = []
-    for pt in pts:
-        if not in_cvx_hull3(hull, pt):
-            n += 1
-            x.append(pt)
-    return n, x
-    """
-    
-    if not isinstance(hull.points,Delaunay):
-        hull = Delaunay(hull.points)
-
-    x = hull.find_simplex(pts)<0
-    indices_out = np.where(x)[0]
-    n = len(indices_out)
-    return n, indices_out
 
 
 def points_in_area(x_coords, y_coords, xlims, ylims):
@@ -379,7 +307,7 @@ def build_set_for_hull(array_data, bins, threshold):
     return pts_pitch, pts_roll
 
 
-def create_model(array_data):
+def create_model(array_data, bins):
     """
     Generate a concave hull which is the union of all concave hulls in the training set.
     
@@ -387,40 +315,16 @@ def create_model(array_data):
     ----------
     array_data : array of arrays of arrays of floats
             Each element is an array of 3 arrays, each corresponding to a coordinate.
-            
+    bins : array_like
+            Bins for 2D histograms, [xbins, ybins]
+    
     Returns
     -------
     tuple of Polygon
             Concave hull for both pitch and roll.
-    """
-    
-    """
-    array_data = [myutils.coord2points(d) for d in array_data]
-    first_acq = array_data.pop(0)
-    
-    bins = [10, 5]
-    threshold = 10
-    #p = [x[0:2] for x in first_acq]
-    #r = [x[0:3:2] for x in first_acq]
-    
-    p, r = build_set_for_hull(first_acq, bins, threshold)
-    model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0]
-    model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0]
-    for one_acq in array_data:
-        p, r = build_set_for_hull(one_acq, bins, threshold)
-        #p = [x[0:2] for x in first_acq]
-        #r = [x[0:3:2] for x in first_acq]
-    
-        hull_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0]
-        hull_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0]
-        model_pitch = model_pitch.union(hull_pitch)
-        model_roll = model_roll.union(hull_roll)
-    return model_pitch, model_roll
-    """
-    
+    """    
     all_points = np.concatenate([myutils.coord2points(d) for d in array_data])
     
-    bins = [50, 20]
     threshold = len(all_points)/(bins[0]*bins[1])
     
     p, r = build_set_for_hull(all_points, bins, threshold)
@@ -438,10 +342,8 @@ def create_model(array_data):
     plt.scatter([x[0] for x in r], [x[1] for x in r])
     return model_pitch, model_roll
 
-#############################################################
 
 if __name__ == '__main__':
-   
     yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
     yaw_pitch = myutils.coord2points([yaw,pitch])
     hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)
@@ -449,25 +351,3 @@ if __name__ == '__main__':
     plt.plot(yaw,pitch)
     print(matching_grid(hull))
     
-    
-    """
-    pts = np.array(myutils.coord2points([yaw,pitch,roll]))
-    
-    hull = ConvexHull(pts)
-
-    n, notl = pts_out_hull3(hull, pts)
-    
-    #l = [np.where(pts == y)[0][0] for y in x]
-    l = [k for k in range(len(pts)) if k not in notl]
-    
-    fig = plt.figure()
-    ax = plt.subplot(111, projection='3d')
-    ax.scatter(yaw[l], pitch[l], roll[l])
-    
-    x = yaw[notl]
-    y = pitch[notl]
-    z = roll[notl]
-    
-    ax.scatter(x,y,z,'r')
-    plt.show()
-"""

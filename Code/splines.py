@@ -213,23 +213,29 @@ def distance_curve_to_spline(curve, spline, indices_curve):
     diff_spline = compute_difference_list_motion(spline[:, 0])
     #Detect cycles beginning
     index_change_spline = detect_cycles(diff_spline, spline[:, 0])
-    indices_curve.append(len(curve)-1)
     #Build multi points for splines
-    
     forth_spline = np.array(spline[:index_change_spline[-1]+1])
     back_spline  = np.array(spline[index_change_spline[-1]:])
     forth_spline_mp = geo.MultiPoint(forth_spline)
     back_spline_mp  = geo.MultiPoint(back_spline)
     
+
     #Compute distance for each cycle
-    for index in range(0,len(indices_curve)-1,2):
+    for index in range(0,len(indices_curve)-2,2):
         forth_curve = np.array(curve[indices_curve[index]:indices_curve[index+1]])     
         back_curve  = np.array(curve[indices_curve[index+1]:indices_curve[index+2]+1])    
         for p in forth_curve:
             distances += [distance_to_spline(p, forth_spline_mp)]
         for p in back_curve:
             distances += [distance_to_spline(p, back_spline_mp)]
-
+ 
+    forth_curve = np.array(curve[indices_curve[-2]:indices_curve[-1]])    
+    back_curve  = np.array(curve[indices_curve[-1]:])    
+    for p in forth_curve:
+        distances += [distance_to_spline(p, forth_spline_mp)]
+    for p in back_curve:
+        distances += [distance_to_spline(p, back_spline_mp)]
+    
     return np.mean(distances), np.std(distances)
 
 
@@ -257,7 +263,7 @@ def score_model(list_coord, xs, ys, indices_change):
     return distance_curve_to_spline(myutils.coord2points(list_coord), spline, indices_change)[1]
 
 
-def interpolate_spline(list_coord,nb_points=700,step=20):
+def interpolate_spline(list_coord,nb_points=150,step=20):
     """
     Compute control points and create the spline.
     
@@ -328,13 +334,13 @@ def create_model(array_data):
 
 if __name__ == "__main__":
     
-    direct = '../gui/'
+    direct = 'data/guillaume2/'
     
-    list_dir = ['../gui/guillaume']
+    list_dir = ['data/guillaume2/Normalized']
     list_coord = myutils.fetch_from_dirs(list_dir)
-    #TODO: ON THE FLY NORMALIZATION
 
     npts = 150
     
     p, r = create_model(list_coord)
-    print p,r
+        
+    
