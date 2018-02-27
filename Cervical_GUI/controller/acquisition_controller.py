@@ -146,8 +146,8 @@ class AcquisitionController(QObject):
         standard_deviation = float(standard_deviation.split(':')[1])
 
         if not self.is_acquition_correct(mean, standard_deviation):
-            confirmation_msg = "L'acquisition ne semble pas correcte. Souhaitez-vous la conserver ?"
-            reply = QMessageBox.question(self.view, 'Mauvaise acquisitioe',
+            confirmation_msg = "L'acquisition ne semble pas correcte. Souhaitez-vous la conserver ?\nMoyenne: {0}\nEcart-type: {1}".format(mean, standard_deviation)
+            reply = QMessageBox.question(self.view, 'Mauvaise acquisition',
                                          confirmation_msg, QMessageBox.Yes, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
