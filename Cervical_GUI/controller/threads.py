@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from model.socket_server import *
-
+import time
 
 class SendContinueThread(QtCore.QThread):
     # Signals to relay thread progress to the main GUI thread

@@ -120,6 +120,15 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_finish_thread_completion_handler")
     def handle_send_finish_thread_completion(self, e):
+        """
+        Handler called when the python GUI needs to tell the Unity GUI that the acquisition can be finished, i.e. when
+        the SendFinishThread waited for enough time (until the last stop of the sphere before the end of the
+        acquisition.
+        It checks taht the send finish thread is the correct one and then set the Start/Stop button to "Finishing
+        Acquisition", sends "finishAcquisition" to the Unity GUI, closes the socket server and starts another one.
+        :param e: The number of the SendFinishThread that stopped
+        :return: Nothing
+        """
         DEBUG and print("handle_send_finish_thread_completion")
         if self.number_of_finish_handlers_to_ignore == int(e):
             if self.send:
@@ -139,6 +148,16 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_acquisition_finished_completion_handler")
     def handle_start_server_thread_acquisition_finished_completion(self, e):
+        """
+        Handler called when the socket server has been initialized and the Unity client connected after an acquisition
+        finished.
+        It receives the "endAcquisition" signals with the mean and the standard deviation between the eyes and the
+        sphere during the acquisition.
+        If those values show that the acquisition is not good, it displays a popup asking if the user wants to keep it
+        nonetheless.
+        It then sets the button to "Start Acquisition"
+        :return: Nothing
+        """
         DEBUG and print("handle_start_server_thread_acquisition_finished_completion")
         end_acquisition_message = self.socket_server.receive()
         [_, mean, standard_deviation] = end_acquisition_message.decode('utf-8').split(',')
@@ -181,6 +200,11 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
+        """
+        Handler called when the socket server is first started and the launch of the GUI.
+         If the Unity client is connected and a profile is loaded, it enables the Start/Stop button
+        :return: Nothing
+        """
         DEBUG and print("handle_start_server_thread_completion")
         self.view.connected = True
         if self.view.profile_loaded:
@@ -189,6 +213,14 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="start_server_thread_acquisition_started_completion_handler")
     def handle_start_server_thread_acquisition_started_completion(self, e):
+        """
+        Handler called when "startAcquisition" was sent and a new socket server was started and Unity connected to it
+        It receives the "startAcquisitionAck" and then sets the button to "Stop Acquisition"
+        It starts a "sendContinueThread" that will wait until the last stop of the sphere.
+        It allows to send a "stopAcquisition" until the thread finishes. After that, the acquisition finishes
+        normally
+        :return: Nothing
+        """
         DEBUG and print("handle_start_server_thread_acquisition_started_completion")
         self.socket_server.receive()
         # UPDATE BUTTON START/STOP
@@ -207,6 +239,11 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="handle_start_server_thread_acquisition_stopped_completion")
     def handle_start_server_thread_acquisition_stopped_completion(self, e):
+        """
+        Handler called when "stopAcquisition" was sent and a new socket server was started and Unity connected to it
+        It receives "stopAcquisitionAck" and sets the button to "Start Acquisition"
+        :return: Nothing
+        """
         DEBUG and print("handle_start_server_thread_acquisition_stopped_completion")
         self.socket_server.receive()
         self.view.startStopButton.setText("Lancer acquisition")
@@ -216,6 +253,12 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="handle_send_start_thread_completion")
     def handle_send_start_thread_completion(self, e):
+        """
+        Handler called when "startAcquisition" was just sent.
+        It starts a new thread in charge of starting a new socket server.
+        It then changes the button to "Starting Acquisition..."
+        :return: Nothing
+        """
         DEBUG and print("handle_send_start_thread_completion")
         # UPDATE BUTTON START/STOP OIZHUIAHDIUZAHOIDZL
         self.view.startStopButton.setText("Lancement Acquisition...")
@@ -230,6 +273,13 @@ class AcquisitionController(QObject):
 
     @pyqtSlot(str, name="send_stop_thread_completion_handler")
     def handle_send_stop_thread_completion(self, e):
+        """
+        Handler called when "stopAcquisition" was just sent.
+        It starts a new thread in charge of starting a new socket server.
+        It then changes the button to "Stopping Acquisition..." and tells the FinishAcquisitionCompletion handler
+        to ignore this specific FinishAcquisition thread
+        :return: Nothing
+        """
         DEBUG and print("handle_send_stop_thread_completion")
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Arrêt Acquisition...")
@@ -324,4 +374,10 @@ class AcquisitionController(QObject):
 
 
     def is_acquition_correct(self, mean, standard_deviation):
+        """
+        Determines whether an acquisition was correct from its mean and standard deviation
+        :param mean: The mean of the acquisition
+        :param standard_deviation: The standard deviation of the acquisition
+        :return: A boolean, true if and only if the aquisition is correct
+        """
         return mean > 1.7 and standard_deviation < 0.5
