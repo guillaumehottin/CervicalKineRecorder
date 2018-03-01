@@ -67,11 +67,13 @@ def fetch_files(dir_name='.',extension='.orpl',sub_dir=''):
 
 def fetch_from_dirs(list_dir, extension='.orpl', sub_dir=''):
     list_coord = []
+    nb_folders = []
     for folder in list_dir:
         files = fetch_files(folder, extension, sub_dir)
+        nb_folders += [len(files)]
         for f in files:
             list_coord += [get_coord(f)]
-    return list_coord
+    return list_coord, nb_folders
 
 
 #Get list of coordinates in an ORPL file (yaw,pitch_roll)

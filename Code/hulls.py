@@ -313,7 +313,7 @@ def build_set_for_hull(array_data, bins, threshold):
     return pts_pitch, pts_roll
 
 
-def train_test_model(dataset, indices_patho):
+def train_test_model(dataset, labels):
     """
     Train and test a model using the discretization of hulls.
     
@@ -321,9 +321,8 @@ def train_test_model(dataset, indices_patho):
     ----------
     dataset : array
             Each row is a discretization of a hull.
-    indices_patho : array_like
-            Indices of the acquisitions in array_data which correspond to unhealthy 
-            patients.
+    labels : array_like
+            Labels of data (-1 for unhealthy, 1 for healthy).
     
     Returns
     -------
@@ -332,16 +331,9 @@ def train_test_model(dataset, indices_patho):
             [1]: accuracy of the model at predicting the training set
             [2]: accuracy of the model at predicting the testing set
     """
-    labels = []
-    for i in range(len(dataset)):
-        if i in indices_patho:
-            labels.append(-1)
-        else:
-            labels.append(1)
-
     train_data, test_data, train_target, test_target = train_test_split(dataset, 
                 labels, shuffle=True, train_size = 0.8)
-    model = svm.OneClassSVM(kernel='rbf', nu = len(indices_patho)/len(dataset))
+    model = svm.OneClassSVM(kernel='rbf', nu = len(np.where(np.array(labels)==1))/len(dataset))
     model.fit(train_data, train_target)
     
     preds_train = model.predict(train_data)
@@ -353,7 +345,7 @@ def train_test_model(dataset, indices_patho):
 
 
 def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
-                 indices_patho=None):
+                 labels=None):
     """
     Generate a concave hull which is the union of all concave hulls in the training set.
     
@@ -368,9 +360,9 @@ def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
             Ignored if type_model != 'hull'.
     alpha : float
             alpha parameter for alpha shape (concave hull)
-    indices_patho : array_like
-            Indices of the acquisitions in array_data which correspond to unhealthy 
-            patients. Ignored if type_model != 'hull'.
+    labels : array_like
+            Labels of data (-1 for unhealthy, 1 for healthy). Ignored if 
+            type_model != 'hull'.
     
     Returns
     -------
@@ -403,7 +395,7 @@ def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
         n = len(array_data)
         dataset = np.array(dataset).reshape(n, 2*size_grid[0]*size_grid[1])
         
-        return train_test_model(dataset, indices_patho)
+        return train_test_model(dataset, labels)
     
     else:
         raise ValueError('type_model should be either "has" or "hull"')
@@ -462,7 +454,7 @@ def compare_to_model(new_acq, model, size_grid, alpha):
         return False
     
 
-def save_model(list_dir, directory, indices_patho):
+def save_model(list_dir, directory, patho_patients):
     """
     Generate and save a model.
     
@@ -472,12 +464,20 @@ def save_model(list_dir, directory, indices_patho):
             List of directories where to find the files used to generate the model.
     directory : str
             Path to the directory where the model must be saved.
-    indices_patho : array_like
-            Indices of the acquisitions in array_data which correspond to unhealthy 
+    patho_patients : array_like
+            Indices of the acquisitions in list_dir which correspond to unhealthy 
             patients.
     """
-    array_data = myutils.fetch_from_dirs(list_dir)
+    array_data, nb_acq = myutils.fetch_from_dirs(list_dir)
     array_data = myutils.preprocess_data(array_data)
+    
+    labels = []
+    for i in range(len(list_dir)):
+        if i in patho_patients:
+            labels += [-1]*nb_acq[i]
+        else:
+            labels += [1]*nb_acq[i]
+    print(labels)
     
     # For parametrization in the future ?
     alpha = 3.0
@@ -485,7 +485,7 @@ def save_model(list_dir, directory, indices_patho):
     
     model, acc_train, acc_test = create_model(array_data, type_model='hull', 
                                               size_grid=size_grid, alpha=alpha,
-                                              indices_patho=indices_patho)
+                                              labels=labels)
     
     now = datetime.datetime.now()
     file_name = directory + '/hull_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlhl'
@@ -495,8 +495,6 @@ def save_model(list_dir, directory, indices_patho):
         file.write('\n' + str(acc_train) + '\n' + str(acc_test) + '\n' +
                    str(size_grid) + '\n' + str(alpha))
     
-    return model, acc_train, acc_test
-
 
 def load_model(file_path):
     """
@@ -519,15 +517,14 @@ def load_model(file_path):
         data = file.readlines()
         acc_train = float(data[1])
         acc_test = float(data[2])
-        print(data)
         size_grid = [int(data[3][1:3]), int(data[3][5:7])]
         alpha = float(data[4])
     return model, acc_train, acc_test, size_grid, alpha
 
 
 if __name__ == '__main__':
-    direct = ['data/guillaume2/']
-    ind = [29,28,27,26]
-    x  = save_model(direct, '.', indices_patho=ind)
-
-    #x = load_model('hull_03-01-2018_1023.mdlhl')
+    """ direct = ['data/guillaume2/', 'data/tests/']
+    ind = [1]
+    save_model(direct, '.', patho_patients=ind)
+    """
+    x = load_model('hull_03-01-2018_1301.mdlhl')

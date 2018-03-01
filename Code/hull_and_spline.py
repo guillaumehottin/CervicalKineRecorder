@@ -40,13 +40,18 @@ def compare_to_model(new_acq, model):
     err_spline_pitch = spline_threshold_pitch - score_pitch
     err_spline_roll = spline_threshold_roll - score_roll
     
-    plot_hull_spline(hull_roll, [xs_roll, ys_roll], new_acq[0:3:2], type_motion='roll')
-    
     healthy = True
     if (rate_out_pitch > 0.1 or rate_out_pitch > 0.1 or err_spline_pitch < 0 or
             err_spline_roll < 0):
         healthy = False
-    return healthy, rate_out_pitch, rate_out_roll, err_spline_pitch, err_spline_roll
+    res_comparison = {'healthy': healthy, 'rate_out_pitch': rate_out_pitch, 
+               'rate_out_roll': rate_out_roll, 'err_spline_pitch': err_spline_pitch, 
+               'err_spline_roll': err_spline_roll}
+    to_plot_pitch = {'hull': hull_pitch, 'xs': xs_pitch, 'ys': ys_pitch,
+                     'curve': new_acq[0:2], 'type_motion': 'pitch'}
+    to_plot_roll = {'hull': hull_roll, 'xs': xs_roll, 'ys': ys_roll,
+                     'curve': new_acq[0:3:2], 'type_motion': 'roll'}
+    return res_comparison, to_plot_pitch, to_plot_roll
     
     
 def plot_hull_spline(hull, spline, curve, type_motion):
@@ -90,7 +95,7 @@ def save_model(list_dir, directory):
     directory : str
             Path to the directory where the model must be saved.
     """
-    array_data = myutils.fetch_from_dirs(list_dir)
+    array_data = myutils.fetch_from_dirs(list_dir)[0]
     bins = [50, 20]
     array_data = myutils.preprocess_data(array_data)
     hull_model_p, hull_model_r = hulls.create_model(array_data, type_model='has', bins=bins)
@@ -101,8 +106,6 @@ def save_model(list_dir, directory):
     with open(file_name, 'w+') as file:
         file.write(hull_model_p.wkt + '\n' + hull_model_r.wkt + '\n' 
                    + str(spline_pitch) + '\n' + str(spline_roll))
-    
-    return hull_model_p, hull_model_r
     
 
 def load_model(file_path):
@@ -134,7 +137,7 @@ def load_model(file_path):
 
 if __name__ == '__main__':
     direct = ['data/guillaume2/']
-    hullp, hullr  = save_model(direct, '.')
+    save_model(direct, '.')
 
     """
     model = load_model("has_02-26-2018_1154.mdlhs")
