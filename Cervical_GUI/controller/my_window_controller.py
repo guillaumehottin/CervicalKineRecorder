@@ -19,7 +19,8 @@ class MyWindowController(QObject):
     Here you will find all button handler
     """
 
-    PATH_TO_STORE_FILE = "./data/"
+    PATH_TO_STORE_FILE      = "./data/"
+    PATH_TO_STORE_MODELS    = "./models/"
     GIT_LINK = "https://github.com/guillaumehottin/projetlong"
 
     def __init__(self, view):
@@ -193,7 +194,7 @@ class MyWindowController(QObject):
             pass
 
     @pyqtSlot(name="load_files_model_handler")
-    def load_files_model_handler(self):
+    def create_model_handler(self):
         """
         Handler called when the regenerate model menu is triggered
         It opens the model_generator_dialog and allow the user to select the profile he wants to use to
@@ -202,14 +203,57 @@ class MyWindowController(QObject):
         :return: Nothing
         """
         DEBUG and print('LOAD FILES' + self.directory_path)
-        directories_for_model, accepted = ModelGeneratorDialog.get_result(self.directory_path)
+        directories_for_model, model_name, accepted = ModelGeneratorDialog.get_result(self.directory_path)
 
         # The user choose some directories
         if accepted:
             DEBUG and print("=== acquisition.py === selected directories: " + str(directories_for_model))
-            #TODO regenerates model
+            DEBUG and print("=== acquisition.py === model name: " + str(model_name))
+
+            if len(directories_for_model) == 0:
+                DEBUG and print("=== acquisition.py === None patient selected, clearing the graph")
+                self.view.tab_hull_and_splines.clear_graph()
+                self.view.tab_hulls.clear_graph()
+                self.view.tab_wavelet.clear_graph()
+            else:
+                #TODO regenerates model with given patient and file name
+                pass
+
         else:  # The user cancel his operation
             pass
+
+    @pyqtSlot(name="load_profile_menu_handler")
+    def load_model_handler(self):
+        """
+        Handler called when the load model menu is triggered
+        It opens a browse directory dialog and allow the user to select a file
+        If the file selected does not match the pattern we want we display an error
+        :return: Nothing
+        """
+        # TODO CHANGE
+
+        new_path, _ = QFileDialog.getOpenFileName(self.view, "Sélectionner un modèle",
+                                                   self.PATH_TO_STORE_MODELS)
+        # If the user canceled
+        if not new_path:
+            return
+
+        DEBUG and print("=== acquisition.py === FOLDER LOADED : " + new_path)
+
+        try:
+            pass
+
+        except ValueError:
+            # DISPLAY POP UP ERROR AND DO NOTHING
+            DEBUG and print("=== acquisition.py === INCORRECT FOLDER NAME")
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Format de dossier incorrect")
+            msg.setInformativeText("Le dossier que vous avez sélectionné ne suit pas la convention qui est : "
+                                   "Nom_prénom_age")
+            msg.setWindowTitle("Erreur")
+            msg.exec()
+        return
 
     @pyqtSlot(name="about_menu_handler")
     def about_menu_handler(self):

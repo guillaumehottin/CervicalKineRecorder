@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget
 
-from controller.modelization_controller import ModelizationController
+from controller.hull_and_splines_tab_controller import HullAndSplinesTabController
+from controller.hulls_tab_controller import HullsTabController
 from model.plot_canvas import PlotCanvas
 
 from view.new_profile_dialog import *
@@ -11,32 +13,39 @@ from matplotlib.backends.qt_compat import QtCore, QtWidgets
 DEBUG = False
 
 
-class Modelization(QWidget):
+class HullsTab(QWidget):
     """
-    This class is the GUI of the modelization tabs
+    This class is the GUI of the Hulls tab
     Here you can find every aspect of the Widget display (orientation, position, layouts, connection to handler, etc.)
-    The logical behind this GUI is located in modelization_controller.py
+    The logical behind this GUI is located in hulls_tab_controller.py
     """
 
-    def __init__(self, window):
+    def __init__(self, window, my_window_controller):
         """
         This function is used to define and instanciate all class attributes of this class
         :param window: Window in which is displayed this GUI
         """
-        super(Modelization, self).__init__()
+        super(HullsTab, self).__init__()
 
         # ATTRIBUTES
-        self.modelization_controller = ModelizationController(self)
+        self.hulls_controller       = HullsTabController(self)
+        self.my_window_controller   = my_window_controller
         self.parent = window
 
         # LAYOUTS
-        self.grid_layout_modelization = QtWidgets.QGridLayout()
+        self.grid_layout = QtWidgets.QGridLayout()
+
+        # EXTRA LAYOUTS
+        self.left_vertical_layout   = QtWidgets.QVBoxLayout()
+        self.right_vertical_layout  = QtWidgets.QVBoxLayout()
+
+        # LABELS
+        self.label_pitch    = QtWidgets.QLabel()
+        self.label_roll     = QtWidgets.QLabel()
 
         # CANVAS
-        self.canvas_up_left_modelization = PlotCanvas(self, title="Données temporelles")
-        self.canvas_up_right_modelization = PlotCanvas(self, title="Décomposition en ondelettes")
-        self.canvas_down_right_modelization = PlotCanvas(self, title="Spline")
-        self.canvas_down_left_modelization = PlotCanvas(self, title="Enveloppes concaves")
+        self.canvas_left_modelization    = PlotCanvas(self, title="Tangage")
+        self.canvas_right_modelization   = PlotCanvas(self, title="Rouli")
 
         self.setup_ui()
 
@@ -47,13 +56,30 @@ class Modelization(QWidget):
         :return: Nothing
         """
         # LAYOUTS
-        self.setLayout(self.grid_layout_modelization)
+        self.setLayout(self.grid_layout)
 
-        # GRIDLAYOUT
-        self.grid_layout_modelization.addWidget(self.canvas_up_left_modelization, 0, 0)
-        self.grid_layout_modelization.addWidget(self.canvas_up_right_modelization, 0, 1)
-        self.grid_layout_modelization.addWidget(self.canvas_down_left_modelization, 1, 0)
-        self.grid_layout_modelization.addWidget(self.canvas_down_right_modelization, 1, 1)
+        # FONT
+        new_font = QFont("Times", 12, QtGui.QFont.Bold)
+
+        # LABELS
+        self.label_pitch.setFont(new_font)
+        self.label_pitch.setAlignment(Qt.AlignCenter)
+        self.label_pitch.setObjectName("Tangage")
+
+        self.label_roll.setFont(new_font)
+        self.label_roll.setAlignment(Qt.AlignCenter)
+        self.label_roll.setObjectName("Roulis")
+
+        # EXTRA LAYOUTS
+        self.left_vertical_layout.addWidget(self.label_pitch)
+        self.left_vertical_layout.addWidget(self.canvas_left_modelization)
+
+        self.right_vertical_layout.addWidget(self.label_roll)
+        self.right_vertical_layout.addWidget(self.canvas_right_modelization)
+
+        # GRID LAYOUT
+        self.grid_layout.addLayout(self.left_vertical_layout, 0, 0)
+        self.grid_layout.addLayout(self.right_vertical_layout, 0, 1)
 
         self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(self.parent)
@@ -71,9 +97,8 @@ class Modelization(QWidget):
         This function is used to empty the three displayed graph and the corresponding parameters
         :return: Nothing
         """
-        self.canvas_up_right.clear()
-        self.canvas_down_right.clear()
-        self.canvas_down_left.clear()
+        self.canvas_left_modelization.clear()
+        self.canvas_right_modelization.clear()
 
     def draw_curves(self, list_curves, directory_path):
         pass

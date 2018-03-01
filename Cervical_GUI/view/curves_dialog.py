@@ -30,8 +30,8 @@ class CurvesDialog(object):
         self.already_selected_curves    = already_selected_curves
         self.parent                     = curves_dialog
 
-        # VBOX LAYOUT
-        self.vertical_layout = QtWidgets.QVBoxLayout(curves_dialog)
+        # EXTRA LAYOUT
+        self.vertical_layout    = QtWidgets.QVBoxLayout(curves_dialog)
 
         # BUTTON BOX
         self.buttonBox = QtWidgets.QDialogButtonBox(curves_dialog)
@@ -55,11 +55,10 @@ class CurvesDialog(object):
         :return: Nothing
         """
         # SCROLL AREA
-        self.scrollArea.setWidgetResizable(True)
+        # self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollArea.setEnabled(True)
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.vertical_layout.addWidget(self.scrollArea)
 
         # LIST VIEW
         self.listView.setGeometry(QtCore.QRect(0, 0, 530, 450))
@@ -104,6 +103,8 @@ class CurvesDialog(object):
         self.buttonBox.setObjectName("buttonBox")
         self.buttonBox.accepted.connect(self.parent.accept)
         self.buttonBox.rejected.connect(self.parent.reject)
+
+        self.vertical_layout.addWidget(self.scrollArea)
         self.vertical_layout.addWidget(self.buttonBox)
 
         self.retranslate_ui()
@@ -116,7 +117,7 @@ class CurvesDialog(object):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
-        self.parent.setWindowTitle(_translate("Dialog", "Charger des courbes"))
+        self.parent.setWindowTitle(_translate("CurvesDialog", "Charger des courbes"))
 
     def get_selected_curves(self):
         """

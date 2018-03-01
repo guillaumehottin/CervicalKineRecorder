@@ -3,10 +3,11 @@
 import os
 import ntpath
 from datetime import datetime
-from PyQt5.QtWidgets import QMessageBox
 
-FILE_EXTENSION      = ".orpl"
-PATH_TO_STORE_FILES  = "./data/"
+FILE_EXTENSION                  = ".orpl"
+PATH_TO_STORE_FILES             = "./data/"
+EXTENSION_HULLS_MODEL           = ".mdlhl"
+EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhls"
 LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
 # DEBUG
 DEBUG = True

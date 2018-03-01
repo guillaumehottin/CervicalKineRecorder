@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIntValidator, QRegExpValidator
 from PyQt5.QtWidgets import QDialog
 
 
-class NewProfileDialog(object):
+class NewProfileDialog(QDialog):
     """
     This class is used to define the new profile dialog GUI
     Here you can find the Text edit and buttons set up
@@ -17,6 +17,9 @@ class NewProfileDialog(object):
         This function is used to declare and initialize all class attributes
         :param dialog: The dialog in which this GUI will be displayed
         """
+
+        super(NewProfileDialog, self).__init__()
+
         # ATTRIBUTES
         self.parent = dialog
 

@@ -11,7 +11,7 @@ from model.socket_server import SocketServer, PortCount, calculate_time_for_fini
 DEBUG = True
 
 
-class AcquisitionController(QObject):
+class AcquisitionTabController(QObject):
     """
         This class is used to handle every action done on the acquisition view
         Here you can find button handler and attributes used to perform acquisition process
@@ -39,15 +39,15 @@ class AcquisitionController(QObject):
         Function used to create the controller and init each attribute
         :param view: the corresponding view (here acquisition.py)
         """
-        super(AcquisitionController, self).__init__()
+        super(AcquisitionTabController, self).__init__()
 
         # ATTRIBUTES
         self.view               = view
         self.selected_movement  = "Lacet"
-        self.angle              = AcquisitionController.INIT_ANGLE
-        self.speed              = AcquisitionController.INIT_SPEED
-        self.nb_return          = AcquisitionController.INIT_NB_RETURN
-        self.wait_time          = AcquisitionController.INIT_WAIT_TIME
+        self.angle              = AcquisitionTabController.INIT_ANGLE
+        self.speed              = AcquisitionTabController.INIT_SPEED
+        self.nb_return          = AcquisitionTabController.INIT_NB_RETURN
+        self.wait_time          = AcquisitionTabController.INIT_WAIT_TIME
         self.comment            = ""
         self.send_start_thread  = None
         self.send_stop_thread   = None
@@ -101,7 +101,7 @@ class AcquisitionController(QObject):
                            "sphereGreenToYellowAngle": self.SPHERE_GREEN_TO_YELLOW_ANGLE,
                            "sphereYellowToRedAngle": self.SPHERE_YELLOW_TO_RED_ANGLE}
 
-            DEBUG and print("=== acquisition.py === Acquisition info : \n" +
+            DEBUG and print("=== acquisition.py === AcquisitionTab info : \n" +
                   "MOV: " + str(self.view.comboBox.currentText()) + "\n" +
                   "ANGLE: " + str(self.angle) + "\n" +
                   "SPEED: " + str(self.speed) + "\n" +
@@ -125,7 +125,7 @@ class AcquisitionController(QObject):
         the SendFinishThread waited for enough time (until the last stop of the sphere before the end of the
         acquisition.
         It checks taht the send finish thread is the correct one and then set the Start/Stop button to "Finishing
-        Acquisition", sends "finishAcquisition" to the Unity GUI, closes the socket server and starts another one.
+        AcquisitionTab", sends "finishAcquisition" to the Unity GUI, closes the socket server and starts another one.
         :param e: The number of the SendFinishThread that stopped
         :return: Nothing
         """
@@ -133,7 +133,7 @@ class AcquisitionController(QObject):
         if self.number_of_finish_handlers_to_ignore == int(e):
             if self.send:
                 # UPDATE BUTTON START/STOP
-                self.view.startStopButton.setText("Fin Acquisition...")
+                self.view.startStopButton.setText("Fin AcquisitionTab...")
                 self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
                 self.view.startStopButton.setEnabled(False)
                 self.socket_server.send("finishAcquisition")
@@ -155,7 +155,7 @@ class AcquisitionController(QObject):
         sphere during the acquisition.
         If those values show that the acquisition is not good, it displays a popup asking if the user wants to keep it
         nonetheless.
-        It then sets the button to "Start Acquisition"
+        It then sets the button to "Start AcquisitionTab"
         :return: Nothing
         """
         DEBUG and print("handle_start_server_thread_acquisition_finished_completion")
@@ -170,13 +170,13 @@ class AcquisitionController(QObject):
                                          confirmation_msg, QMessageBox.Yes, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
-                DEBUG and print("=== acquisition_controller.py === CONSERVER ACQUISITION")
+                DEBUG and print("=== acquisition_tab_controller.py === CONSERVER ACQUISITION")
                 # Update graph with tMP file content
                 self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
                 self.view.saveButton.setEnabled(True)
 
             else:
-                DEBUG and print("=== acquisition_controller.py === SUPPRIMER ACQUISITION")
+                DEBUG and print("=== acquisition_tab_controller.py === SUPPRIMER ACQUISITION")
                 self.view.clear_graph()
 
                 # Empty attribute
@@ -215,7 +215,7 @@ class AcquisitionController(QObject):
     def handle_start_server_thread_acquisition_started_completion(self, e):
         """
         Handler called when "startAcquisition" was sent and a new socket server was started and Unity connected to it
-        It receives the "startAcquisitionAck" and then sets the button to "Stop Acquisition"
+        It receives the "startAcquisitionAck" and then sets the button to "Stop AcquisitionTab"
         It starts a "sendContinueThread" that will wait until the last stop of the sphere.
         It allows to send a "stopAcquisition" until the thread finishes. After that, the acquisition finishes
         normally
@@ -241,7 +241,7 @@ class AcquisitionController(QObject):
     def handle_start_server_thread_acquisition_stopped_completion(self, e):
         """
         Handler called when "stopAcquisition" was sent and a new socket server was started and Unity connected to it
-        It receives "stopAcquisitionAck" and sets the button to "Start Acquisition"
+        It receives "stopAcquisitionAck" and sets the button to "Start AcquisitionTab"
         :return: Nothing
         """
         DEBUG and print("handle_start_server_thread_acquisition_stopped_completion")
@@ -256,12 +256,12 @@ class AcquisitionController(QObject):
         """
         Handler called when "startAcquisition" was just sent.
         It starts a new thread in charge of starting a new socket server.
-        It then changes the button to "Starting Acquisition..."
+        It then changes the button to "Starting AcquisitionTab..."
         :return: Nothing
         """
         DEBUG and print("handle_send_start_thread_completion")
         # UPDATE BUTTON START/STOP OIZHUIAHDIUZAHOIDZL
-        self.view.startStopButton.setText("Lancement Acquisition...")
+        self.view.startStopButton.setText("Lancement AcquisitionTab...")
         self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
         self.view.startStopButton.setEnabled(False)
         self.view.saveButton.setEnabled(False)
@@ -276,13 +276,13 @@ class AcquisitionController(QObject):
         """
         Handler called when "stopAcquisition" was just sent.
         It starts a new thread in charge of starting a new socket server.
-        It then changes the button to "Stopping Acquisition..." and tells the FinishAcquisitionCompletion handler
+        It then changes the button to "Stopping AcquisitionTab..." and tells the FinishAcquisitionCompletion handler
         to ignore this specific FinishAcquisition thread
         :return: Nothing
         """
         DEBUG and print("handle_send_stop_thread_completion")
         # UPDATE BUTTON START/STOP
-        self.view.startStopButton.setText("Arrêt Acquisition...")
+        self.view.startStopButton.setText("Arrêt AcquisitionTab...")
         self.view.startStopButton.setStyleSheet("background-color: blue; color:white")
         self.view.startStopButton.setEnabled(False)
         self.socket_server.close()
@@ -321,7 +321,7 @@ class AcquisitionController(QObject):
                                          confirmation_msg, QMessageBox.Yes, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
-                DEBUG and print("=== acquisition_controller.py === SUPPRESION EN COURS")
+                DEBUG and print("=== acquisition_tab_controller.py === SUPPRESION EN COURS")
                 self.view.clear_graph()
 
                 # Empty attribute
@@ -331,7 +331,7 @@ class AcquisitionController(QObject):
                 self.view.saveButton.setEnabled(True)
 
             else:
-                DEBUG and print("=== acquisition_controller.py === ANNULATION")
+                DEBUG and print("=== acquisition_tab_controller.py === ANNULATION")
 
     @pyqtSlot(name="save_curves_button_handler")
     def save_curves_button_handler(self):
@@ -341,7 +341,7 @@ class AcquisitionController(QObject):
         and save them into a file
         :return: Nothing
         """
-        DEBUG and print('=== acquisition_controller.py === SAVE CURVES')
+        DEBUG and print('=== acquisition_tab_controller.py === SAVE CURVES')
 
         # RETRIEVE THE FIRST ELEMENT BECAUSE IT MUST HAVE ONLY ONE CURVE ON THE GRAPH
         data = self.yaw_pitch_roll[0]

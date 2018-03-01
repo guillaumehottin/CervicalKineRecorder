@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QWidget
 
-from controller.acquisition_controller import AcquisitionController
+from controller.acquisition_tab_controller import AcquisitionTabController
 import os
 
 from model.file_manager import get_coord, get_param_from_file
@@ -22,11 +22,11 @@ HOST = "localhost"
 PORT = 50007
 
 
-class Acquisition(QWidget):
+class AcquisitionTab(QWidget):
     """
     This class is the GUI of the acquisition tabs
     Here you can find every aspect of the Widget display (orientation, position, layouts, connection to handler, etc.)
-    The logical behind this GUI is located in acquisition_controller.py
+    The logical behind this GUI is located in acquisition_tab_controller.py
     """
 
     def __init__(self, parent, main_window_controller):
@@ -34,14 +34,14 @@ class Acquisition(QWidget):
         This function is used to define and instanciate all class attributes of this class
         :param parent: Window in which is displayed this GUI
         """
-        super(Acquisition, self).__init__()
+        super(AcquisitionTab, self).__init__()
 
         # ATTRIBUTES
         self.parent                 = parent
         self.main_window_controller = main_window_controller
-        self.acquisition_controller = AcquisitionController(self)
+        self.acquisition_controller = AcquisitionTabController(self)
 
-        self.parent.setObjectName("Acquisition")
+        self.parent.setObjectName("AcquisitionTab")
         self.centralwidget      = QtWidgets.QWidget(self.parent)
         self.gridLayoutWidget   = QtWidgets.QWidget(self.centralwidget)
 
@@ -231,13 +231,13 @@ class Acquisition(QWidget):
         """
         _translate = QtCore.QCoreApplication.translate
         # LABELS
-        self.label_nom_prenom.setText(_translate("MainWindow", "Nom prénom age"))
-        self.label_comment.setText(_translate("MainWindow", "Commentaires d'acquisition"))
-        self.label_mvt_selected.setText(_translate("MainWindow", "Mouvement sélectionné"))
-        self.label_angle.setText(_translate("MainWindow", "Amplitude maximum (en °)"))
-        self.label_speed.setText(_translate("MainWindow", "Vitesse de rotation (en °/s)"))
-        self.label_nb_return.setText(_translate("MainWindow", "Nombre d'aller retour "))
-        self.label_wait_time.setText(_translate("MainWindow", "Temps d'arrêt entre chaque aller retour"))
+        self.label_nom_prenom.setText(_translate("AcquisitionTab", "Nom prénom age"))
+        self.label_comment.setText(_translate("AcquisitionTab", "Commentaires d'acquisition"))
+        self.label_mvt_selected.setText(_translate("AcquisitionTab", "Mouvement sélectionné"))
+        self.label_angle.setText(_translate("AcquisitionTab", "Amplitude maximum (en °)"))
+        self.label_speed.setText(_translate("AcquisitionTab", "Vitesse de rotation (en °/s)"))
+        self.label_nb_return.setText(_translate("AcquisitionTab", "Nombre d'aller retour "))
+        self.label_wait_time.setText(_translate("AcquisitionTab", "Temps d'arrêt entre chaque aller retour"))
 
         # SPINBOX
         self.text_angle.setValue(self.acquisition_controller.INIT_ANGLE)
@@ -246,9 +246,9 @@ class Acquisition(QWidget):
         self.text_wait_time.setValue(self.acquisition_controller.INIT_WAIT_TIME)
 
         # BUTTONS
-        self.startStopButton.setText(_translate("MainWindow", "Lancer acquisition"))
-        self.saveButton.setText(_translate("MainWindow", "Enregistrer"))
-        self.emptyGraph.setText(_translate("MainWindow", "Vider les graphiques"))
+        self.startStopButton.setText(_translate("AcquisitionTab", "Lancer acquisition"))
+        self.saveButton.setText(_translate("AcquisitionTab", "Enregistrer"))
+        self.emptyGraph.setText(_translate("AcquisitionTab", "Vider les graphiques"))
 
     def add_comment(self, hour_parameters, comments):
         """
