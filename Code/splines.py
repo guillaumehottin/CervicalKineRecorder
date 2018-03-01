@@ -1,14 +1,14 @@
-#####################################################################
-#For this package, we work with three angles (Yaw,Pitch,Roll).
-#We only use the yaw motion (horizontal variation) .
-#We consider three  planes:
-#    _Pitch = f(Yaw)    (We associate the id_curve number 1)
-#    _Roll  = f(Pitch)  (id_curve 2)
-#    _Roll   = f(Yaw)   (id_curve 3)
-#This file permits to approximate the motion by a BSpline.
-#For each cycles, we compute control points and mean it.
-#At the end, we get a mean Bspline of cycles.
-#####################################################################
+"""
+    For this package, we work with three angles (Yaw,Pitch,Roll).
+    We only use the yaw motion (horizontal variation) .
+    We consider three  planes:
+        _Pitch = f(Yaw)    (We associate the id_curve number 1)
+        _Roll  = f(Pitch)  (id_curve 2)
+        _Roll   = f(Yaw)   (id_curve 3)
+    This file permits to approximate the motion by a BSpline.
+    For each cycles, we compute control points and mean it.
+    At the end, we get a mean Bspline of cycles.
+"""
 
 
 import numpy as np
@@ -17,12 +17,23 @@ import shapely.geometry as geo
 import myutils
 
 
-########################################################
-#Compute distance between two consecutives points
-#for the main axis of motion
-#For yaw motion -> Main axis = yaw
-########################################################
+
 def compute_difference_list_motion(angle_x):
+    """
+    Compute distance between two consecutives points
+    for the main axis of motion
+    For yaw motion -> Main axis = yaw
+
+    Parameter
+    ----------
+    angle_x : List
+        List of angle values
+
+    Return
+    ---------
+    List
+        List of difference between two points
+    """
     return [angle_x[i]-angle_x[i+1] for i in range(len(angle_x)-1)]
             
 
@@ -86,18 +97,22 @@ def detect_cycles(diff_l,list_angle):
     return index_change_l
 
 
-
-########################################################
-#Have same number of control points for each cycle and compute mean
-#Inputs:
-#    _ two_ways_x : List of List with each two ways for axis x
-#    _ two_ways_y : Same with axis y
-#Outputs:
-#    _ Mean control points : Two lists
-########################################################
-
 def mean_control_points(cycles_x, cycles_y):
-#Get same number of points of each cycle
+    """
+    Have same number of control points for each cycle and compute mean
+
+    Parameters
+    ----------
+    cycles_x : List
+            List of List with each two ways for axis x
+    cycles_y : List
+            Same with axis y
+
+    Returns
+    ----------
+    Mean control points : Two lists
+    """
+    #Get same number of points of each cycle
     len_list = list(map(len, cycles_x))
     min_len = min(len_list)    
     index = len_list.index(min_len)
@@ -113,20 +128,24 @@ def mean_control_points(cycles_x, cycles_y):
     return mean_control_x, mean_control_y
 
 
-########################################################
-# Compute mean control points for cycles
-# Detect each cycle, get same number of points
-# and mean each list
-# Inputs:
-#     _ angle_x : List
-#     _ angle_y : List
-#     _ id_curve: int
-#Outputs:
-#     _ Control points
-########################################################
-
 def get_control_points(angle_x, angle_y, step):
+    """
+    Compute mean control points for cycles
+    Detect each cycle, get same number of points and mean each list
 
+    Parameters
+    ----------
+    angle_x : List
+            Angle values for the x axis
+    angle_y : List
+            Angle values for the y axis
+    step    : int
+            For the number of control points
+
+    Returns
+    ----------
+    Control points : Two lists (for x and y axis)
+    """
     #Compute difference between two consecutives points    
     diff_l = compute_difference_list_motion(angle_x)
 
@@ -316,5 +335,3 @@ if __name__ == "__main__":
     npts = 150
     
     p, r = create_model(list_coord)
-        
-    

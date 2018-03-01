@@ -10,21 +10,22 @@ using System.Linq;
 
 public class StartScripts : MonoBehaviour {
 
-    public float sphereSpeed;
-    public float sphereLimitAngle;
-    public float sphereWaitTime;
-    public float sphereCountdownTime;
-    public int sphereRoundTripNumber;
-    public float sphereLimitAngleLimits;
+    public float sphereSpeed; // the speed of the sphere, in degrees/s
+    public float sphereLimitAngle; // the maximum angle, in degrees, between 0 and 90
+    public float sphereWaitTime; // the time the sphere waits at the borders, in seconds
+    public float sphereCountdownTime; // the time to wait at the start of the acquisition, in seconds
+    public int sphereRoundTripNumber; // the number of time the sphere does a round trip, starting when the sphere first hits the left border
+    public float sphereLimitAngleLimits; // allows to save the limit angles in degrees for later
 
-    public float sphereGreenToYellowAngle;
-    public float sphereYellowToRedAngle;
+    public float sphereGreenToYellowAngle; // the angle difference at which the ball gets from green to yellow, in radians
+    public float sphereYellowToRedAngle; // the angle difference at which the ball gets from yellow to red, in radians
 
     public string outputFilePath;
-    public int acquisitionFrequency;
+    public int acquisitionFrequency; // the number of time per secondes that the rotation of the headset is acquired
 
     public string profileName;
 
+    // The different scripts to attach to the Controller game object
     private SphereControl sphereControlScript;
     private SphereColor sphereColorScript;
     private AcquireMovement acquireMovementScript;
@@ -33,28 +34,35 @@ public class StartScripts : MonoBehaviour {
     private SocketClient socketClientScript;
     private SocketReceive socketReceiveJob;
 
-    private string confFile = "cervical.conf";
-
+    // The UI elements to display the text and the crosshair
     public Text countdownText;
     public Image crosshair;
+
+
+    private string confFile = "cervical.conf"; // the path to the configuration file, for debugging purposes
+    private bool conf = false; // true if you want to use the configuration file, false if you want to use the sockets
+
 
     public bool receivebool = true;
     public int messages = 0;
 
-    private string message;
-    private string state;
+    private string message; // the message received from the socket
+    private string state; // the state of the script, allows it to go sequentially through all the necessary operations
 
-    private float waitTime = 0.3f;
-    private float waitedTime;
+    private float waitTime = 0.3f; // the wait time before an attempt to connect to the socket server
+    private float waitedTime; // the time waited when needed
 
-    private bool conf = false;
-    private bool connected = false;
-    private int STARTING_PORT = 50007;
-    private int ENDING_PORT = 51000;
-    private int port;
-    // Use this for initialization
+    private bool connected = false; // a boolean, set to true when the connection to the remote socket server succeeded
+
+    // during the life cycle of the app, we cycle by incrementing the port of the socket we're connecting to
+    private int STARTING_PORT = 50007; // the starting port to connect to
+    private int ENDING_PORT = 51000; // the ending port to connect to
+
+    private int port; // the port we are using at a given time
+
+
     void Start () {
-        if (conf)
+        if (conf) // for debugging purposes, uses the parameters from a given conf file
         {
             LoadConf();
             
@@ -92,36 +100,31 @@ public class StartScripts : MonoBehaviour {
 
             sphereControlScript.start = true;
         }
-        else
+        else // when using the sockets, tells the script to connect to the remote socket server
         {
             state = "connect";
         }
-
-
-        
-        
     }
-
-    // Update is called once per frame
+    
     void Update() {
-        if (!conf)
+        if (!conf) // only if using the sockets
         {
-            if (state.Equals("wait"))
+            if (state.Equals("wait")) // wait before connecting to the socket server
             {
                 waitedTime += Time.deltaTime;
-                if (waitedTime > waitTime)
+                if (waitedTime > waitTime) // if we waited enough, connect to the server at the next frame
                 {
                     port = STARTING_PORT;
                     state = "connect";
                 }
             }
-            else if (state.Equals("connect"))
+            else if (state.Equals("connect")) // connect to the socket server
             {
                 port = STARTING_PORT;
                 connected = SocketClient.connectSocket("127.0.0.1", port);
                 if (connected)
                 {
-                    if (port > 50017)
+                    if (port > ENDING_PORT)
                     {
                         port = STARTING_PORT;
                     }
@@ -129,19 +132,19 @@ public class StartScripts : MonoBehaviour {
                     {
                         port++;
                     }
-                    state = "receive";
+                    state = "receive"; // go to the receive state to start the acquisition
                     Debug.Log("Waiting for startAcquisition...");
                 }
 
             }
-            else if (state.Equals("receive"))
+            else if (state.Equals("receive")) // receive a message from the socket
             {
                 socketReceiveJob = new SocketReceive();
                 socketReceiveJob.Start();
 
                 state = "checkReceive";
             }
-            else if (state.Equals("checkReceive"))
+            else if (state.Equals("checkReceive")) // check if a message has been received
             {
                 if (socketReceiveJob.Update())
                 {
@@ -150,18 +153,20 @@ public class StartScripts : MonoBehaviour {
                     {
                         if (message.Contains("startAcquisition"))
                         {
-                            state = "startAcquisition";
+                            state = "startAcquisition"; // correct message, go start the acquisition
                         }
                     }
                 }
             }
-            else if (state.Equals("startAcquisition"))
+            else if (state.Equals("startAcquisition")) // start the acquisition
             {
                 Debug.Log("Parsing Acquisition parameters...");
-                socketToParams(message);
+                socketToParams(message); // get the parameters from the message
                 sphereSpeed = sphereSpeed * Mathf.Deg2Rad;
                 sphereLimitAngleLimits = sphereLimitAngle;
                 sphereLimitAngle = Mathf.PI / 2 - sphereLimitAngle * Mathf.Deg2Rad;
+
+                // setup the script controlling the sphere
                 if (sphereControlScript != null)
                 {
                     sphereControlScript.Reset();
@@ -180,7 +185,7 @@ public class StartScripts : MonoBehaviour {
                 sphereControlScript.countdownText = countdownText;
                 sphereControlScript.sphereRoundTripNumber = sphereRoundTripNumber;
 
-
+                //  setup the script that changes the ball color according to the angle difference from the camera
                 if (sphereColorScript != null)
                 {
                     sphereColorScript.Reset();
@@ -195,7 +200,7 @@ public class StartScripts : MonoBehaviour {
                 sphereColorScript.sphereGreenToYellowAngle = sphereGreenToYellowAngle;
                 sphereColorScript.sphereYellowToRedAngle = sphereYellowToRedAngle;
 
-
+                // setup the script that acquires the head rotation
                 if (acquireMovementScript != null)
                 {
                     acquireMovementScript.Reset();
@@ -213,6 +218,7 @@ public class StartScripts : MonoBehaviour {
 
                 sphereColorScript.acquireMovementScript = acquireMovementScript;
 
+                // setup the scripts that display the lft and right border, showing where the ball will stop
                 if (limitsControlScript != null)
                 {
                     limitsControlScript.Reset();
@@ -226,15 +232,15 @@ public class StartScripts : MonoBehaviour {
                 limitsControlScript.sphereLimitAngle = sphereLimitAngleLimits;
 
                 sphereControlScript.start = true;
-                state = "sendStartAcquisitionAck";
+                state = "sendStartAcquisitionAck"; // got to send the acknoledgement
                 waitedTime = 0.0f;
                 Debug.Log("Acquisition started.");
 
-            } else if (state.Equals("sendStartAcquisitionAck"))
+            } else if (state.Equals("sendStartAcquisitionAck")) // send the acknowledgement that we must start the acquisition
             {
                 waitedTime += Time.deltaTime;
 
-                if (waitedTime > waitTime)
+                if (waitedTime > waitTime) // wait before connecting to the socket server
                 {
                     connected = SocketClient.connectSocket("127.0.0.1", port);
                     if (connected) {
@@ -250,12 +256,12 @@ public class StartScripts : MonoBehaviour {
 
                         SocketClient.socketSend("startAcquisitionAck");
                         socketReceiveJob.Start();
-                        state = "checkReceiveOrFinished";
+                        state = "checkReceiveOrFinished"; // go wait for the next message
                     }
                     
                 }
             }
-            else if (state.Equals("checkReceiveOrFinished"))
+            else if (state.Equals("checkReceiveOrFinished")) // waiting for 2 messages, either stopAcquisition or finishAcquisition
             {
                 if (socketReceiveJob.Update())
                 {
@@ -276,15 +282,15 @@ public class StartScripts : MonoBehaviour {
                     }
                 }
             }
-            else if (state.Equals("finishAcquisition"))
+            else if (state.Equals("finishAcquisition")) // this message means that the acquisition must go to the end
             {
-                if (sphereControlScript.finished)
+                if (sphereControlScript.finished) // check if it is actually finished every frame
                 {
                     Debug.Log("Acquisition finished.");
                     state = "finished";
                 }
             }
-            else if (state.Equals("finished"))
+            else if (state.Equals("finished")) // the acquisition is finished, send the endAcquisition message with the mean and the standard deviation
             {
                 connected = SocketClient.connectSocket("127.0.0.1", port);
                 if (connected)
@@ -307,7 +313,7 @@ public class StartScripts : MonoBehaviour {
                     Debug.Log("Waiting for startAcquisition...");
                 }
             }
-            else if (state.Equals("stopAcquisition"))
+            else if (state.Equals("stopAcquisition")) // stop the acquisition and send the stopAcquisition acknowledgement
             {
                 Debug.Log("Acquisition stopped.");
                 sphereControlScript.stop = true;
@@ -337,6 +343,11 @@ public class StartScripts : MonoBehaviour {
 
     }
 
+    /// <summary>
+    /// Initializes the parameters of the aquisition from the startAcquisition message parameters
+    /// </summary>
+    /// <param name="receivedMessage">The startAcquisition message</param>
+    /// <returns></returns>
     bool socketToParams(string receivedMessage)
     {
         String[] subMessages = receivedMessage.Split(',');
@@ -348,6 +359,11 @@ public class StartScripts : MonoBehaviour {
     }
 
 
+    /// <summary>
+    /// Initializes a parameter from a 'parameter:value' string
+    /// </summary>
+    /// <param name="line">The line to parse</param>
+    /// <returns>True if it went well</returns>
     bool lineToParam(string line)
     {
         if (line != null && !line.Equals("") && line.Contains(":"))
@@ -402,6 +418,9 @@ public class StartScripts : MonoBehaviour {
     }
 
 
+    /// <summary>
+    /// Initialize the parameters of the acquisition from the configuration file
+    /// </summary>
     void LoadConf()
     {
         string line;

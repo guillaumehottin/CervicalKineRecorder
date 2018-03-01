@@ -1,7 +1,10 @@
 import socket
 
 class PortCount:
-
+    """
+    PortCount
+    Class that allows to increment the number of the port to use, using a new one each time
+    """
     def __init__(self, starting_port):
         self.starting_port = starting_port
         self.port = starting_port
@@ -26,7 +29,11 @@ class PortCount:
 
 
 class SocketServer:
-
+    """
+    SocketServer
+    Class that represents a socket server, initializing it and allowing to send and receive message through the
+    connection and close the connection
+    """
     def __init__(self):
         self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
