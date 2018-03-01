@@ -17,26 +17,6 @@ import shapely.geometry as geo
 import myutils
 
 
-def get_file_data(path):
-    f = open(path,"r")
-    data = f.readlines()
-    yaw_l, pitch_l, roll_l = [],[],[]
-    data.pop(0)
-
-    for i in range(0,len(data)):
-        elems = data[i].split(" ")
-        yaw_l.append(elems[0])
-        pitch_l.append(elems[1])
-        roll_l.append(elems[2])
-    #Convert to float
-    if (yaw_l != []):
-        yaw_l = list(map(float, yaw_l))
-        pitch_l = list(map(float, pitch_l))
-        roll_l = list(map(float, roll_l))
-
-    return yaw_l, pitch_l, roll_l
-
-
 ########################################################
 #Compute distance between two consecutives points
 #for the main axis of motion

@@ -4,7 +4,6 @@ import datetime
 from shapely.wkt import loads
 import matplotlib.pyplot as plt
 import myutils
-import time
 
 
 def compare_to_model(new_acq, model):
@@ -135,12 +134,10 @@ def load_model(file_path):
 
 if __name__ == '__main__':
     direct = ['data/guillaume2/']
-    """
-    start = time.process_time()
     hullp, hullr  = save_model(direct, '.')
-    elapsed = time.process_time()-start
-    print("Time elapsed: {0}".format(elapsed))
+
     """
     model = load_model("has_02-26-2018_1154.mdlhs")
     acq = myutils.preprocess_data([myutils.get_coord('data/guillaume2/patho4.orpl')])[0]
     print(compare_to_model(acq, model))
+    """

@@ -116,8 +116,6 @@ def alpha_shape(points, alpha):
 		  
     coords = np.array([point.coords[0] for point in points])
     tri = Delaunay(coords)
-    print("Delaunay done...")
-    print(str(len(tri.vertices))+" vertices")
     edges = set()
     edge_points = []
     # loop over triangles:
@@ -137,14 +135,12 @@ def alpha_shape(points, alpha):
         area = math.sqrt(s*(s-a)*(s-b)*(s-c))
         circum_r = a*b*c/(4.0*area)
         # Here's the radius filter.
-        #print circum_r
         if circum_r < 1.0/alpha:
             add_edge(edges, edge_points, coords, ia, ib)
             add_edge(edges, edge_points, coords, ib, ic)
             add_edge(edges, edge_points, coords, ic, ia)
     m = geometry.MultiLineString(edge_points)
     triangles = list(polygonize(m))
-    print("Triangles polygonized")
     return cascaded_union(triangles), edge_points
 
 
@@ -299,7 +295,6 @@ def build_set_for_hull(array_data, bins, threshold):
     yaw = [x[0] for x in array_data]
     pitch = [x[1] for x in array_data]
     roll = [x[2] for x in array_data]
-    print('Total of points = '+str(len(yaw)))
     hp, xedge, yedge = np.histogram2d(yaw, pitch, bins=bins, range=[[0,1],[0.43,0.57]])
     hr, _, _ = np.histogram2d(yaw, roll, bins=bins, range=[[0,1],[0.43,0.57]])
     
@@ -352,10 +347,6 @@ def train_test_model(dataset, indices_patho):
     preds_train = model.predict(train_data)
     accuracy_train = metrics.accuracy_score(train_target, preds_train)
     preds_test = model.predict(test_data)
-    print(train_target)
-    print(preds_train)
-    print(test_target)
-    print(preds_test)
     accuracy_test = metrics.accuracy_score(test_target, preds_test)
     
     return model, accuracy_train, accuracy_test
@@ -395,13 +386,8 @@ def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
         threshold = len(all_points)/(bins[0]*bins[1])
         
         p, r = build_set_for_hull(all_points, bins, threshold)
-        print("Point set built...")
-        print(str(len(p))+" points in pitch")
-        print(str(len(r))+" points in roll")
         model_pitch = alpha_shape(myutils.array2MP(p), alpha=3)[0].buffer(0.005)
-        print("Pitch model built...")
         model_roll = alpha_shape(myutils.array2MP(r), alpha=3)[0].buffer(0.005)
-        print("Roll model built...\nBoth models built...")
         
         return model_pitch, model_roll
     
@@ -467,8 +453,6 @@ def compare_to_model(new_acq, model, size_grid, alpha):
     grid_p, hull_p = discrete_hull(new_acq[0], new_acq[1], size_grid, alpha)
     grid_r, hull_r = discrete_hull(new_acq[0], new_acq[2], size_grid, alpha)
     dataset = [[grid_p[0]] + [grid_r[0]]]
-    
-    plot_discrete_hull(grid_p[0], grid_p[1], hull_p)
     
     dataset = np.array(dataset).reshape(1, 2*size_grid[0]*size_grid[1])
     res = model.predict(dataset)[0]
@@ -542,22 +526,8 @@ def load_model(file_path):
 
 
 if __name__ == '__main__':
-    """
-    yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
-    yaw_pitch = myutils.coord2points([yaw,pitch])
-    hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)
-    plot_polygon_MP(hull)
-    plt.plot(yaw,pitch)
-    print(matching_grid(hull))
-    """
-    
     direct = ['data/guillaume2/']
-    
     ind = [29,28,27,26]
-    """
-    start = time.process_time()
     x  = save_model(direct, '.', indices_patho=ind)
-    elapsed = time.process_time()-start
-    print("Time elapsed: {0}".format(elapsed))
-"""
-    x = load_model('hull_03-01-2018_1023.mdlhl')
+
+    #x = load_model('hull_03-01-2018_1023.mdlhl')
