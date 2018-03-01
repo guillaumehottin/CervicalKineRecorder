@@ -91,7 +91,7 @@ class NewProfileDialog(object):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
-        new_profile.setWindowTitle(_translate("NewProfile", "Dialog"))
+        new_profile.setWindowTitle(_translate("NewProfile", "Créer un nouveau profil"))
         self.label_last_name.setText(_translate("NewProfile", "Nom"))
         self.label_first_name.setText(_translate("NewProfile", "Prénom"))
         self.label_age.setText(_translate("NewProfile", "Age"))
