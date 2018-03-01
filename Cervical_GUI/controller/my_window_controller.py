@@ -4,6 +4,9 @@ import webbrowser
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
+import hull_and_spline
+import hulls
+from hulls import load_model
 from model.file_manager import create_directory, get_file_name_from_absolute_path, \
     add_profile_used
 from view.curves_dialog import CurvesDialog
@@ -19,8 +22,10 @@ class MyWindowController(QObject):
     Here you will find all button handler
     """
 
-    PATH_TO_STORE_FILE      = "./data/"
-    PATH_TO_STORE_MODELS    = "./models/"
+    PATH_TO_STORE_FILE              = "./data/"
+    PATH_TO_STORE_MODELS            = "./models/"
+    EXTENSION_HULLS_MODEL           = ".mdlhl"
+    EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhls"
     GIT_LINK = "https://github.com/guillaumehottin/projetlong"
 
     def __init__(self, view):
@@ -230,7 +235,6 @@ class MyWindowController(QObject):
         If the file selected does not match the pattern we want we display an error
         :return: Nothing
         """
-        # TODO CHANGE
 
         new_path, _ = QFileDialog.getOpenFileName(self.view, "Sélectionner un modèle",
                                                    self.PATH_TO_STORE_MODELS)
@@ -241,7 +245,17 @@ class MyWindowController(QObject):
         DEBUG and print("=== acquisition.py === FOLDER LOADED : " + new_path)
 
         try:
-            pass
+            _, file_extension = os.path.splitext(new_path)
+            print("HEHEHEHEHE " + file_extension)
+            if file_extension == self.EXTENSION_HULLS_MODEL:
+                print("HUUUUULLS")
+                model, acc_train, acc_test, size_grid, alpha = hulls.load_model(new_path)
+                # TODO DRAW MODEL
+                pass
+            elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
+                print("HUUUUULLS & SPLINES")
+                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = hull_and_spline.load_model(new_path)
+                pass
 
         except ValueError:
             # DISPLAY POP UP ERROR AND DO NOTHING
