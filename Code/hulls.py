@@ -11,7 +11,6 @@ from sklearn import metrics
 import sklearn.svm as svm
 import pickle
 import datetime
-import time
 
 
 def plot_polygon_MP(polygon):
@@ -408,7 +407,7 @@ def plot_discrete_hull(grid, grid_pts, hull):
     Parameters
     ----------
     grid : array
-            Array of 1s (in hull) and 0s (out).
+            Array of 1s (within hull) and 0s (outside), the discrete hull.
     grid_pts : array
             Array of points of the grid.
     hull : Polygon
@@ -436,11 +435,19 @@ def compare_to_model(new_acq, model, size_grid, alpha):
             Array of the 3 angles (yaw, pitch, roll). Should be normalized beforehand.
     model : OneClassSVM
             Model previously built of type OneClassSVM.
+    size_grid : (int, int)
+            Number of points of the discretization along x and y axes respectively.
+    alpha : float
+            Alpha parameter for concave hulls.
             
     Returns
     -------
-    bool
-            True if healthy, False otherwise.
+    bool, (array, array), Polygon, (arrray, array), Polygon
+            [0]: True if healthy, False otherwise.
+            [1]: Discrete hull (0s and 1s) and corresponding points for pitch.
+            [2]: Hull for pitch.
+            [3]: Discrete hull (0s and 1s) and corresponding points for roll.
+            [4]: Hull for roll.
     """
     grid_p, hull_p = discrete_hull(new_acq[0], new_acq[1], size_grid, alpha)
     grid_r, hull_r = discrete_hull(new_acq[0], new_acq[2], size_grid, alpha)
@@ -449,9 +456,11 @@ def compare_to_model(new_acq, model, size_grid, alpha):
     dataset = np.array(dataset).reshape(1, 2*size_grid[0]*size_grid[1])
     res = model.predict(dataset)[0]
     if res == 1:
-        return True
+        healthy = True
     else:
-        return False
+        healthy = False
+        
+    return healthy, grid_p, hull_p, grid_r, hull_r
     
 
 def save_model(list_dir, directory, patho_patients):
