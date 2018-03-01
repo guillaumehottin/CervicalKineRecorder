@@ -9,6 +9,9 @@ import myutils
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import sklearn.svm as svm
+import pickle
+import datetime
+import time
 
 
 def plot_polygon_MP(polygon):
@@ -163,7 +166,7 @@ def hull_distance(polyA, polyB):
     return AmB.area + BmA.area
 
 
-def matching_grid(polygon, axis=[0,1], npts=20):
+def matching_grid(polygon, axis=[0,1,0,1], npts_grid=[100,20]):
     """
     Discretize a space to match a polygon.
     
@@ -172,26 +175,33 @@ def matching_grid(polygon, axis=[0,1], npts=20):
     polygon : Polygon
             The polygon to discretize.
     axis : list, optional
-            The min and the max of the square space. [0,1] by default.
-    npts : int, optional
-            The number of points by side of the discretization. 20 by default.
+            The boundary of the space considered: [xmin,xmax,ymin,ymax]. 
+            [0,1,0,1] by default.
+    npts_grid : array, optional
+            The number of points by side of the discretization [npts_x, npts_y].
+            20 by default.
     
     Returns
     -------
     array
             For each point of the discretization, 1 if the point is in the polygon and 0 otherwise.
     """
-    grid = np.zeros(npts**2)
-    h = (axis[1]-axis[0])/(npts-1)
-    for i in range(npts):
-        for j in range(npts):
-            pt = geometry.Point(i*h,j*h)
+    npts_x, npts_y = npts_grid
+    grid = np.zeros(npts_x*npts_y)
+    hx = (axis[1]-axis[0])/(npts_x-1)
+    hy = (axis[3]-axis[2])/(npts_y-1)
+    pts_grid = []
+    for i in range(npts_x):
+        for j in range(npts_y):
+            point = (axis[0]+i*hx, axis[2]+j*hy)
+            pts_grid += [point]
+            pt = geometry.Point(point)
             if polygon.contains(pt):
-                grid[i*npts+j] = 1
-    return grid       
+                grid[i*npts_y+j] = 1
+    return grid, pts_grid
 
 
-def discrete_hull(x, y, m, alpha, buff_size):
+def discrete_hull(x, y, size_grid, alpha):
     """
     Make a concave hull of a set of points and return the corresponding discretization.
     
@@ -201,21 +211,19 @@ def discrete_hull(x, y, m, alpha, buff_size):
             The x-axis coordinates of the points.
     y : array
             The y-axis coordinates of the points.
-    m : int
-            The number of points of a side of the discretization.
-    alpha : real
+    size_grid : array
+            The number of points of a side of the discretization [npts_x, npts_y].
+    alpha : float
             The alpha parameter for the concave hull.
-    buff_size : real
-            The buffer size of the concave hull, i.e. a margin.
     
     Returns
     -------
-    array
-            The corresponding grid.
+    (array, array), Polygon
+            The corresponding grid, its points and the hull as a polygon.
     """
     coordinates = myutils.coord2points([x, y])
-    hull = alpha_shape(myutils.array2MP(coordinates), alpha = alpha)[0].buffer(buff_size)
-    return matching_grid(hull, npts = m)
+    hull = alpha_shape(myutils.array2MP(coordinates), alpha = alpha)[0]
+    return matching_grid(hull, axis=[0,1,0.4,0.6], npts_grid=size_grid), hull
 
 
 def pts_out_poly(poly, pts):
@@ -332,24 +340,29 @@ def train_test_model(dataset, indices_patho):
     labels = []
     for i in range(len(dataset)):
         if i in indices_patho:
-            labels.append(0)
+            labels.append(-1)
         else:
             labels.append(1)
-            
+
     train_data, test_data, train_target, test_target = train_test_split(dataset, 
                 labels, shuffle=True, train_size = 0.8)
     model = svm.OneClassSVM(kernel='rbf', nu = len(indices_patho)/len(dataset))
-    model.fit(train_data)
+    model.fit(train_data, train_target)
     
     preds_train = model.predict(train_data)
     accuracy_train = metrics.accuracy_score(train_target, preds_train)
     preds_test = model.predict(test_data)
+    print(train_target)
+    print(preds_train)
+    print(test_target)
+    print(preds_test)
     accuracy_test = metrics.accuracy_score(test_target, preds_test)
     
     return model, accuracy_train, accuracy_test
 
 
-def create_model(array_data, type_model, bins=None, size_grid=None, indices_patho=None):
+def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
+                 indices_patho=None):
     """
     Generate a concave hull which is the union of all concave hulls in the training set.
     
@@ -362,6 +375,8 @@ def create_model(array_data, type_model, bins=None, size_grid=None, indices_path
     size_grid : int
             Number of points of a side in the discretization of the hull. 
             Ignored if type_model != 'hull'.
+    alpha : float
+            alpha parameter for alpha shape (concave hull)
     indices_patho : array_like
             Indices of the acquisitions in array_data which correspond to unhealthy 
             patients. Ignored if type_model != 'hull'.
@@ -374,9 +389,8 @@ def create_model(array_data, type_model, bins=None, size_grid=None, indices_path
             The model and its accuracies at predicting training and testing sets, 
             respectively.
     """
-    acq_points = [myutils.coord2points(d) for d in array_data]
     if type_model == 'has':
-        all_points = np.concatenate(acq_points)
+        all_points = np.concatenate([myutils.coord2points(d) for d in array_data])
         
         threshold = len(all_points)/(bins[0]*bins[1])
         
@@ -395,24 +409,76 @@ def create_model(array_data, type_model, bins=None, size_grid=None, indices_path
         #B uild dataset
         dataset = []
         alpha = 3.0
-        buffer = 0
-        for one_acq in acq_points:
-            grid_p = discrete_hull(one_acq[0], one_acq[1], alpha, buffer)
-            grid_r = discrete_hull(one_acq[0], one_acq[2], alpha, buffer)
-            dataset += [[grid_p] + [grid_r]]
-        # Reshape data into the proper shape: n is the number of files 
-        # considered, 2*m**2 is the size of each piece of data.
-        n = len(acq_points)
-        m = size_grid
-        dataset = np.array(dataset).reshape(n, 2*m**2)
+        for one_acq in array_data:
+            grid_p = discrete_hull(one_acq[0], one_acq[1], size_grid, alpha)[0]
+            grid_r = discrete_hull(one_acq[0], one_acq[2], size_grid, alpha)[0]
+            dataset += [[grid_p[0]] + [grid_r[0]]]
+        # Reshape data into the proper shape
+        n = len(array_data)
+        dataset = np.array(dataset).reshape(n, 2*size_grid[0]*size_grid[1])
         
         return train_test_model(dataset, indices_patho)
     
     else:
         raise ValueError('type_model should be either "has" or "hull"')
+        
+        
+def plot_discrete_hull(grid, grid_pts, hull):
+    """
+    Plot a hull and its discretization.
 
+    Parameters
+    ----------
+    grid : array
+            Array of 1s (in hull) and 0s (out).
+    grid_pts : array
+            Array of points of the grid.
+    hull : Polygon
+            The concave hull.
+    """
+    plot_polygon_MP(hull)
+    x, y = [pt[0] for pt in grid_pts], [pt[1] for pt in grid_pts]
+    plt.scatter(x, y)
+    ind_ones = []
+    for i in range(len(x)):
+        if grid[i] == 1:
+            ind_ones += [i]
+    xd = [x[i] for i in ind_ones]
+    yd = [y[i] for i in ind_ones]
+    plt.scatter(xd, yd, c='r')
+    
 
-def save_model(list_dir, directory):
+def compare_to_model(new_acq, model, size_grid, alpha):
+    """
+    Compare a new acquisition with the model.
+    
+    Parameters
+    ----------
+    new_acq : array_like
+            Array of the 3 angles (yaw, pitch, roll). Should be normalized beforehand.
+    model : OneClassSVM
+            Model previously built of type OneClassSVM.
+            
+    Returns
+    -------
+    bool
+            True if healthy, False otherwise.
+    """
+    grid_p, hull_p = discrete_hull(new_acq[0], new_acq[1], size_grid, alpha)
+    grid_r, hull_r = discrete_hull(new_acq[0], new_acq[2], size_grid, alpha)
+    dataset = [[grid_p[0]] + [grid_r[0]]]
+    
+    plot_discrete_hull(grid_p[0], grid_p[1], hull_p)
+    
+    dataset = np.array(dataset).reshape(1, 2*size_grid[0]*size_grid[1])
+    res = model.predict(dataset)[0]
+    if res == 1:
+        return True
+    else:
+        return False
+    
+
+def save_model(list_dir, directory, indices_patho):
     """
     Generate and save a model.
     
@@ -422,25 +488,76 @@ def save_model(list_dir, directory):
             List of directories where to find the files used to generate the model.
     directory : str
             Path to the directory where the model must be saved.
+    indices_patho : array_like
+            Indices of the acquisitions in array_data which correspond to unhealthy 
+            patients.
     """
     array_data = myutils.fetch_from_dirs(list_dir)
     array_data = myutils.preprocess_data(array_data)
-    hull_model = hulls.create_model(array_data, type_model='hull', size_grid=50)
+    
+    # For parametrization in the future ?
+    alpha = 3.0
+    size_grid = [20, 20]
+    
+    model, acc_train, acc_test = create_model(array_data, type_model='hull', 
+                                              size_grid=size_grid, alpha=alpha,
+                                              indices_patho=indices_patho)
     
     now = datetime.datetime.now()
     file_name = directory + '/hull_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlhl'
-    with open(file_name, 'w+') as file:
-        #use pickle here
+    with open(file_name, 'wb') as file:
+        pickle.dump(model, file)
+    with open(file_name, 'a+') as file:    
+        file.write('\n' + str(acc_train) + '\n' + str(acc_test) + '\n' +
+                   str(size_grid) + '\n' + str(alpha))
     
-    return hull_model
+    return model, acc_train, acc_test
 
+
+def load_model(file_path):
+    """
+    Loads a model previously saved.
+    
+    Parameters
+    ----------
+    file_path : str
+            Path to the file in which the model has been saved.
+        
+    Returns
+    -------
+    tuple
+            The SVM model and its accuracies over training and testing datasets,
+            the size of the side of the grid used for discretization and the 
+            alpha parameter used.
+    """
+    with open(file_path, 'rb') as file:
+        model = pickle.load(file)
+        data = file.readlines()
+        acc_train = float(data[1])
+        acc_test = float(data[2])
+        print(data)
+        size_grid = [int(data[3][1:3]), int(data[3][5:7])]
+        alpha = float(data[4])
+    return model, acc_train, acc_test, size_grid, alpha
 
 
 if __name__ == '__main__':
+    """
     yaw,pitch,roll = myutils.get_coord('bonnes_mesures/bonnemaison_elodie_22/Normalized/Fri Dec  8 15_10_38 2017 - Lacet.orpl')
     yaw_pitch = myutils.coord2points([yaw,pitch])
     hull = alpha_shape(myutils.array2MP(yaw_pitch),alpha=3)[0].buffer(0.05)
     plot_polygon_MP(hull)
     plt.plot(yaw,pitch)
     print(matching_grid(hull))
+    """
     
+    direct = ['data/guillaume2/']
+    
+    ind = [29,28,27,26]
+    """
+    start = time.process_time()
+    x  = save_model(direct, '.', indices_patho=ind)
+    elapsed = time.process_time()-start
+    print("Time elapsed: {0}".format(elapsed))
+"""
+    x = load_model('hull_03-01-2018_1023.mdlhl')

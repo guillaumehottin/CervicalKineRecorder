@@ -257,7 +257,7 @@ def score_model(list_coord, xs, ys, indices_change):
     return distance_curve_to_spline(myutils.coord2points(list_coord), spline, indices_change)[1]
 
 
-def interpolate_spline(list_coord,nb_points=150,step=20):
+def interpolate_spline(list_coord, nb_points=150, step=20):
     """
     Compute control points and create the spline.
     

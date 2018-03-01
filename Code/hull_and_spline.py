@@ -41,31 +41,16 @@ def compare_to_model(new_acq, model):
     err_spline_pitch = spline_threshold_pitch - score_pitch
     err_spline_roll = spline_threshold_roll - score_roll
     
+    plot_hull_spline(hull_roll, [xs_roll, ys_roll], new_acq[0:3:2], type_motion='roll')
+    
     healthy = True
     if (rate_out_pitch > 0.1 or rate_out_pitch > 0.1 or err_spline_pitch < 0 or
             err_spline_roll < 0):
         healthy = False
     return healthy, rate_out_pitch, rate_out_roll, err_spline_pitch, err_spline_roll
-
-
-def plot_spline_curve(spline, curve):
-    """
-    Plot the curve of the acquisition and the spline.
-    
-    Parameters
-    ----------
-    curve : array of arrays
-            First array is x-axis component of the acquisition, second is y-axis.
-    spline : array of array
-            Same as curve but for the spline.
-    """
-    plt.figure()
-    plt.plot(curve[0], curve[1])
-    plt.plot(spline[0], spline[1])
-    plt.show()
     
     
-def plot_hull_curve(hull, curve):
+def plot_hull_spline(hull, spline, curve, type_motion):
     """
     Plot the curve of the acquisition and the hull.
     
@@ -75,9 +60,23 @@ def plot_hull_curve(hull, curve):
             First array is x-axis component of the acquisition, second is y-axis.
     hull : Polygon
             Model hull.
+    spline : array of array
+            Same as curve but for the spline.
+    type_motion : str
+            'pitch' or 'roll', according to the angle considered.
     """
     hulls.plot_polygon_MP(hull)
-    plt.plot(curve[0], curve[1])
+    plt.plot(curve[0], curve[1], 'b--')
+    plt.plot(spline[0], spline[1], 'r')
+    if type_motion == 'pitch':
+        plt.ylim([0.44, 0.56])
+    elif type_motion == 'roll':
+        plt.ylim([0.32, 0.67])
+    else:
+        raise ValueError('type_motion must be either "pitch" or "roll"')
+    plt.ylabel(type_motion)
+    plt.xlim([-0.05, 1.05])
+    plt.xlabel('yaw')
     plt.show()
 
     
@@ -95,7 +94,7 @@ def save_model(list_dir, directory):
     array_data = myutils.fetch_from_dirs(list_dir)
     bins = [50, 20]
     array_data = myutils.preprocess_data(array_data)
-    hull_model_p, hull_model_r = hulls.create_model(array_data,type_model = 'has', bins)
+    hull_model_p, hull_model_r = hulls.create_model(array_data, type_model='has', bins=bins)
     spline_pitch, spline_roll = splines.create_model(array_data)
     
     now = datetime.datetime.now()
@@ -125,7 +124,7 @@ def load_model(file_path):
     with open(file_path, 'r+') as file:
         data = file.readlines()
         if len(data) != 4:
-            raise ValueError('The file does not have the coorect structure '
+            raise ValueError('The file does not have the correct structure '
                              + '(number of lines different from 4)')
         hull_pitch = loads(data[0])
         hull_roll = loads(data[1])
@@ -136,13 +135,12 @@ def load_model(file_path):
 
 if __name__ == '__main__':
     direct = ['data/guillaume2/']
-    
+    """
     start = time.process_time()
     hullp, hullr  = save_model(direct, '.')
     elapsed = time.process_time()-start
     print("Time elapsed: {0}".format(elapsed))
     """
     model = load_model("has_02-26-2018_1154.mdlhs")
-    acq = preprocess_data([myutils.get_coord('data/tests/2018_02_21_13_48_59_.orpl')])[0]
+    acq = myutils.preprocess_data([myutils.get_coord('data/guillaume2/patho4.orpl')])[0]
     print(compare_to_model(acq, model))
-    """
