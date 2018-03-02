@@ -59,6 +59,6 @@ If you have the Oculus Rift headset, you will need to use the Oculus Store App, 
 
 After installing it, you should be able to plug the Oculus Rift headset and create an Oculus account. Once i is done, you can leave the store open. When you run the Unity project, it should display the scene in the Unity window and in the headset, moving the camera according to the Oculus headset movement.
 
-To edit the scripts, we have been using *Visual Studio 2017* available at [this page](https://www.visualstudio.com/fr/downloads/). Their is a free and paid versions available, but students can get it for free by registering on their website with the e-mail address their institution provided.
+To edit the scripts, we have been using *Visual Studio 2017* available at [this page](https://www.visualstudio.com/fr/downloads/). There is a free *Community edition* and paid versions available, but students can get it for free by registering on their website with the e-mail address their institution provided.
 
  
