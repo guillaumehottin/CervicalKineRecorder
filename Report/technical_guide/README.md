@@ -43,6 +43,8 @@ Once you downloaded the correct **Shapely** file, open a terminal and navigate t
 
 After running all these commands, you should be able to open and run the Operator GUI project in the directory *projetlong/Cervical_GUI*.
 
+For this Python project, we have been using *Pycharm*, available at [this page](https://www.jetbrains.com/pycharm/). A free *Community edition* is available, allowing to work with the project. Paid licenses are also available, and students can get all *Jetbrains* paid IDEs for free by registering on their website with the e-mail address their institution provided.
+
 ### The Oculus App
 
 The Oculus App part of the project is made with Unity 2017.3.
