@@ -51,4 +51,10 @@ To obtain Unity, you need to go to the [Unity homepage](https://unity3d.com/fr) 
 
 Once it is installed, you should be able to open the Oculus App project under the directory *projetlong/Cervical*.
 
+When in Unity, you can run the project by clocking the play button at the top. This allows to run it even without the headset plugged in, the camera won't move at all but you can check that the sphere behaves the way it should.
+
+If you have the Oculus Rift headset, you will need to use the Oculus Store App, available at [this link](https://www.oculus.com/setup/).
+
+After installing it, you should be able to plug the Oculus Rift headset and create an Oculus account. Once i is done, you can leave the store open. When you run the Unity project, it should display the scene in the Unity window and in the headset, moving the camera according to the Oculus headset movement.
+
  
