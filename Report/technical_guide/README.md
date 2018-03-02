@@ -18,6 +18,10 @@ The overall process of the project is the following one:
 
 ## Setup the developpement environment
 
+This project is made of two main components :
+
+- The GUI that allows the operator to manage profiles, start and stop an acquisition, modify the parameters of the acquisition, geerate models and visualize the acquired data. This will be referred as *Operator GUI* in this document.
+- The application that runs in the Oculus Rift headset, displaying the 3D environment allowing to control the conditions of the acquisition and acquire the data from the headset. This will be referred as the *Oculus App* in this document.
 
 
  
