@@ -7,6 +7,10 @@ from controller.threads import StartSocketServerThread, StartAcquisitionThread, 
     SendContinueThread
 from model.file_manager import create_file_with_curves, get_coord
 from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
+import model.hulls as hl
+import model.hull_and_spline as hs
+import model.myutils as utl
+
 
 DEBUG = True
 
@@ -180,6 +184,19 @@ class AcquisitionTabController(QObject):
                 # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION EST DE MOYENNE QUALITE MAIS L'USER
                 # VEUT LA CONSERVER ET EST TERMINEE
                 # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
+                new_coords = utl.get_coord(self.TMP_FILE_PATH)
+                
+                mdl_hull_spline = hs.load_model(self.view.MyWindowController.path_model_hull_and_spline)
+                res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
+                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
+                self.view.tab_hull_and_splines.canvas_left_modelization.plot_hull_spline(hull_pitch, (to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
+                self.view.tab_hull_and_splines.canvas_right_modelization.plot_hull_spline(hull_roll, (to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
+                # ALSO PRINT RESULTS FROM RES_COMPARISON
+                
+                mdl_hull = hl.load_model(self.view.MyWindowController.path_model_hulls)[0]
+                healthy, grid_pitch, hull_pitch, grid_roll, hull_roll = hl.compare_to_model(new_coords, mdl_hull)
+                self.view.tab_hulls.canvas_left_modelization.plot_discrete_hull(grid_pitch[0], grid_pitch[1], hull_pitch)
+                # ALSO PRINT HEALTHY
             else:
                 DEBUG and print("=== acquisition_tab_controller.py === SUPPRIMER ACQUISITION")
                 self.view.clear_graph()
@@ -195,6 +212,19 @@ class AcquisitionTabController(QObject):
             self.view.saveButton.setEnabled(True)
             # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION C'EST BIEN PASSE ET EST TERMINEE
             # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
+            new_coords = utl.get_coord(self.TMP_FILE_PATH)
+                
+            mdl_hull_spline = hs.load_model(self.view.MyWindowController.path_model_hull_and_spline)
+            res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
+            hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
+            self.view.tab_hull_and_splines.canvas_left_modelization.plot_hull_spline(hull_pitch, (to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
+            self.view.tab_hull_and_splines.canvas_right_modelization.plot_hull_spline(hull_roll, (to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
+            # ALSO PRINT RESULTS FROM RES_COMPARISON
+            
+            mdl_hull = hl.load_model(self.view.MyWindowController.path_model_hulls)[0]
+            healthy, grid_pitch, hull_pitch, grid_roll, hull_roll = hl.compare_to_model(new_coords, mdl_hull)
+            self.view.tab_hulls.canvas_left_modelization.plot_discrete_hull(grid_pitch[0], grid_pitch[1], hull_pitch)
+            # ALSO PRINT HEALTHY
 
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")
