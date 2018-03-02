@@ -5,11 +5,11 @@ Created on Thu Feb  8 11:59:33 2018
 
 @author: lsapin
 """
-import numpy as np
 import matplotlib.pyplot as plt
-from model import myutils
+import numpy as np
+import Code.myutils
 
-(pitch_l, yaw_l, roll_l) = myutils.get_coord('test.txt')
+(pitch_l, yaw_l, roll_l) = Code.myutils.get_coord('test.txt')
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 ax1.plot(yaw_l, pitch_l)
@@ -28,7 +28,7 @@ ax.plot(pitch_l,roll_l,yaw_l)
 fig1.show()
 input()
 
-## Transformée de fourrier
+# Transformée de fourrier
 fig2, ((ax1, ax2), (ax3, ax4)) = plt.subplot(2, 2)
 fft_pitch = np.fft.fft(pitch_l)
 fft_yaw = np.fft.fft(yaw_l)
