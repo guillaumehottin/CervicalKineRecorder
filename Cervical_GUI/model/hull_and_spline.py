@@ -1,9 +1,8 @@
-import hulls
-import splines
+from model import splines, hulls
 import datetime
 from shapely.wkt import loads
 import matplotlib.pyplot as plt
-import myutils
+from model import myutils
 
 
 def compare_to_model(new_acq, model):
@@ -30,8 +29,8 @@ def compare_to_model(new_acq, model):
     new_pts_roll= myutils.coord2points(new_acq[0:3:2])
     
     npts = len(new_pts_pitch)
-    rate_out_pitch = hulls.pts_out_poly(hull_pitch, new_pts_pitch)/npts
-    rate_out_roll = hulls.pts_out_poly(hull_roll, new_pts_roll)/npts
+    rate_out_pitch = hulls.pts_out_poly(hull_pitch, new_pts_pitch) / npts
+    rate_out_roll = hulls.pts_out_poly(hull_roll, new_pts_roll) / npts
     
     xs_pitch, ys_pitch, ind_pitch = splines.interpolate_spline(new_acq[0:2])
     xs_roll, ys_roll, ind_roll = splines.interpolate_spline(new_acq[0:3:2])

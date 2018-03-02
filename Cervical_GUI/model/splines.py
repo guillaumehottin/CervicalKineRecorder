@@ -14,7 +14,7 @@
 import numpy as np
 from scipy import interpolate
 import shapely.geometry as geo
-import myutils
+from model import myutils
 
 
 ########################################################

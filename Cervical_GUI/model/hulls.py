@@ -5,7 +5,7 @@ import math
 from shapely.ops import cascaded_union, polygonize
 from scipy.spatial import Delaunay
 import numpy as np
-import myutils
+from model import myutils
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import sklearn.svm as svm

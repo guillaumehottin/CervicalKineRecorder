@@ -7,7 +7,7 @@ Created on Thu Feb  8 11:59:33 2018
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import myutils
+from model import myutils
 
 (pitch_l, yaw_l, roll_l) = myutils.get_coord('test.txt')
 

@@ -4,9 +4,7 @@ import webbrowser
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-import hull_and_spline
-import hulls
-from hulls import load_model
+from model import hull_and_spline, hulls
 from model.file_manager import create_directory, get_file_name_from_absolute_path, \
     add_profile_used
 from view.curves_dialog import CurvesDialog
