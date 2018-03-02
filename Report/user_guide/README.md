@@ -132,7 +132,9 @@ When the patient is loaded well, his details (last name, first name, age) should
 ![Patient loaded](./images/screens/3_python.png "Patient loaded")
 
 **WARNING:** If you try to load a profile that is already loaded in the application, a dialog will show up to inform you about it and nothing will be done. Indeed, in order to avoid any confusion between profiles, this actions is not possible.
+
 ![Load same profile twice](./img/screens/2_python_load_same.png "Load same profile twice)
+
 #### Load a recent profile
 To load a profile you need to the "*Profil*" menu bar entry and then click on "*Charger un profil récent*". From there, a list of last profiles loaded will be displayed and you just have to choose one of them.
 When the patient is loaded well, his details (last name, first name, age) should be displayed in the application window. You can now display his saved curves, set up and launch an acquisition.
