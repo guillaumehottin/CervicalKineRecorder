@@ -145,6 +145,7 @@ In case the displayed color cannot be distinguishable well, you can re-open the 
 
 **To do an acquistion you first need to create or load a profile**. 
 Then, you can set up the following parameters as you want:
+
 Name | Type (unit) | Description | Ideal values
 --- | --- | --- | --- 
 Comment | Text | Info that could be useful to know about the acquisition (conditions, pathology, ...) | -  
