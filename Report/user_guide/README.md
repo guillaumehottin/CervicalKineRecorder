@@ -115,7 +115,7 @@ These details should follow the following rules:
 #### Load a profile
 
 To load a profile you need to the "*Profil*" menu bar entry and then click on "*Charger un profil*". From there, a new dialog will appear to select the patient folder you want to load.
-This folder name should meet the following requirements: \\*<NomPatient>*\_*<PrénomPatient>*\_*<ÂgePatient>*
+This folder name should meet the following requirements: <NomPatient>\_<PrénomPatient>\_<ÂgePatient>
     
 ![Load a profile](./images/screens/2_python_load.png "Load a profile")
 
