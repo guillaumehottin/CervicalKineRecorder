@@ -2,6 +2,7 @@ from PyQt5 import QtCore
 from model.socket_server import *
 import time
 
+
 class SendContinueThread(QtCore.QThread):
     """
     SendContinueThread
@@ -36,8 +37,6 @@ class SendContinueThread(QtCore.QThread):
         time.sleep(self.wait_time)
         #time.sleep(8)
         self.completeSignal.emit(self.completion_message)
-
-
 
 
 class StartSocketServerThread(QtCore.QThread):

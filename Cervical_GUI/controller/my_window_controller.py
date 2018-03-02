@@ -24,6 +24,7 @@ class MyWindowController(QObject):
     PATH_TO_STORE_MODELS            = "./models/"
     EXTENSION_HULLS_MODEL           = ".mdlhl"
     EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhls"
+    EXTENSION_WAVELET_MODEL         = ".mdlwvl"
     GIT_LINK = "https://github.com/guillaumehottin/projetlong"
 
     def __init__(self, view):
