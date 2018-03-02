@@ -226,7 +226,7 @@ class MyWindowController(QObject):
         else:  # The user cancel his operation
             pass
 
-    @pyqtSlot(name="load_profile_menu_handler")
+    @pyqtSlot(name="load_model_menu_handler")
     def load_model_handler(self):
         """
         Handler called when the load model menu is triggered
