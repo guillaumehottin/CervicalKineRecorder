@@ -93,6 +93,7 @@ We are now goint to define all the terms we are going to use in this tutorial
 -- "Courbes": Load saved curves
 -- "Modèles": Create or load a model according to selected patients
 -- "À propos": Application documentation
+
 ![Application menu bar](./images/screens/0_python_menu.png "Application menu bar")
 
 ### Functionnalities
@@ -134,6 +135,7 @@ When the patient is loaded well, his details (last name, first name, age) should
 #### Load one or more curves 
 
 **To load one or more curves you first need to create or load a profile**. Then, you need to the "*Courbes*" menu bar entry and then click on "*Charger courbes*". From there, a new window will appear containing a list of all the available curves for this profile.
+
 ![Load one or more curves](./images/screens/7_python_load_plots.png "Load one or more curves)
 
 You can select as much curves as you want but you need to know that they will all be displayed in the three graph of the acquisition tab. On the other hand each commentary corresponding to the loaded curves will be displayed in the comment area (top left of the application window) with the same legend as the curve in the graph. It sounds good to not display more than 5 or 6 curves at the same time.
@@ -161,6 +163,7 @@ After setting up the acquisition as you wanted, you just have to put the headset
 
 At the end of the acquisition two cases are possible:
 - **The patient followed well the target**, data are retrieved from the Oculus Rift headset and displayed on the three graph on the acquisition tab and also compared on the modelization tabs.
+
 - ** The patient did not follow the target well enough**. In this case the following window will appear to inform you about the problem. And you will have to choose if you want to keep this data anyway or stash them. If you accept  you will be in the same state as in the first case.
 
 # TODO ADD SCREENSHOT KEEP OR STASH DATA
