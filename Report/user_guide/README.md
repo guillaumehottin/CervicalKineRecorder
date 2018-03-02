@@ -95,10 +95,10 @@ We are now goint to define all the terms we are going to use in this tutorial
  
 - Menu bar: The menu bar is composed of four entries :
 
--- "Profil": Create, load or opena  recent profile
--- "Courbes": Load saved curves
--- "Modèles": Create or load a model according to selected patients
--- "À propos": Application documentation
+	-- "Profil": Create, load or opena  recent profile
+	-- "Courbes": Load saved curves
+	-- "Modèles": Create or load a model according to selected patients
+	-- "À propos": Application documentation
 
 ![Application menu bar](./images/screens/0_python_menu.png "Application menu bar")
 
