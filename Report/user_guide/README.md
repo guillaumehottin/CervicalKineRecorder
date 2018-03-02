@@ -178,7 +178,7 @@ At the end of the acquisition two cases are possible:
 
 - ** The patient did not follow the target well enough**. In this case the following window will appear to inform you about the problem. And you will have to choose if you want to keep this data anyway or stash them. If you accept  you will be in the same state as in the first case.
 
-# TODO ADD SCREENSHOT KEEP OR STASH DATA
+![Bad acquisition](./images/screens/4_python_3_finished_popup_bad.png "Load same profile twice")
 
 **When the curve is displayed on all the graph, it is not saved yet**!
 You must click on the "Enregistrer la courbe" button to save the curves retrieved after the acquisition process
