@@ -148,7 +148,7 @@ When the patient is loaded well, his details (last name, first name, age) should
 
 **To load one or more curves you first need to create or load a profile**. Then, you need to the "*Courbes*" menu bar entry and then click on "*Charger courbes*". From there, a new window will appear containing a list of all the available curves for this profile.
 
-![Load one or more curves](./images/screens/7_python_load_plots.png "Load one or more curves)
+![Load one or more curves](./images/screens/7_python_load_plots.png "Load one or more curves")
 
 You can select as much curves as you want but you need to know that they will all be displayed in the three graph of the acquisition tab. On the other hand each commentary corresponding to the loaded curves will be displayed in the comment area (top left of the application window) with the same legend as the curve in the graph. It sounds good to not display more than 5 or 6 curves at the same time.
 If you want to *change the displayed curves*, you just need to go bac to the same menu as before and un-select the one you do not want anymore.
