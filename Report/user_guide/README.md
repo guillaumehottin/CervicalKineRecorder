@@ -12,6 +12,9 @@ The Cervical Kinematic Recorder is an open-source software developped to acquire
 
 ![Oculus Rift Headset](./images/oculus.png "Oculus Rift Headset")
 
+The overall process of the project is the following one:
+![Overall project process](./images/overall_process.png "Overall project process")
+
 ## Setup environment and start application
 
 The installation process is divided in two parts: Oculus Rift headset configuration and then the main app (CervicalKineRecord) set up.
@@ -173,3 +176,7 @@ On the other hand, you can interrupt at anytime the acquisition in order to chan
 #### Load a model
 
 #### Documentation
+
+
+
+ 
