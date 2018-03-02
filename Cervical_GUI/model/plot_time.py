@@ -1,11 +1,9 @@
 """
 Script which allows to plot the superposition of a new data with the mean of the data base
 """
-import glob
-import os
 
-from Code.myutils import get_coord
 from Cervical_GUI.model.file_manager import get_param_from_file
+from Cervical_GUI.model.plot_serie import *
 
 
 def get_list_patient(dir_name):
@@ -71,7 +69,7 @@ def get_same_param_data(list_patient, movement, angle, speed, nb_return, wait_ti
     return list_data
 
 
-def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, norm=1, save=0):
+def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, norm=1):
     """
     Get the mean curves of the data base
     :param wait_time: wanted wait_time value
@@ -81,7 +79,6 @@ def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, no
     :param movement: wanted movement value
     :param list_patient: path which leads to the data base
     :param norm: optional, 1 if you want the data to be normed
-    :param save: optional, 1 if you want to save the figures
     :return: (mean_pitch, mean_yaw, mean_roll) three lists representing the mean curves of the data base
     """
 
@@ -93,6 +90,9 @@ def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, no
     for current_file in list_file:
         # on récupère les coordonnées spatiales des données
         pitch_l, yaw_l, roll_l = get_coord(current_file)
+
+        if norm:
+            pitch_l, yaw_l, roll_l = normalize(pitch_l, yaw_l, roll_l)
 
         all_pitch.append(pitch_l)
         all_yaw.append(yaw_l)
@@ -112,3 +112,44 @@ def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, no
             mean_roll[i] += all_roll[j][i]/len(all_roll)
 
     return mean_pitch, mean_yaw, mean_roll
+
+
+def plot_final_time(current_file, list_patient, list_param, norm=1):
+    """
+    Plot the final figure : pitch vs pitch_mean, yaw vs yaw_mean, roll vs roll_mean, pitch vs yaw vs roll
+    :param current_file: path which leads to the current file
+    :param list_patient: list of every patient of the data_base
+    :param list_param: list of parameters : movement, angle, speed,...
+    :param norm: optional, 1 if you want the data to be normed
+    :return: void
+    """
+
+    movement = list_param[0]
+    angle = list_param[1]
+    speed = list_param[2]
+    nb_return = list_param[3]
+    wait_time = list_param[4]
+    pitch_mean, yaw_mean, roll_mean = get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, norm)
+
+    pitch, yaw, roll = get_coord(current_file)
+
+    fig_final, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
+    ax1.plot(pitch)
+    ax1.plot(pitch_mean)
+
+    ax2.plot(yaw)
+    ax2.plot(yaw_mean)
+
+    ax3.plot(roll)
+    ax3.plot(roll_mean)
+
+    ax4.plot(pitch)
+    ax4.plot(yaw)
+    ax4.plot(roll)
+
+    ax1.set_title("Pitch vs Pitch_mean")
+    ax2.set_title("Yaw vs Yaw_mean")
+    ax3.set_title("Roll vs Roll_mean")
+    ax4.set_title("Pitch vs Yaw vs Roll")
+
+    fig_final.show()
