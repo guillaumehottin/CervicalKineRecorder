@@ -13,6 +13,7 @@ The Cervical Kinematic Recorder is an open-source software developped to acquire
 ![Oculus Rift Headset](./images/oculus.png "Oculus Rift Headset")
 
 The overall process of the project is the following one:
+
 ![Overall project process](./images/overall_process.png "Overall project process")
 
 ## Setup environment and start application
@@ -61,6 +62,7 @@ Then, the application should start and you should have two distincts windows:
 
 *Optionnal:*
 To access the app easily, you can create a desktop shortcut with the following operation:
+
 ![Create a desktop shortcut](./images/creer_raccourci.png "Create a desktop shorctut")
 
 At this stage, all the preliminary steps is done, you can now go to the next section to learn how to use the application.
@@ -72,6 +74,7 @@ In order to not have unexpected behaviours, be sure to have done all the prelimi
 ## Application overview and vocabulary
 
 Here is an screenshot showing how the computer screen should be after the application starting.
+
 ![Computer scree after application start](./images/screens/00_desktop.png "Computer scree after application start")
 
 We are now goint to define all the terms we are going to use in this tutorial 
@@ -79,10 +82,12 @@ We are now goint to define all the terms we are going to use in this tutorial
 ### Vocabulary 
 
 - Unity3D window: this windows allows you to see everythin that is displayed inside the headset and therefore follow the user movements.
+
 ![Unity3D window](./images/screens/0_unity.png "Unity3D window")
 
 - Application window: This window allows you to manipulate profiles, set up parameters, launch/stop acquistion and analyse results throught the modelization tab
-[Application window](./images/screens/0_python.png "Application window")
+
+![Application window](./images/screens/0_python.png "Application window")
 
 - Acquisition tab: This tab allows you to set up parameters, launch/stop acquisition and see the acquired curves (see image above)
 
@@ -107,22 +112,24 @@ These details should follow the following rules:
 - **Age**: number greater or equals to zero
 
 **WARNING:** None of this details should be empty ! You should put a value, even without any sense, in each field.
+
 ![Create a profile](./images/screens/2_python_create.png "Create a profile")
 
 **WARNING:** At this stage, the app does not accept people with same last name, first name AND age. If you try to create a profile with exact same details as one that already exists, you will face the following window.
+
 ![Create an existing profile](./images/screens/2_python_create_already_exists.png "Create an existing profile")
 
 #### Load a profile
 
 To load a profile you need to the "*Profil*" menu bar entry and then click on "*Charger un profil*". From there, a new dialog will appear to select the patient folder you want to load.
-This folder name should meet the following requirements: 
-
-*\<NomPatient\>*\_*\<PrénomPatient\>*\_*\<ÂgePatient\>*
+This folder name should meet the following requirements: *\<NomPatient\>*\_*\<PrénomPatient\>*\_*\<ÂgePatient\>*
     
 ![Load a profile](./images/screens/2_python_load.png "Load a profile")
 
 When the patient is loaded well, his details (last name, first name, age) should be displayed in the application window. You can now display his saved curves, set up and launch an acquisition.
+
 ![Patient loaded](./images/screens/3_python.png "Patient loaded")
+
 **WARNING:** If you try to load a profile that is already loaded in the application, a dialog will show up to inform you about it and nothing will be done. Indeed, in order to avoid any confusion between profiles, this actions is not possible.
 ![Load same profile twice](./img/screens/2_python_load_same.png "Load same profile twice)
 #### Load a recent profile
