@@ -41,7 +41,14 @@ The files are named *Shapely‑1.6.4.post1‑cp**PYTHON_VERSION**‑cp**PYTHON_V
 
 Once you downloaded the correct **Shapely** file, open a terminal and navigate to the folder that contains it and type *pip install **NAME_OF_YOU_SHAPELY_FILE***.
 
-After running all these commands, you should be able to open and run the Operator GUI project.
+After running all these commands, you should be able to open and run the Operator GUI project in the directory *projetlong/Cervical_GUI*.
 
+### The Oculus App
+
+The Oculus App part of the project is made with Unity 2017.3.
+
+To obtain Unity, you need to go to the [Unity homepage](https://unity3d.com/fr) and download it, using the *Personal Edition*.
+
+Once it is installed, you should be able to open the Oculus App project under the directory *projetlong/Cervical*.
 
  
