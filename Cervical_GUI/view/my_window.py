@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QMainWindow, QWidget
+from PyQt5.QtWidgets import QWidget, QMainWindow
 
 from controller.my_window_controller import MyWindowController
 from model.file_manager import create_last_profile_used_file
 
-from view.acquistion import Acquisition
-from view.modelization import Modelization
+from view.acquistion_tab import AcquisitionTab
+from view.hull_and_spline_tab import HullAndSplinesTab
+from view.hulls_tab import HullsTab
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
+
+from view.wavelet_tab import WaveletTab
 
 APP_ICON                        = "./icone.ico"
 LAST_PROFILE_USED_LIST_LIMIT    = 5
@@ -37,9 +40,11 @@ class MyWindow(QMainWindow):
         self.parent                 = window
 
         # TAB WIDGET
-        self.tabs               = QtWidgets.QTabWidget(window)
-        self.tab_acquisition    = Acquisition(self.tabs, self.my_window_controller)
-        self.tab_modelization   = Modelization(self.tabs)
+        self.tabs                   = QtWidgets.QTabWidget(window)
+        self.tab_acquisition        = AcquisitionTab(self.tabs, self.my_window_controller)
+        self.tab_hull_and_splines   = HullAndSplinesTab(self.tabs, self.my_window_controller)
+        self.tab_hulls              = HullsTab(self.tabs, self.my_window_controller)
+        self.tab_wavelet            = WaveletTab(self.tabs, self.my_window_controller)
 
         # MENU BAR
         self.menubar            = QtWidgets.QMenuBar(window)
@@ -53,7 +58,8 @@ class MyWindow(QMainWindow):
         self.action_new_profile         = QtWidgets.QAction(window)
         self.action_load_profile        = QtWidgets.QAction(window)
         self.action_load_curves         = QtWidgets.QAction(window)
-        self.action_load_files_model    = QtWidgets.QAction(window)
+        self.action_create_model        = QtWidgets.QAction(window)
+        self.action_load_model          = QtWidgets.QAction(window)
         self.action_documentation       = QtWidgets.QAction(window)
 
         # STATUS BAR = UNUSED
@@ -94,10 +100,12 @@ class MyWindow(QMainWindow):
         :return: Nothing
         """
         # TABS
-        self.tabs.addTab(self.tab_acquisition, "Acquisition")
-        self.tabs.addTab(self.tab_modelization, "Modélisation")
+        self.tabs.addTab(self.tab_acquisition, "AcquisitionTab")
+        self.tabs.addTab(self.tab_hull_and_splines, "Hull and Splines")
+        self.tabs.addTab(self.tab_hulls, "Hulls")
+        self.tabs.addTab(self.tab_wavelet, "Wavelet")
 
-        #### MENUBAR
+        # MENUBAR
         self.menubar.setGeometry(QtCore.QRect(0, 0, 814, 21))
 
         # WINDOW SETTINGS
@@ -106,18 +114,20 @@ class MyWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         self.parent.setStatusBar(self.statusbar)
 
-        ## ACTIONS
+        # ACTIONS
         self.action_new_profile.setObjectName("actionNouveau_profil")
         self.action_load_profile.setObjectName("actionCharger_profil")
         self.action_load_curves.setObjectName("actionCharger_courbes")
-        self.action_load_files_model.setObjectName("actionChargerFichier")
+        self.action_create_model.setObjectName("actionCréerModèle")
+        self.action_load_model.setObjectName("actionChargerModèle")
         self.action_documentation.setObjectName("actionDocumentation")
 
         # ACTION LISTENER
         self.action_new_profile.triggered.connect(self.my_window_controller.new_profile_menu_handler)
         self.action_load_profile.triggered.connect(self.my_window_controller.load_profile_menu_handler)
         self.action_load_curves.triggered.connect(self.my_window_controller.load_curves_menu_handler)
-        self.action_load_files_model.triggered.connect(self.my_window_controller.load_files_model_handler)
+        self.action_create_model.triggered.connect(self.my_window_controller.create_model_handler)
+        self.action_load_model.triggered.connect(self.my_window_controller.load_model_handler)
         self.action_documentation.triggered.connect(self.my_window_controller.about_menu_handler)
 
         # MENU BAR SET UP
@@ -125,7 +135,8 @@ class MyWindow(QMainWindow):
         self.menu_profile.addAction(self.action_load_profile)
         self.menu_profile.addAction(self.menu_last_profile.menuAction())
         self.menu_curves.addAction(self.action_load_curves)
-        self.menu_model.addAction(self.action_load_files_model)
+        self.menu_model.addAction(self.action_create_model)
+        self.menu_model.addAction(self.action_load_model)
         self.menu_about.addAction(self.action_documentation)
         self.menubar.addAction(self.menu_profile.menuAction())
         self.menubar.addAction(self.menu_curves.menuAction())
@@ -142,19 +153,20 @@ class MyWindow(QMainWindow):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
-        self.parent.setWindowTitle(_translate("MainWindow", "Cervical"))
+        self.parent.setWindowTitle(_translate("MyWindow", "Cervical"))
 
         # MENU
-        self.menu_profile.setTitle(_translate("MainWindow", "Profil"))
-        self.menu_last_profile.setTitle(_translate("MainWindow", "Profil récent"))
-        self.menu_curves.setTitle(_translate("MainWindow", "Courbes"))
-        self.menu_model.setTitle(_translate("MainWindow", "Modèle"))
-        self.menu_about.setTitle(_translate("MainWindow", "A propos"))
-        self.action_new_profile.setText(_translate("MainWindow", "Nouveau profil"))
-        self.action_load_profile.setText(_translate("MainWindow", "Charger profil"))
-        self.action_load_curves.setText(_translate("MainWindow", "Charger courbes"))
-        self.action_load_files_model.setText(_translate("MainWindow", "Regénérer avec..."))
-        self.action_documentation.setText(_translate("MainWindow", "Documentation"))
+        self.menu_profile.setTitle(_translate("MyWindow", "Profil"))
+        self.menu_last_profile.setTitle(_translate("MyWindow", "Profil récent"))
+        self.menu_curves.setTitle(_translate("MyWindow", "Courbes"))
+        self.menu_model.setTitle(_translate("MyWindow", "Modèle"))
+        self.menu_about.setTitle(_translate("MyWindow", "A propos"))
+        self.action_new_profile.setText(_translate("MyWindow", "Nouveau profil"))
+        self.action_load_profile.setText(_translate("MyWindow", "Charger profil"))
+        self.action_load_curves.setText(_translate("MyWindow", "Charger courbes"))
+        self.action_create_model.setText(_translate("MyWindow", "Créer modèle"))
+        self.action_load_model.setText(_translate("MyWindow", "Charger modèle"))
+        self.action_documentation.setText(_translate("MyWindow", "Documentation"))
 
     def update_ui(self, enable, first_name="Prénom", last_name="Nom", age="XX"):
         """

@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 
 from model.file_manager import get_all_directories
 
 DEBUG = False
 
 
-class ModelGeneratorDialog(object):
+class ModelGeneratorDialog(QDialog):
     """
     This class is used to define the model generator dialog
     Here you can find list view set up, profiles folders retrieval
@@ -22,6 +23,9 @@ class ModelGeneratorDialog(object):
         :param already_selected_profiles: String list containing the profiles that have been used to generate
                 the previous model
         """
+
+        super(ModelGeneratorDialog, self).__init__()
+
         # DIALOG SETTINGS
         model_generator_dialog.setObjectName("ModelGeneratorDialog")
         model_generator_dialog.resize(550, 450)
@@ -33,6 +37,7 @@ class ModelGeneratorDialog(object):
 
         # VBOX LAYOUT
         self.vertical_layout = QtWidgets.QVBoxLayout(model_generator_dialog)
+        self.horizontal_layout  = QtWidgets.QHBoxLayout(model_generator_dialog)
 
         # BUTTON BOX
         self.buttonBox = QtWidgets.QDialogButtonBox(model_generator_dialog)
@@ -42,6 +47,12 @@ class ModelGeneratorDialog(object):
 
         # LIST VIEW
         self.listView = QtWidgets.QListView(self.scrollArea)
+
+        # LABEL
+        self.label_model_name = QtWidgets.QLabel()
+
+        # LINE EDIT
+        self.text_model_name = QtWidgets.QLineEdit()
 
         # MODEL
         self.model = QStandardItemModel(self.listView)
@@ -61,7 +72,6 @@ class ModelGeneratorDialog(object):
         self.scrollArea.setObjectName("scrollArea")
         self.scrollArea.setEnabled(True)
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.vertical_layout.addWidget(self.scrollArea)
 
         # LIST VIEW
         self.listView.setGeometry(QtCore.QRect(0, 0, 530, 450))
@@ -94,10 +104,16 @@ class ModelGeneratorDialog(object):
         self.buttonBox.addButton("Regénérer le modèle", QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QtWidgets.QDialogButtonBox.Cancel)
 
-        # self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
-        self.buttonBox.accepted.connect(self.parent.accept)
+        self.buttonBox.accepted.connect(lambda: self.ok_handler())
         self.buttonBox.rejected.connect(self.parent.reject)
+
+        # LAYOUT
+        self.horizontal_layout.addWidget(self.label_model_name)
+        self.horizontal_layout.addWidget(self.text_model_name)
+
+        self.vertical_layout.addWidget(self.scrollArea)
+        self.vertical_layout.addLayout(self.horizontal_layout)
         self.vertical_layout.addWidget(self.buttonBox)
 
         self.retranslate_ui()
@@ -111,6 +127,32 @@ class ModelGeneratorDialog(object):
         """
         _translate = QtCore.QCoreApplication.translate
         self.parent.setWindowTitle(_translate("Dialog", "Charger des modèles"))
+        self.label_model_name.setText(_translate("CurvesDialog", "Nom du modèle : "))
+
+    @pyqtSlot(name="ok_handler")
+    def ok_handler(self):
+        if self.text_model_name.text() == "":
+            color = '#f6989d'  # red
+            self.text_model_name.setStyleSheet('QLineEdit { background-color: %s }' % color)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Nom de modèle vide")
+            msg.setInformativeText("Vous devez préciser un nom de modèle ")
+            msg.setWindowTitle("Erreur")
+            msg.exec()
+        elif not self.get_selected_directories():
+            confirmation_msg = "Aucun patient n'a été sélectionné, aucun modèle de va être généré et les graphiques " \
+                               "seront vidés de toute précédent modèle"
+            reply = QMessageBox.question(self.parent, 'Attention !',
+                                         confirmation_msg, QMessageBox.Yes, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                print("LA SUPPRESION DES MODELES VA ETRE EFFECTUEE")
+                return self.parent.accept()
+            else:
+                print("ANNULATION")
+        else:
+            return self.parent.accept()
 
     def get_selected_directories(self):
         """
@@ -127,6 +169,9 @@ class ModelGeneratorDialog(object):
 
         return selected_directories
 
+    def get_model_name(self):
+        return self.text_model_name.text()
+
     @staticmethod
     def get_result(already_selected_profiles):
         """
@@ -140,5 +185,6 @@ class ModelGeneratorDialog(object):
         ui              = ModelGeneratorDialog(dialog, already_selected_profiles)
         result          = dialog.exec_()
         selected_directories = ui.get_selected_directories()
+        model_name      = ui.get_model_name()
 
-        return selected_directories, result == QDialog.Accepted
+        return selected_directories, model_name, result == QDialog.Accepted

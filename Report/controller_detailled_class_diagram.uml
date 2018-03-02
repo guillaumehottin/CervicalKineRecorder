@@ -1,45 +1,141 @@
 @startuml
 
 package Controller {
-	class AcquisitionController{
-		+ INIT_ANGLE          
-	    + INIT_SPEED          
-	    + INIT_NB_RETURN      
-	    + INIT_WAIT_TIME      
-	    + LAST_PROFILE_USED_LIST_LIMIT
-	    + COUNT_DOWN_TIME             
-	    + SPHERE_GREEN_TO_YELLOW_ANGLE
-	    + SPHERE_YELLOW_TO_RED_ANGLE  
-	    + TMP_FILE_PATH               
-		+ HOST
-    	+ PORT
+		class AcquisitionTabController{
+			+ INIT_ANGLE          
+		    + INIT_SPEED          
+		    + INIT_NB_RETURN      
+		    + INIT_WAIT_TIME      
+		    + LAST_PROFILE_USED_LIST_LIMIT
+		    + COUNT_DOWN_TIME             
+		    + SPHERE_GREEN_TO_YELLOW_ANGLE
+		    + SPHERE_YELLOW_TO_RED_ANGLE  
+		    + TMP_FILE_PATH               
+			+ HOST
+	    	+ PORT
 
-        + angle
-        + comment  
-        + curves_on_graph
-        + nb_return
-        + number_of_finish_handlers_to_ignore
-        + params             
-        + port_counter
-        + selected_movement
-        + send             
-        + send_continue_thread
-        + send_continue_thread_id
-        + send_start_thread
-        + send_stop_thread 
-        + socket_server
-        + speed
-        + start_server_thread
-	    + view
-        + wait_time
-        + yaw_pitch_roll
+	        + angle
+	        + comment  
+	        + curves_on_graph
+	        + nb_return
+	        + number_of_finish_handlers_to_ignore
+	        + params             
+	        + port_counter
+	        + selected_movement
+	        + send             
+	        + send_continue_thread
+	        + send_continue_thread_id
+	        + send_start_thread
+	        + send_stop_thread 
+	        + socket_server
+	        + speed
+	        + start_server_thread
+		    + view
+	        + wait_time
+	        + yaw_pitch_roll
+
+	        + __init__(view)
+	        + empty_graph_button_handler()
+	        + handle_send_finish_thread_completion()
+	        + handle_send_start_thread_completion()
+	        + handle_send_stop_thread_completion()
+	        + handle_start_server_thread_acquisition_finished_completion()
+	        + handle_start_server_thread_acquisition_started_completion()
+	        + handle_start_server_thread_acquisition_stopped_completion()
+	        + handle_start_server_thread_completion()
+	        + save_curves_button_handler()
+	        + start_stop_button_handler()
+		}
+
+	class MyWindowController {
+		+ PATH_TO_STORE_FILE
+	    + PATH_TO_STORE_MODELS
+	    + EXTENSION_HULLS_MODEL
+	    + EXTENSION_HULLS_SPLINES_MODEL
+	    + EXTENSION_WAVELET_MODEL      
+	    + GIT_LINK
+
+	    + view           
+        + directory_path 
+        + first_name     
+        + last_name      
+        + age       
+
+        + new_profile_menu_handler()
+        + load_profile_menu_handler()
+        + load_last_profile_used()
+        + load_curves_menu_handler()
+        + create_model_handler()
+        + load_model_handler()
+        + about_menu_handler()
 	}
-	class MyWindowController
-	class SplineAndHullController
-	class HullsController
-	class WaveletController
-	class SendContinueThread
+
+	class HullAndSplinesTabController {
+
+	} 
+
+
+	class HullsTabController {
+
+	}
+
+	class WaveletTabController {
+
+	}
+
+	package threads.py {
+		class SendContinueThread {
+			+ send 
+	        + socket_server 
+	        + socket_server_thread
+	        + wait_time 
+	        + id 
+	        + completion_message
+	        + port_count 
+
+	        + __init__(socket_server, socket_server_thread, wait_time, port_count, id, parent)
+	        + run()
+		}
+
+		class StartSocketServerThread {
+			+ socket_server
+		    + completion_message
+		    + port_count 
+
+		    +  __init__(socket_server, port_count, parent)
+		    + run()
+		}
+
+		class StartAcquisitionThread {
+			+ socket_server
+	        + conf 
+	        + message
+	        + completion_message
+
+	        + __init__(socket_server, conf, parent)
+	        + run()
+		}
+
+		class StopAcquisitionThread {
+			+ socket_server
+	        + message 
+	        + completion_message
+
+	        + __init__(socket_server, parent)
+	        + run()
+		}
+	}
 }
+
+
+@enduml
+
+/////////////////////////////////
+
+
+@startuml
+
+
 
 package Model {
 	class FileManager

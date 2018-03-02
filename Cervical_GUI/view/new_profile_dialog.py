@@ -3,10 +3,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, QRegExp
 from PyQt5.QtGui import QIntValidator, QRegExpValidator
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox
 
 
-class NewProfileDialog(object):
+class NewProfileDialog(QDialog):
     """
     This class is used to define the new profile dialog GUI
     Here you can find the Text edit and buttons set up
@@ -17,6 +17,9 @@ class NewProfileDialog(object):
         This function is used to declare and initialize all class attributes
         :param dialog: The dialog in which this GUI will be displayed
         """
+
+        super(NewProfileDialog, self).__init__()
+
         # ATTRIBUTES
         self.parent = dialog
 
@@ -80,7 +83,8 @@ class NewProfileDialog(object):
         self.gridLayout.addWidget(self.text_age, 2, 1, 1, 1)
 
         self.retranslate_ui(self.parent)
-        self.buttonBox.accepted.connect(self.parent.accept)
+        # self.buttonBox.accepted.connect(self.parent.accept)
+        self.buttonBox.accepted.connect(lambda: self.ok_handler())
         self.buttonBox.rejected.connect(self.parent.reject)
         QtCore.QMetaObject.connectSlotsByName(self.parent)
 
@@ -91,10 +95,34 @@ class NewProfileDialog(object):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
-        new_profile.setWindowTitle(_translate("NewProfile", "Dialog"))
+        new_profile.setWindowTitle(_translate("NewProfile", "Créer un nouveau profil"))
         self.label_last_name.setText(_translate("NewProfile", "Nom"))
         self.label_first_name.setText(_translate("NewProfile", "Prénom"))
         self.label_age.setText(_translate("NewProfile", "Age"))
+
+    @pyqtSlot(name="ok_handler")
+    def ok_handler(self):
+        if self.text_first_name.text() == "" or self.text_last_name.text() == "" or self.text_age.text() == "" :
+            color = '#f6989d'  # red
+
+            if self.text_first_name.text() == "":
+                self.text_first_name.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+            elif self.text_last_name.text() == "":
+                self.text_last_name.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+            elif self.text_age.text() == "":
+                self.text_age.setStyleSheet('QLineEdit { background-color: %s }' % color)
+
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Informations incomplètes")
+            msg.setInformativeText("Vous devez renseigner l'ensemble des informations")
+            msg.setWindowTitle("Erreur")
+            msg.exec()
+
+        else:
+            return self.parent.accept()
 
     def get_first_name(self):
         """

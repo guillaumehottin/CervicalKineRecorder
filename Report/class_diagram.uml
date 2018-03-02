@@ -1,30 +1,43 @@
 @startuml
 
 package Controller {
-	class AcquisitionController
+	class AcquisitionTabController
 	class MyWindowController
-	class SplineAndHullController
-	class HullsController
-	class WaveletController
-	class SendContinueThread
+	class HullAndSplinesTabController
+	class HullsTabController
+	class WaveletTabController
+	package threads.py {
+		class SendContinueThread
+		class StartAcquisitionThread
+		class StartSocketServerThread
+		class StopAcquisitionThread
+	}
 }
 
 package Model {
 	class FileManager
+	class Hulls
+	class HullAndSplines
 	class MyUtils
 	class PlotCanvas
+	class PlotSerie
+	class PlotTest
+	class PlotTime
 	class SocketServer
+	class Splines
+	class TestSerie
+	class TestTime
 }
 
 package View {
-	class Acquisition
+	class AcquisitionTab
 	class MyWindow 
 	class CurvesDialog
+	class HullAndSplineTab
+	class HullsTab
 	class ModelGeneratorDialog
 	class NewProfileDialog
-	class SplineAndHull
-	class Hulls
-	class Wavelet
+	class WaveletTab
 } 
 
 /'Acquisition 	*--* AcquisitionController
