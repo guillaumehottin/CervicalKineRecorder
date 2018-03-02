@@ -114,7 +114,7 @@ These details should follow the following rules:
 #### Load a profile
 
 To load a profile you need to the "*Profil*" menu bar entry and then click on "*Charger un profil*". From there, a new dialog will appear to select the patient folder you want to load.
-This folder name should meet the following requirements: *<NomPatient>*\_*<PrénomPatient>*\_*<ÂgePatient>*
+This folder name should meet the following requirements: \\*<NomPatient>*\_*<PrénomPatient>*\_*<ÂgePatient>*
     
 ![Load a profile](./images/screens/2_python_load.png "Load a profile")
 
@@ -145,14 +145,14 @@ In case the displayed color cannot be distinguishable well, you can re-open the 
 
 **To do an acquistion you first need to create or load a profile**. 
 Then, you can set up the following parameters as you want:
-| Name | Type (unit) | Description | Ideal values
-| --- | --- | --- | --- |
-| Comment | Text | Info that could be useful to know about the acquisition (conditions, pathology, ...) | - | 
-| Type of movement | Lacet/Roulis/Tangage | Type of movement that will be done by the patient  | Lacet | 
-| Rotation speed | Number (°/s) | The displayed target speed  | 20-40°/s | 
-| Max angle | Number (s) | The maximum angle the target will go  | 60-90° | 
-| Number of return | Number | The number of "come and go", round trip the target will do  | 3-7 | 
-| Extremum wait time | Number (s) | The number of seconds that the target will wait at its maximum angle. |0.20-0.35s
+Name | Type (unit) | Description | Ideal values
+--- | --- | --- | --- 
+Comment | Text | Info that could be useful to know about the acquisition (conditions, pathology, ...) | -  
+Type of movement | Lacet/Roulis/Tangage | Type of movement that will be done by the patient  | Lacet 
+Rotation speed | Number (°/s) | The displayed target speed  | 20-40°/s  
+Max angle | Number (s) | The maximum angle the target will go  | 60-90°  
+Number of return | Number | The number of "come and go", round trip the target will do  | 3-7  
+Extremum wait time | Number (s) | The number of seconds that the target will wait at its maximum angle. |0.20-0.35s
 
 **WARNING:** Only the "Lacet" movement is now supported by the headset application. You can select other movement but the target will not help you doing this kind of movement. That means that parameters for other movements than "Lacet" are not useful at all.
     
