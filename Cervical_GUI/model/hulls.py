@@ -12,72 +12,72 @@ import sklearn.svm as svm
 import pickle
 import datetime
 
+#
+# def plot_polygon_MP(polygon):
+#     """
+#     Plot a polygon using PolygonPatch.
+#
+#     Parameters
+#     ----------
+#     polygon : MultiPoint
+#             The polygon to plot
+#     """
+#     fig = plt.figure(figsize=(10,10))
+#     ax = fig.add_subplot(111)
+#     margin = .3
+#     x_min, y_min, x_max, y_max = polygon.bounds
+#     ax.set_xlim([x_min-margin, x_max+margin])
+#     ax.set_ylim([y_min-margin, y_max+margin])
+#     patch = PolygonPatch(polygon, fc='#999999',
+#                          ec='#000000', fill=True,
+#                          zorder=-1)
+#     ax.add_patch(patch)
+#     return fig
 
-def plot_polygon_MP(polygon):
-    """
-    Plot a polygon using PolygonPatch.
-    
-    Parameters
-    ----------
-    polygon : MultiPoint
-            The polygon to plot
-    """
-    fig = plt.figure(figsize=(10,10))
-    ax = fig.add_subplot(111)
-    margin = .3
-    x_min, y_min, x_max, y_max = polygon.bounds
-    ax.set_xlim([x_min-margin, x_max+margin])
-    ax.set_ylim([y_min-margin, y_max+margin])
-    patch = PolygonPatch(polygon, fc='#999999',
-                         ec='#000000', fill=True,
-                         zorder=-1)
-    ax.add_patch(patch)
-    return fig
 
-
-def plot_many_polygons(lst_poly):
-    """
-    Plot a list of polygons contained in a list.
-    
-    Parameters
-    ----------
-    lst_poly : array(MultiPoints)
-            List of polygons
-            
-    Returns
-    -------
-    figure
-            The corresponding figure.
-    """
-    x_max = 0
-    y_max = 0
-    x_min = 0
-    y_min = 0
-    fig = plt.figure(figsize=(10,10))
-    ax = fig.add_subplot(111)
-    margin = .3
-    for poly in lst_poly:
-        #Determine the axes limits
-        x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
-        if x_max < x_max_curr:
-            x_max = x_max_curr
-        if y_max < y_max_curr:
-            y_max = y_max_curr
-        if y_min > y_min_curr:
-            y_min = y_min_curr
-        if x_min > x_min_curr:
-            x_min = x_min_curr
-            
-        color = myutils.RGBA_arg()
-        patch = PolygonPatch(poly, fc=color,
-                         ec=color, fill=True,
-                         zorder=-1)
-        ax.add_patch(patch)
-    ax.set_xlim([x_min-margin, x_max+margin])
-    ax.set_ylim([y_min-margin, y_max+margin])
-    ax.legend([str(i+1) for i in range(len(lst_poly))])
-    return fig
-
+# def plot_many_polygons(lst_poly):
+#     """
+#     Plot a list of polygons contained in a list.
+#
+#     Parameters
+#     ----------
+#     lst_poly : array(MultiPoints)
+#             List of polygons
+#
+#     Returns
+#     -------
+#     figure
+#             The corresponding figure.
+#     """
+#     x_max = 0
+#     y_max = 0
+#     x_min = 0
+#     y_min = 0
+#     fig = plt.figure(figsize=(10,10))
+#     ax = fig.add_subplot(111)
+#     margin = .3
+#     for poly in lst_poly:
+#         #Determine the axes limits
+#         x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
+#         if x_max < x_max_curr:
+#             x_max = x_max_curr
+#         if y_max < y_max_curr:
+#             y_max = y_max_curr
+#         if y_min > y_min_curr:
+#             y_min = y_min_curr
+#         if x_min > x_min_curr:
+#             x_min = x_min_curr
+#
+#         color = myutils.RGBA_arg()
+#         patch = PolygonPatch(poly, fc=color,
+#                          ec=color, fill=True,
+#                          zorder=-1)
+#         ax.add_patch(patch)
+#     ax.set_xlim([x_min-margin, x_max+margin])
+#     ax.set_ylim([y_min-margin, y_max+margin])
+#     ax.legend([str(i+1) for i in range(len(lst_poly))])
+#     return fig
+#
 
 def add_edge(edges, edge_points, coords, i, j):
     """ 
@@ -461,7 +461,7 @@ def compare_to_model(new_acq, model, size_grid, alpha):
         healthy = False
         
     return healthy, grid_p, hull_p, grid_r, hull_r
-    
+
 
 def save_model(list_dir, directory, patho_patients):
     """

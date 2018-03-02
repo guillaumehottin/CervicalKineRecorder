@@ -28,7 +28,9 @@ class AcquisitionTabController(QObject):
     COUNT_DOWN_TIME                 = "3"
     SPHERE_GREEN_TO_YELLOW_ANGLE    = "0.1"
     SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
-    TMP_FILE_PATH                   = "tmp.orpl"
+    # TODO FX SI TU VEUX SIMULER UNE ACQUISITION UTILISE tmp1.orpl
+    # A LA FIN D'UNE ACQUISITION, LE PROGRAMME LIRA DANS CE FICHIER UNE "FAUSSE" COURBE
+    TMP_FILE_PATH                   = "tmp1.orpl"
 
     # Values used to create the socket and discuss with unity project
     HOST = "localhost"
@@ -165,7 +167,8 @@ class AcquisitionTabController(QObject):
         standard_deviation = float(standard_deviation.split(':')[1])
 
         if not self.is_acquition_correct(mean, standard_deviation):
-            confirmation_msg = "L'acquisition ne semble pas correcte. Souhaitez-vous la conserver ?\nMoyenne: {0}\nEcart-type: {1}".format(mean, standard_deviation)
+            confirmation_msg = "L'acquisition ne semble pas correcte. Souhaitez-vous la conserver ?\nMoyenne: {0}" \
+                               "\nEcart-type: {1}".format(mean, standard_deviation)
             reply = QMessageBox.question(self.view, 'Mauvaise acquisition',
                                          confirmation_msg, QMessageBox.Yes, QMessageBox.No)
 
@@ -174,7 +177,9 @@ class AcquisitionTabController(QObject):
                 # Update graph with tMP file content
                 self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
                 self.view.saveButton.setEnabled(True)
-
+                # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION EST DE MOYENNE QUALITE MAIS L'USER
+                # VEUT LA CONSERVER ET EST TERMINEE
+                # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
             else:
                 DEBUG and print("=== acquisition_tab_controller.py === SUPPRIMER ACQUISITION")
                 self.view.clear_graph()
@@ -188,6 +193,9 @@ class AcquisitionTabController(QObject):
         else:
             self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
             self.view.saveButton.setEnabled(True)
+            # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION C'EST BIEN PASSE ET EST TERMINEE
+            # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
+
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")
         self.view.startStopButton.setStyleSheet("background-color: green; color:white")
@@ -371,7 +379,6 @@ class AcquisitionTabController(QObject):
             msg.setWindowTitle("Erreur")
             msg.exec()
             pass
-
 
     def is_acquition_correct(self, mean, standard_deviation):
         """

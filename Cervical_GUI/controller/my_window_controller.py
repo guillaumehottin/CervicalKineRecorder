@@ -23,7 +23,7 @@ class MyWindowController(QObject):
     PATH_TO_STORE_FILE              = "./data/"
     PATH_TO_STORE_MODELS            = "./models/"
     EXTENSION_HULLS_MODEL           = ".mdlhl"
-    EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhls"
+    EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhs"
     EXTENSION_WAVELET_MODEL         = ".mdlwvl"
     GIT_LINK = "https://github.com/guillaumehottin/projetlong"
 
@@ -234,27 +234,38 @@ class MyWindowController(QObject):
         If the file selected does not match the pattern we want we display an error
         :return: Nothing
         """
-
-        new_path, _ = QFileDialog.getOpenFileName(self.view, "Sélectionner un modèle",
-                                                   self.PATH_TO_STORE_MODELS)
+        my_filter = "Model file (*" + self.EXTENSION_HULLS_SPLINES_MODEL + " *" + self.EXTENSION_HULLS_MODEL + " *" +\
+                 self.EXTENSION_WAVELET_MODEL + ") ;; All files (*)"
+        print("MYFILTER " + my_filter )
+        model_path, _ = QFileDialog.getOpenFileName(self.view, caption="Sélectionner un modèle",
+                                                  filter=my_filter, directory=self.PATH_TO_STORE_MODELS)
         # If the user canceled
-        if not new_path:
+        if not model_path:
             return
 
-        DEBUG and print("=== acquisition.py === FOLDER LOADED : " + new_path)
+        DEBUG and print("=== acquisition.py === FOLDER LOADED : " + model_path)
 
         try:
-            _, file_extension = os.path.splitext(new_path)
+            _, file_extension = os.path.splitext(model_path)
             print("HEHEHEHEHE " + file_extension)
             if file_extension == self.EXTENSION_HULLS_MODEL:
                 print("HUUUUULLS")
-                model, acc_train, acc_test, size_grid, alpha = hulls.load_model(new_path)
-                # TODO DRAW MODEL
-                pass
+                model, acc_train, acc_test, size_grid, alpha = hulls.load_model(model_path)
+                self.view.tab_hulls.canvas_left_modelization.plot_polygon_MP(model)
+                # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE HULL
+
             elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
                 print("HUUUUULLS & SPLINES")
-                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = hull_and_spline.load_model(new_path)
-                pass
+                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = hull_and_spline.load_model(model_path)
+                print("TEEEEEST MODEL " + str(hull_pitch))
+                # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE HULL AND SPLINES
+
+            elif file_extension == self.EXTENSION_WAVELET_MODEL:
+                print("WAVELETT")
+                # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE WAVELETT
+                # Pour dessiner quelque chose appeler self.view.tab_hull_and_splines.canvas_left_modelization.plotXXXXX
+                #                                               tab_hulls            canvas_right_modelization
+                #                                               tab_wavelet
 
         except ValueError:
             # DISPLAY POP UP ERROR AND DO NOTHING

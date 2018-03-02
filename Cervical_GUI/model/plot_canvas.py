@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QSizePolicy
+from descartes import PolygonPatch
 from matplotlib.figure import Figure
 
 from matplotlib.backends.qt_compat import is_pyqt5
+
+from model.myutils import RGBA_arg
 
 if is_pyqt5():
     from matplotlib.backends.backend_qt5agg import (
@@ -12,6 +15,7 @@ else:
     from matplotlib.backends.backend_qt4agg import (
         FigureCanvas)
 
+# TODO FX ICI RAJOUTER FONCTION DE DESSIN DES DIFFERENTS MODELES
 
 class PlotCanvas(FigureCanvas):
     """
@@ -66,3 +70,88 @@ class PlotCanvas(FigureCanvas):
         self.axes.legend(handles, labels, loc="best")
         self.axes.grid('on')
         self.draw()
+
+    def plot_polygon_MP(self, polygon):
+        """
+        Plot a polygon using PolygonPatch.
+
+        Parameters
+        ----------
+        polygon : MultiPoint
+                The polygon to plot
+        """
+        margin = .3
+        x_min, y_min, x_max, y_max = polygon.bounds
+        self.axes.set_xlim([x_min - margin, x_max + margin])
+        self.axes.set_ylim([y_min - margin, y_max + margin])
+        patch = PolygonPatch(polygon, fc='#999999',
+                             ec='#000000', fill=True,
+                             zorder=-1)
+        self.axes.add_patch(patch)
+
+    def plot_many_polygons(self, lst_poly):
+        """
+        Plot a list of polygons contained in a list.
+
+        Parameters
+        ----------
+        lst_poly : array(MultiPoints)
+                List of polygons
+
+        Returns
+        -------
+        figure
+                The corresponding figure.
+        """
+        x_max = 0
+        y_max = 0
+        x_min = 0
+        y_min = 0
+
+        margin = .3
+        for poly in lst_poly:
+            # Determine the axes limits
+            x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
+            if x_max < x_max_curr:
+                x_max = x_max_curr
+            if y_max < y_max_curr:
+                y_max = y_max_curr
+            if y_min > y_min_curr:
+                y_min = y_min_curr
+            if x_min > x_min_curr:
+                x_min = x_min_curr
+
+            color = RGBA_arg()
+            patch = PolygonPatch(poly, fc=color,
+                                 ec=color, fill=True,
+                                 zorder=-1)
+            self.axes.add_patch(patch)
+        self.axes.set_xlim([x_min - margin, x_max + margin])
+        self.axes.set_ylim([y_min - margin, y_max + margin])
+        self.axes.legend([str(i + 1) for i in range(len(lst_poly))])
+
+    def plot_discrete_hull(self, grid, grid_pts, hull):
+        """
+        Plot a hull and its discretization.
+
+        Parameters
+        ----------
+        grid : array
+                Array of 1s (within hull) and 0s (outside), the discrete hull.
+        grid_pts : array
+                Array of points of the grid.
+        hull : Polygon
+                The concave hull.
+        """
+        self.plot_polygon_MP(hull)
+        x, y = [pt[0] for pt in grid_pts], [pt[1] for pt in grid_pts]
+        self.axes.scatter(x, y)
+        # plt.scatter(x, y)
+        ind_ones = []
+        for i in range(len(x)):
+            if grid[i] == 1:
+                ind_ones += [i]
+        xd = [x[i] for i in ind_ones]
+        yd = [y[i] for i in ind_ones]
+        self.axes.scatter(xd, yd, c='r')
+
