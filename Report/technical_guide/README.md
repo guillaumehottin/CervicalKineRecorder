@@ -133,7 +133,8 @@ The file *spline_wavelet.py* permits to:
    - The second one represents wavelets without interpolation. It's not usefull.
 
 
-![Example of subplot for an healthy patient](./images/morlet_wavelet.png "Example of subplot for an healthy patient")
+![Example of subplot for an healthy patient](./images/morlet_wavelet.png "Example of subplot for an healthy patient") 
+                           *Example of subplot for an healthy patient*
 
 
 The red curve corresponds to **Yaw** angle, the blue curve to **Pitch** angle and the green to **Roll** angle.
