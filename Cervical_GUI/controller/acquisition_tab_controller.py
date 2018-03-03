@@ -185,7 +185,7 @@ class AcquisitionTabController(QObject):
                 # VEUT LA CONSERVER ET EST TERMINEE
                 # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
                 new_coords = utl.get_coord(self.TMP_FILE_PATH)
-                
+
                 mdl_hull_spline = hs.load_model(self.view.MyWindowController.path_model_hull_and_spline)
                 res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
                 hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline

@@ -113,7 +113,7 @@ class AcquisitionTab(QWidget):
         """
 
         # CENTRAL WIDGET ACQUISITION
-        # self.setLayout(self.gridLayout)
+        self.setLayout(self.gridLayout)
 
         # BIG GRID LAYOUT & ITS WIDGET
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
