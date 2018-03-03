@@ -41,10 +41,10 @@ class MyWindow(QMainWindow):
 
         # TAB WIDGET
         self.tabs                   = QtWidgets.QTabWidget(window)
-        self.tab_acquisition        = AcquisitionTab(self.tabs, self.my_window_controller)
-        self.tab_hull_and_splines   = HullAndSplinesTab(self.tabs, self.my_window_controller)
-        self.tab_hulls              = HullsTab(self.tabs, self.my_window_controller)
-        self.tab_wavelet            = WaveletTab(self.tabs, self.my_window_controller)
+        self.tab_acquisition        = AcquisitionTab(self, self.my_window_controller)
+        self.tab_hull_and_splines   = HullAndSplinesTab(self, self.my_window_controller)
+        self.tab_hulls              = HullsTab(self, self.my_window_controller)
+        self.tab_wavelet            = WaveletTab(self, self.my_window_controller)
 
         # MENU BAR
         self.menubar            = QtWidgets.QMenuBar(window)
