@@ -129,8 +129,8 @@ The file *spline_wavelet.py* permits to:
  - Interpolate curves **angle = f(t)** with B-Splines,
  - Build Morlet wavelets for each B-Spline,
  - Store all generated plots. Each figure contains two subplots:
-  - The first one represents wavelets applied on B-SPlines,
-  - The second one represents wavelets without interpolation. It's not usefull.
+   - The first one represents wavelets applied on B-SPlines,
+   - The second one represents wavelets without interpolation. It's not usefull.
 
 
 ![Example of subplot for an healthy patient](./images/morlet_wavelet.png "Example of subplot for an healthy patient")
