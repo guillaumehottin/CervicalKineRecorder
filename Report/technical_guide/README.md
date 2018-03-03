@@ -138,6 +138,6 @@ The file *spline_wavelet.py* permits to:
 The red curve corresponds to **Yaw** angle, the blue curve to **Pitch** angle and the green to **Roll** angle.
 This file was written at the end of project so it's not well structured. In fact, the biggest part of code is in the main of file. One idea to improve it is to create a function which take as feature a list of patients and compute Morlet wavelets for each angle.
 
-Then, the number of control points (parameter **step**) for the spine and the type of wavelet (parameter **type_wave**) have been arbitrarily chosen so it's better to modify it and test.
+Then, the number of control points (parameter **step**) for the spline and the type of wavelet (parameter **type_wave**) have been arbitrarily chosen so it's better to modify it and test.
 
-To finish, for each plot, you can look at the central area (demarcated by two vertical lines) and see if the roll wavelet (green curve) is out of the rectangle. In fact, this phenomenon seems to appear when we have a pathological patient. To adjust the rectangle height, you need to modify the parameter **thres** in **Rectangle** function in **matplotlib.patches**. This height was also arbitrarily chosen so you have to test and find its optimal value.
+To finish, for each plot, you can look at the central area (demarcated by two vertical lines) and see if the roll wavelet (green curve) is out of the rectangle. In fact, this phenomenon seems to appear when we have a pathological patient. To adjust the rectangle height, you need to modify the parameter **thres** in **Rectangle** function in **matplotlib.patches**. This height has also been arbitrarily chosen so you have to test and find its optimal value.
