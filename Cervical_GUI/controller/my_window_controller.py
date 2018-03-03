@@ -40,6 +40,10 @@ class MyWindowController(QObject):
         self.first_name         = "Prénom"
         self.last_name          = "Nom"
         self.age                = "âge"
+        
+        # MODELS
+        self.path_model_hulls           = ""
+        self.path_model_hull_and_spline = ""
 
     @pyqtSlot(name="new_profile_menu_handler")
     def new_profile_menu_handler(self):
@@ -226,7 +230,7 @@ class MyWindowController(QObject):
         else:  # The user cancel his operation
             pass
 
-    @pyqtSlot(name="load_profile_menu_handler")
+    @pyqtSlot(name="load_model_menu_handler")
     def load_model_handler(self):
         """
         Handler called when the load model menu is triggered
@@ -250,14 +254,12 @@ class MyWindowController(QObject):
             print("HEHEHEHEHE " + file_extension)
             if file_extension == self.EXTENSION_HULLS_MODEL:
                 print("HUUUUULLS")
-                model, acc_train, acc_test, size_grid, alpha = hulls.load_model(model_path)
-                self.view.tab_hulls.canvas_left_modelization.plot_polygon_MP(model)
+                self.path_model_hulls = model_path
                 # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE HULL
 
             elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
                 print("HUUUUULLS & SPLINES")
-                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = hull_and_spline.load_model(model_path)
-                print("TEEEEEST MODEL " + str(hull_pitch))
+                self.path_model_hull_and_spline = model_path
                 # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE HULL AND SPLINES
 
             elif file_extension == self.EXTENSION_WAVELET_MODEL:

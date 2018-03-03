@@ -155,3 +155,30 @@ class PlotCanvas(FigureCanvas):
         yd = [y[i] for i in ind_ones]
         self.axes.scatter(xd, yd, c='r')
 
+    def plot_hull_spline(self, hull, spline, curve, type_motion):
+        """
+        Plot the curve of the acquisition and the hull.
+        
+        Parameters
+        ----------
+        curve : array of arrays
+                First array is x-axis component of the acquisition, second is y-axis.
+        hull : Polygon
+                Model hull.
+        spline : array of array
+                Same as curve but for the spline.
+        type_motion : str
+                'pitch' or 'roll', according to the angle considered.
+        """
+        self.plot_polygon_MP(hull)
+        self.plot(curve[0], curve[1])
+        self.plot(spline[0], spline[1])
+        if type_motion == 'pitch':
+            self.axes.set_ylim([0.44, 0.56])
+        elif type_motion == 'roll':
+            self.axes.set_ylim([0.32, 0.67])
+        else:
+            raise ValueError('type_motion must be either "pitch" or "roll"')
+        self.axes.set_ylabel(type_motion)
+        self.axes.set_xlim([-0.05, 1.05])
+        self.axes.set_xlabel('yaw')

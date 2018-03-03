@@ -425,7 +425,7 @@ def plot_discrete_hull(grid, grid_pts, hull):
     plt.scatter(xd, yd, c='r')
     
 
-def compare_to_model(new_acq, model, size_grid, alpha):
+def compare_to_model(new_acq, model, size_grid=[100,30], alpha=3.0):
     """
     Compare a new acquisition with the model.
     
