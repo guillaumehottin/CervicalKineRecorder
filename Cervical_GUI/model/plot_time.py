@@ -4,6 +4,7 @@ Script which allows to plot the superposition of a new data with the mean of the
 
 from Cervical_GUI.model.file_manager import get_param_from_file
 from Cervical_GUI.model.plot_serie import *
+from Cervical_GUI.model.myutils import get_coord
 
 
 def get_list_patient(dir_name):

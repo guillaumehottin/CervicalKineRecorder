@@ -1,7 +1,6 @@
 import random as rd
 import shapely.geometry as geometry
 import numpy as np
-from model import myutils
 import os
 
 
@@ -178,5 +177,5 @@ def preprocess_data(array_data, type_norm='global'):
     """
     norm_array = []
     for one_acq in array_data:
-        norm_array.append(myutils.normalize(one_acq[0], one_acq[1], one_acq[2], type_norm))
+        norm_array.append(normalize(one_acq[0], one_acq[1], one_acq[2], type_norm))
     return norm_array
