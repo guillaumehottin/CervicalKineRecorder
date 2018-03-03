@@ -42,8 +42,7 @@ class AcquisitionTab(QWidget):
         self.acquisition_controller = AcquisitionTabController(self)
 
         self.parent.setObjectName("AcquisitionTab")
-        self.centralwidget      = QtWidgets.QWidget(self.parent)
-        self.gridLayoutWidget   = QtWidgets.QWidget(self.centralwidget)
+        self.gridLayoutWidget   = QtWidgets.QWidget()
 
         self.sock_serv = None
 
@@ -114,8 +113,7 @@ class AcquisitionTab(QWidget):
         """
 
         # CENTRAL WIDGET ACQUISITION
-        self.setLayout(self.gridLayout)
-        self.centralwidget.setObjectName("centralwidget")
+        # self.setLayout(self.gridLayout)
 
         # BIG GRID LAYOUT & ITS WIDGET
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
@@ -248,7 +246,7 @@ class AcquisitionTab(QWidget):
         # BUTTONS
         self.startStopButton.setText(_translate("AcquisitionTab", "Lancer acquisition"))
         self.saveButton.setText(_translate("AcquisitionTab", "Enregistrer"))
-        self.emptyGraph.setText(_translate("AcquisitionTab", "Vider les graphiques"))
+        self.emptyGraph.setText(_translate("AcquisitionTab", "VEEder les graphiques"))
 
     def add_comment(self, hour_parameters, comments):
         """

@@ -107,12 +107,18 @@ class NewProfileDialog(QDialog):
 
             if self.text_first_name.text() == "":
                 self.text_first_name.setStyleSheet('QLineEdit { background-color: %s }' % color)
+            else:
+                self.text_first_name.setStyleSheet("QLineEdit { background-color: white }")
 
-            elif self.text_last_name.text() == "":
+            if self.text_last_name.text() == "":
                 self.text_last_name.setStyleSheet('QLineEdit { background-color: %s }' % color)
+            else:
+                self.text_last_name.setStyleSheet("QLineEdit { background-color: white }")
 
-            elif self.text_age.text() == "":
+            if self.text_age.text() == "":
                 self.text_age.setStyleSheet('QLineEdit { background-color: %s }' % color)
+            else:
+                self.text_age.setStyleSheet("QLineEdit { background-color: white }")
 
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
