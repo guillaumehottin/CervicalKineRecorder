@@ -18,7 +18,7 @@ old_hook = sys.excepthook
 sys.excepthook = catch_exceptions
 
 try:
-    subprocess.Popen([r"..\Cervical_exec\cervical.exe"])
+    subprocess.Popen([r".\cervical.exe"])
     app = QApplication(sys.argv)
     window = QMainWindow()
     ui = MyWindow(window)
@@ -26,7 +26,7 @@ try:
     sys.exit(app.exec_())
 except OSError:
     try:
-        subprocess.Popen([r".\cervical.exe"])
+        subprocess.Popen([r"..\Cervical_exec\cervical.exe"])
         app = QApplication(sys.argv)
         window = QMainWindow()
         ui = MyWindow(window)
