@@ -42,6 +42,10 @@ The files are named *Shapely‑1.6.4.post1‑cp**PYTHON_VERSION**‑cp**PYTHON_V
 
 Once you downloaded the correct **Shapely** file, open a terminal and navigate to the folder that contains it and type *pip install **NAME_OF_YOU_SHAPELY_FILE***.
 
+To generate an executable file for the project, you will also need the *pycairo* library. You will need to install it the same way as *Shapely* by downloading it from [this page](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pycairo). Make sure to download the right version for your python installation. Once you install it, run *pip install **DOWNLOADED_FILE***.
+
+Finally, make sure that you installed *tkinter* when you installed Python. If this is not the case, run the Python installer for your version, chose *Modify* and check the box to install *Tcl/Tk and IDLE*.
+
 After running all these commands, you should be able to open and run the Operator GUI project in the directory *projetlong/Cervical_GUI*.
 
 For this Python project, we have been using *Pycharm*, available at [this page](https://www.jetbrains.com/pycharm/). A free *Community edition* is available, allowing to work with the project. Paid licenses are also available, and students can get all *Jetbrains* paid IDEs for free by registering on their website with the e-mail address their institution provided.
@@ -79,5 +83,38 @@ Once this is done, you can generate an executable file for the Operator GUI. We 
 
 Place yourself in the directory *projetlong/Cervical_GUI*. The main file of the project is *main.py*.
 
-Generate a *spec* file by running *pyinstaller --onefile --icon="icone;
+Generate a *.spec* file by running *pyinstaller --onefile --icon="icone.ico" --noconsole main.py*.
+Once the *.spec* file is generated, open it and add the following in *hiddenimports*:
+
+'scipy.special._ufuncs_cxx',
+'scipy.linalg.cython_blas',
+'scipy.linalg.cython_lapack',
+'scipy.integrate',
+'scipy.integrate.quadrature',
+'scipy.integrate.odepack',
+'scipy.integrate._odepack',
+'scipy.integrate.quadpack',
+'scipy.integrate._quadpack',
+'scipy.integrate._ode',
+'scipy.integrate.vode',
+'scipy.integrate._dop',
+'scipy.integrate.lsoda',
+'scipy.interpolate',
+'scipy.linalg',
+'scipy.linalg.misc',
+'scipy.linalg.blas',
+'scipy._lib.messagestream',
+'sklearn.neighbors.typedefs'
+
+You will also need to add '**PATH_TO_YOUR_PYTHON_INSTALLATION**\\Lib\\site-packages\\scipy\\extra-dll' in the *pathex* variable.
+
+Once this is done, save your *main.spec* file and run *pyinstaller main.spec*. This will create a *main.exe* file in the *dist* directory.
+
+Once everything is done, you should have the following files and folders:
+- *main.exe* in the *dist* directory
+- *Cervical.exe*
+- *UnityPlayer.dll*
+- *cervical_Data*
+
+You can then copy them and move them in another folder. Running *main.exe* will then run the application.
  
