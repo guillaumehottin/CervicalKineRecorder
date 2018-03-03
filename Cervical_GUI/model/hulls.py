@@ -486,7 +486,6 @@ def save_model(list_dir, directory, patho_patients):
             labels += [-1]*nb_acq[i]
         else:
             labels += [1]*nb_acq[i]
-    print(labels)
     
     # For parametrization in the future ?
     alpha = 3.0

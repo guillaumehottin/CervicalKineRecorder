@@ -154,6 +154,8 @@ class PlotCanvas(FigureCanvas):
         xd = [x[i] for i in ind_ones]
         yd = [y[i] for i in ind_ones]
         self.axes.scatter(xd, yd, c='r')
+        self.axes.set_ylim([0.38, 0.62])
+        self.axes.set_xlim([-0.05, 1.05])
 
     def plot_hull_spline(self, hull, spline, curve, type_motion):
         """

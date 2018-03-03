@@ -44,6 +44,7 @@ class MyWindowController(QObject):
         # MODELS
         self.path_model_hulls           = ""
         self.path_model_hull_and_spline = ""
+        self.path_model_wavelett        = ""
 
     @pyqtSlot(name="new_profile_menu_handler")
     def new_profile_menu_handler(self):
@@ -240,45 +241,86 @@ class MyWindowController(QObject):
         """
         my_filter = "Model file (*" + self.EXTENSION_HULLS_SPLINES_MODEL + " *" + self.EXTENSION_HULLS_MODEL + " *" +\
                  self.EXTENSION_WAVELET_MODEL + ") ;; All files (*)"
-        print("MYFILTER " + my_filter )
-        model_path, _ = QFileDialog.getOpenFileName(self.view, caption="Sélectionner un modèle",
+
+        model_path, _ = QFileDialog.getOpenFileNames(self.view, caption="Sélectionner un modèle",
                                                   filter=my_filter, directory=self.PATH_TO_STORE_MODELS)
         # If the user canceled
         if not model_path:
             return
 
-        DEBUG and print("=== acquisition.py === FOLDER LOADED : " + model_path)
+        nb_hulls_model = sum(1 for curr_path in model_path \
+                             if os.path.splitext(curr_path)[1] == self.EXTENSION_HULLS_MODEL)
+        print("NBBBBB HULLS " + str(nb_hulls_model))
 
-        try:
-            _, file_extension = os.path.splitext(model_path)
-            print("HEHEHEHEHE " + file_extension)
-            if file_extension == self.EXTENSION_HULLS_MODEL:
-                print("HUUUUULLS")
-                self.path_model_hulls = model_path
-                # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE HULL
+        nb_hull_and_splines_model = sum(1 for curr_path in model_path \
+                             if os.path.splitext(curr_path)[1] == self.EXTENSION_HULLS_SPLINES_MODEL)
+        print("NBBBBB HULLS AND SPLINES " + str(nb_hull_and_splines_model))
 
-            elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
-                print("HUUUUULLS & SPLINES")
-                self.path_model_hull_and_spline = model_path
-                # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE HULL AND SPLINES
+        nb_wavelet_model = sum(1 for curr_path in model_path \
+                             if os.path.splitext(curr_path)[1] == self.EXTENSION_WAVELET_MODEL)
+        print("NBBBBB WAVELET " + str(nb_wavelet_model))
 
-            elif file_extension == self.EXTENSION_WAVELET_MODEL:
-                print("WAVELETT")
-                # TODO FX ICI CODE EXECUTE APRES CHARGEMENT D'UN MODELE WAVELETT
-                # Pour dessiner quelque chose appeler self.view.tab_hull_and_splines.canvas_left_modelization.plotXXXXX
-                #                                               tab_hulls            canvas_right_modelization
-                #                                               tab_wavelet
+        informative_text = "Vous avez sélectionné deux modèles du type TYPE. \n" +\
+                           "Veuillez faire attention à ne sélectionner qu'un seul modèle du type TYPE " +\
+                           "(vérifiable grâce au nom du fichier ainsi qu'à son extension 'EXTENSION')"
 
-        except ValueError:
-            # DISPLAY POP UP ERROR AND DO NOTHING
-            DEBUG and print("=== acquisition.py === INCORRECT FOLDER NAME")
+        if nb_hulls_model > 1:
+            informative_text = informative_text.replace("TYPE", "Hulls")
+            informative_text = informative_text.replace("EXTENSION", self.EXTENSION_HULLS_MODEL)
+
+        if nb_hull_and_splines_model > 1:
+            informative_text = informative_text.replace("TYPE", "Hulls and Splines")
+            informative_text = informative_text.replace("EXTENSION", self.EXTENSION_HULLS_SPLINES_MODEL)
+
+        if nb_wavelet_model > 1:
+            informative_text = informative_text.replace("TYPE", "Wavelet")
+            informative_text = informative_text.replace("EXTENSION", self.EXTENSION_WAVELET_MODEL)
+
+        if nb_wavelet_model > 1 or nb_hull_and_splines_model > 1 or nb_hulls_model > 1:
             msg = QMessageBox()
-            msg.setIcon(QMessageBox.Critical)
-            msg.setText("Format de dossier incorrect")
-            msg.setInformativeText("Le dossier que vous avez sélectionné ne suit pas la convention qui est : "
-                                   "Nom_prénom_age")
-            msg.setWindowTitle("Erreur")
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Modèles en conflits")
+            msg.setInformativeText(informative_text)
+            msg.setWindowTitle("Attention")
             msg.exec()
+            return
+
+        # Go through each selected path
+        for path in model_path:
+
+            try:
+                _, file_extension = os.path.splitext(path)
+
+                if file_extension == self.EXTENSION_HULLS_MODEL:
+                    self.path_model_hulls = path
+
+                elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
+                    self.path_model_hull_and_spline = path
+
+                elif file_extension == self.EXTENSION_WAVELET_MODEL:
+                    self.path_model_wavelett = path
+
+            except ValueError:
+                # DISPLAY POP UP ERROR AND DO NOTHING
+                DEBUG and print("=== acquisition.py === INCORRECT FILE NAME")
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText("Format de fichier incorrect")
+                msg.setInformativeText("Le fichier que vous avez sélectionné ne correspond pas à un fichier modèle")
+                msg.setWindowTitle("Erreur")
+                msg.exec()
+                return
+
+        if len(model_path) > 1:
+            text = "Les " + str(len(model_path)) + " modèles  ont été chargé avec succès"
+        else:
+            text = "Le modèle a été chargé avec succès"
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText(text)
+        msg.setWindowTitle("Modèles chargés avec succès")
+        msg.exec()
         return
 
     @pyqtSlot(name="about_menu_handler")

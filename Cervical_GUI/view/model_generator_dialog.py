@@ -36,8 +36,9 @@ class ModelGeneratorDialog(QDialog):
         self.already_selected_model_generator = already_selected_profiles
 
         # VBOX LAYOUT
-        self.vertical_layout = QtWidgets.QVBoxLayout(model_generator_dialog)
-        self.horizontal_layout  = QtWidgets.QHBoxLayout(model_generator_dialog)
+        self.vertical_layout                = QtWidgets.QVBoxLayout(model_generator_dialog)
+        self.horizontal_layout_model_name   = QtWidgets.QHBoxLayout(model_generator_dialog)
+        self.horizontal_layout_select_all   = QtWidgets.QHBoxLayout(model_generator_dialog)
 
         # BUTTON BOX
         self.buttonBox = QtWidgets.QDialogButtonBox(model_generator_dialog)
@@ -56,6 +57,10 @@ class ModelGeneratorDialog(QDialog):
 
         # MODEL
         self.model = QStandardItemModel(self.listView)
+
+        # BUTTON
+        self.select_all_button      = QtWidgets.QPushButton("selectAllButton", model_generator_dialog)
+        self.unselect_all_button    = QtWidgets.QPushButton("unselectAllButton", model_generator_dialog)
 
         # END SETUP UI
         self.setup_ui()
@@ -83,7 +88,8 @@ class ModelGeneratorDialog(QDialog):
         # Check if there is some directories to display
         if len(list_directories) > 0:
             DEBUG and print("=== model_generator_dialog.py === LIST DIRECTORIES: " + str(list_directories))
-            # DEBUG and print("=== model_generator_dialog.py === ALREADY SELECTED CURVES: " + str(self.already_selected_profiles))
+            # DEBUG and print("=== model_generator_dialog.py === ALREADY SELECTED CURVES: " +
+            # str(self.already_selected_profiles))
             # GO THROUGH EACH FOLDER FOUND AND PUT IT IN THE LIST VIEW
             for i in range(0, len(list_directories)):
                 item = QStandardItem(list_directories[i])
@@ -108,12 +114,20 @@ class ModelGeneratorDialog(QDialog):
         self.buttonBox.accepted.connect(lambda: self.ok_handler())
         self.buttonBox.rejected.connect(self.parent.reject)
 
+        # BUTTONS
+        self.select_all_button.clicked.connect(self.select_all_button_handler)
+        self.unselect_all_button.clicked.connect(self.unselect_all_button_handler)
+
         # LAYOUT
-        self.horizontal_layout.addWidget(self.label_model_name)
-        self.horizontal_layout.addWidget(self.text_model_name)
+        self.horizontal_layout_model_name.addWidget(self.label_model_name)
+        self.horizontal_layout_model_name.addWidget(self.text_model_name)
+
+        self.horizontal_layout_select_all.addWidget(self.select_all_button)
+        self.horizontal_layout_select_all.addWidget(self.unselect_all_button)
 
         self.vertical_layout.addWidget(self.scrollArea)
-        self.vertical_layout.addLayout(self.horizontal_layout)
+        self.vertical_layout.addLayout(self.horizontal_layout_select_all)
+        self.vertical_layout.addLayout(self.horizontal_layout_model_name)
         self.vertical_layout.addWidget(self.buttonBox)
 
         self.retranslate_ui()
@@ -126,8 +140,10 @@ class ModelGeneratorDialog(QDialog):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
-        self.parent.setWindowTitle(_translate("Dialog", "Charger des modèles"))
-        self.label_model_name.setText(_translate("CurvesDialog", "Nom du modèle : "))
+        self.parent.setWindowTitle(_translate("ModelGeneratorDialog", "Charger des modèles"))
+        self.select_all_button.setText(_translate("ModelGeneratorDialog", "Cocher tous les éléments"))
+        self.unselect_all_button.setText(_translate("ModelGeneratorDialog", "Décocher tous les éléments"))
+        self.label_model_name.setText(_translate("ModelGeneratorDialog", "Nom du modèle : "))
 
     @pyqtSlot(name="ok_handler")
     def ok_handler(self):
@@ -153,6 +169,17 @@ class ModelGeneratorDialog(QDialog):
                 print("ANNULATION")
         else:
             return self.parent.accept()
+
+    @pyqtSlot(name="select_all_button_handler")
+    def select_all_button_handler(self):
+        for i in range(0, self.model.rowCount()):
+            self.model.item(i).setCheckState(2)
+
+    @pyqtSlot(name="unselect_all_button_handler")
+    def unselect_all_button_handler(self):
+        for i in range(0, self.model.rowCount()):
+            self.model.item(i).setCheckState(0)
+
 
     def get_selected_directories(self):
         """
