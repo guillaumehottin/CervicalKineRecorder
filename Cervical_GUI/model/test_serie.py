@@ -1,17 +1,16 @@
 """
-Script de test des fonctions du fichier Code.plot_serie.py
+Script de test des fonctions du fichier Cervical_GUI.model.plot_serie.py
 """
-from Code.plot_serie import *
-import time
+from Cervical_GUI.model.plot_serie import *
 
-directory = '../tests/'
+directory = '../../bonnes_mesures/'
 
 liste = get_list_directory(directory)
 # plot_all_superposed_correlate(directory)
 # plot_all_superposed_fourier(directory)
 # plot_one(liste[0], type_plot='correlate')
 # plot_one(liste[0])
-# plot_one(liste[0], type_plot='time', type_wavelet='db1')
+plot_one(liste[0], type_plot='time')
 
 # plot_one(liste[0], type_plot='3d', type_wavelet='db1')
 # for family in pywt.families():
@@ -43,5 +42,3 @@ liste = get_list_directory(directory)
 # plt.ylim((0, 1))
 # plt.plot(yaw_l, pitch_l)
 # plt.show()
-plot_all_superposed(directory, type_plot='wavelet')
-# plot_all_superposed(directory, type_plot='correlate')
