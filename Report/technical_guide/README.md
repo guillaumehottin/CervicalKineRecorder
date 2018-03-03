@@ -134,9 +134,7 @@ The file *spline_wavelet.py* permits to:
 
 
 ![Example of subplot for an healthy patient](./images/morlet_wavelet.png "Example of subplot for an healthy patient") 
-                           *Example of subplot for an healthy patient*
-
-
+                         
 The red curve corresponds to **Yaw** angle, the blue curve to **Pitch** angle and the green to **Roll** angle.
 This file was written at the end of project so it's not well structured. In fact, the biggest part of code is in the main of file. One idea to improve it is to create a function which take as feature a list of patients and compute Morlet wavelets for each angle.
 
