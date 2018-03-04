@@ -17,6 +17,7 @@ else:
 
 # TODO FX ICI RAJOUTER FONCTION DE DESSIN DES DIFFERENTS MODELES
 
+
 class PlotCanvas(FigureCanvas):
     """
     This class is used to manage the canvas that contains graph
@@ -89,47 +90,6 @@ class PlotCanvas(FigureCanvas):
                              zorder=-1)
         self.axes.add_patch(patch)
 
-    def plot_many_polygons(self, lst_poly):
-        """
-        Plot a list of polygons contained in a list.
-
-        Parameters
-        ----------
-        lst_poly : array(MultiPoints)
-                List of polygons
-
-        Returns
-        -------
-        figure
-                The corresponding figure.
-        """
-        x_max = 0
-        y_max = 0
-        x_min = 0
-        y_min = 0
-
-        margin = .3
-        for poly in lst_poly:
-            # Determine the axes limits
-            x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
-            if x_max < x_max_curr:
-                x_max = x_max_curr
-            if y_max < y_max_curr:
-                y_max = y_max_curr
-            if y_min > y_min_curr:
-                y_min = y_min_curr
-            if x_min > x_min_curr:
-                x_min = x_min_curr
-
-            color = RGBA_arg()
-            patch = PolygonPatch(poly, fc=color,
-                                 ec=color, fill=True,
-                                 zorder=-1)
-            self.axes.add_patch(patch)
-        self.axes.set_xlim([x_min - margin, x_max + margin])
-        self.axes.set_ylim([y_min - margin, y_max + margin])
-        self.axes.legend([str(i + 1) for i in range(len(lst_poly))])
-
     def plot_discrete_hull(self, grid, grid_pts, hull):
         """
         Plot a hull and its discretization.
@@ -143,7 +103,7 @@ class PlotCanvas(FigureCanvas):
         hull : Polygon
                 The concave hull.
         """
-        self.clear()
+        self.axes.cla()
         self.plot_polygon_MP(hull)
         x, y = [pt[0] for pt in grid_pts], [pt[1] for pt in grid_pts]
         self.axes.scatter(x, y, c='b')
@@ -174,14 +134,14 @@ class PlotCanvas(FigureCanvas):
         type_motion : str
                 'pitch' or 'roll', according to the angle considered.
         """
-        self.clear()
+        self.axes.cla()
         self.plot_polygon_MP(hull)
-        self.plot(curve[0], curve[1], color='red', legend='measure')
-        self.plot(spline[0], spline[1], color='blue', legend='spline')
+        self.plot(curve[0], curve[1], color='red', legend='Dernière acquisition')
+        self.plot(spline[0], spline[1], color='blue', legend='Spline')
         if type_motion == 'pitch':
             self.axes.set_ylim(bottom=0.44, top=0.56)
         elif type_motion == 'roll':
-            self.axes.set_ylim(bottom=0.32, top=0.67)
+            self.axes.set_ylim(bottom=0.33, top=0.67)
         else:
             raise ValueError('type_motion must be either "pitch" or "roll"')
         self.axes.set_ylabel(type_motion)

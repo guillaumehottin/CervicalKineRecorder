@@ -321,7 +321,7 @@ def train_test_model(dataset, labels):
     dataset : array
             Each row is a discretization of a hull.
     labels : array_like
-            Labels of data (-1 for unhealthy, 1 for healthy).
+            Labels of data (-1 for unhealthy, 1 for healthy). None if not to be considered.
     
     Returns
     -------
@@ -330,16 +330,24 @@ def train_test_model(dataset, labels):
             [1]: accuracy of the model at predicting the training set
             [2]: accuracy of the model at predicting the testing set
     """
-    train_data, test_data, train_target, test_target = train_test_split(dataset, 
-                labels, shuffle=True, train_size = 0.8)
-    model = svm.OneClassSVM(kernel='rbf', nu = len(np.where(np.array(labels)==1))/len(dataset))
-    model.fit(train_data, train_target)
-    
-    preds_train = model.predict(train_data)
-    accuracy_train = metrics.accuracy_score(train_target, preds_train)
-    preds_test = model.predict(test_data)
-    accuracy_test = metrics.accuracy_score(test_target, preds_test)
-    
+    if labels is not None:
+        train_data, test_data, train_target, test_target = train_test_split(dataset, labels, shuffle=True, train_size=0.8)
+        model = svm.OneClassSVM(kernel='rbf', nu = len(np.where(np.array(labels) == 1))/len(dataset))
+        model.fit(train_data, train_target)
+
+        preds_train = model.predict(train_data)
+        accuracy_train = metrics.accuracy_score(train_target, preds_train)
+        preds_test = model.predict(test_data)
+        accuracy_test = metrics.accuracy_score(test_target, preds_test)
+
+    else:
+        train_data = dataset
+        model = svm.OneClassSVM(kernel='rbf', nu=0.01)
+        model.fit(train_data)
+
+        accuracy_train = -1
+        accuracy_test = -1
+
     return model, accuracy_train, accuracy_test
 
 
@@ -352,6 +360,8 @@ def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
     ----------
     array_data : array of floats, shape (m,3,n)
             Each element is an array of 3 arrays, each corresponding to a coordinate.
+    type_model : str
+            Either 'has' or 'hull' for hull_and_spline or hull classification models respectively.
     bins : array_like
             Bins for 2D histograms, [xbins, ybins]. Ignored if type_model != 'has'.
     size_grid : int
@@ -383,9 +393,8 @@ def create_model(array_data, type_model, bins=None, size_grid=None, alpha=None,
         return model_pitch, model_roll
     
     elif type_model == 'hull':
-        #B uild dataset
+        # Build data set
         dataset = []
-        alpha = 3.0
         for one_acq in array_data:
             grid_p = discrete_hull(one_acq[0], one_acq[1], size_grid, alpha)[0]
             grid_r = discrete_hull(one_acq[0], one_acq[2], size_grid, alpha)[0]
@@ -463,7 +472,7 @@ def compare_to_model(new_acq, model, size_grid=[100,30], alpha=3.0):
     return healthy, grid_p, hull_p, grid_r, hull_r
 
 
-def save_model(list_dir, directory, patho_patients):
+def save_model(list_dir, directory, patho_patients=None):
     """
     Generate and save a model.
     
@@ -479,13 +488,16 @@ def save_model(list_dir, directory, patho_patients):
     """
     array_data, nb_acq = myutils.fetch_from_dirs(list_dir)
     array_data = myutils.preprocess_data(array_data)
-    
-    labels = []
-    for i in range(len(list_dir)):
-        if i in patho_patients:
-            labels += [-1]*nb_acq[i]
-        else:
-            labels += [1]*nb_acq[i]
+
+    if patho_patients is None:
+        labels = None
+    else:
+        labels = []
+        for i in range(len(list_dir)):
+            if i in patho_patients:
+                labels += [-1]*nb_acq[i]
+            else:
+                labels += [1]*nb_acq[i]
     
     # For parametrization in the future ?
     alpha = 3.0
