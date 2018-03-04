@@ -10,6 +10,7 @@ from model.file_manager import create_directory, get_file_name_from_absolute_pat
 from view.curves_dialog import CurvesDialog
 from view.model_generator_dialog import ModelGeneratorDialog
 from view.new_profile_dialog import NewProfileDialog
+from model.myutils import get_coord
 
 DEBUG               = False
 
@@ -44,7 +45,7 @@ class MyWindowController(QObject):
         # MODELS
         self.path_model_hulls           = ""
         self.path_model_hull_and_spline = ""
-        self.path_model_wavelett        = ""
+        self.path_model_wavelet        = ""
 
     @pyqtSlot(name="new_profile_menu_handler")
     def new_profile_menu_handler(self):
@@ -291,14 +292,26 @@ class MyWindowController(QObject):
             try:
                 _, file_extension = os.path.splitext(path)
 
+                acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
+                print('to_display = ' + str(acquisition_tab_controller.to_display))
+                print('all_models_loaded = ' + str(self.all_models_loaded()))
                 if file_extension == self.EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
+                    if acquisition_tab_controller.to_display:
+                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
                 elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
                     self.path_model_hull_and_spline = path
+                    if acquisition_tab_controller.to_display:
+                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
                 elif file_extension == self.EXTENSION_WAVELET_MODEL:
-                    self.path_model_wavelett = path
+                    self.path_model_wavelet = path
+                    if acquisition_tab_controller.to_display:
+                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+
+                if self.all_models_loaded():
+                    acquisition_tab_controller.to_display = False
 
             except ValueError:
                 # DISPLAY POP UP ERROR AND DO NOTHING
@@ -312,7 +325,7 @@ class MyWindowController(QObject):
                 return
 
         if len(model_path) > 1:
-            text = "Les " + str(len(model_path)) + " modèles  ont été chargé avec succès"
+            text = "Les " + str(len(model_path)) + " modèles ont été chargés avec succès"
         else:
             text = "Le modèle a été chargé avec succès"
 
@@ -322,6 +335,12 @@ class MyWindowController(QObject):
         msg.setWindowTitle("Modèles chargés avec succès")
         msg.exec()
         return
+
+    def one_model_loaded(self):
+        return self.path_model_hull_and_spline != "" or self.path_model_hulls != "" or self.path_model_wavelet != ""
+
+    def all_models_loaded(self):
+        return self.path_model_hull_and_spline != "" and self.path_model_hulls != "" and self.path_model_wavelet != ""
 
     @pyqtSlot(name="about_menu_handler")
     def about_menu_handler(self):

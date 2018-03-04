@@ -154,8 +154,8 @@ class PlotCanvas(FigureCanvas):
         xd = [x[i] for i in ind_ones]
         yd = [y[i] for i in ind_ones]
         self.axes.scatter(xd, yd, c='r')
-        self.axes.set_ylim([0.38, 0.62])
-        self.axes.set_xlim([-0.05, 1.05])
+        self.axes.set_ylim(bottom=0.38, top=0.62)
+        self.axes.set_xlim(left=-0.05, right=1.05)
 
     def plot_hull_spline(self, hull, spline, curve, type_motion):
         """
@@ -176,11 +176,11 @@ class PlotCanvas(FigureCanvas):
         self.plot(curve[0], curve[1])
         self.plot(spline[0], spline[1])
         if type_motion == 'pitch':
-            self.axes.set_ylim([0.44, 0.56])
+            self.axes.set_ylim(bottom=0.44, top=0.56)
         elif type_motion == 'roll':
-            self.axes.set_ylim([0.32, 0.67])
+            self.axes.set_ylim(bottom=0.32, top=0.67)
         else:
             raise ValueError('type_motion must be either "pitch" or "roll"')
         self.axes.set_ylabel(type_motion)
-        self.axes.set_xlim([-0.05, 1.05])
+        self.axes.set_xlim(left=-0.05, right=1.05)
         self.axes.set_xlabel('yaw')
