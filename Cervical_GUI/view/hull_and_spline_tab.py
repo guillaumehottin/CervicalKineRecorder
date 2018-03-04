@@ -57,7 +57,7 @@ class HullAndSplinesTab(QWidget):
 
         # CANVAS
         self.canvas_left_modelization    = PlotCanvas(self, title="Tangage")
-        self.canvas_right_modelization   = PlotCanvas(self, title="Rouli")
+        self.canvas_right_modelization   = PlotCanvas(self, title="Roulis")
 
         self.setup_ui()
 

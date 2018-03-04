@@ -143,9 +143,10 @@ class PlotCanvas(FigureCanvas):
         hull : Polygon
                 The concave hull.
         """
+        self.clear()
         self.plot_polygon_MP(hull)
         x, y = [pt[0] for pt in grid_pts], [pt[1] for pt in grid_pts]
-        self.axes.scatter(x, y)
+        self.axes.scatter(x, y, c='b')
         # plt.scatter(x, y)
         ind_ones = []
         for i in range(len(x)):
@@ -156,6 +157,7 @@ class PlotCanvas(FigureCanvas):
         self.axes.scatter(xd, yd, c='r')
         self.axes.set_ylim(bottom=0.38, top=0.62)
         self.axes.set_xlim(left=-0.05, right=1.05)
+        self.draw()
 
     def plot_hull_spline(self, hull, spline, curve, type_motion):
         """
@@ -172,9 +174,10 @@ class PlotCanvas(FigureCanvas):
         type_motion : str
                 'pitch' or 'roll', according to the angle considered.
         """
+        self.clear()
         self.plot_polygon_MP(hull)
-        self.plot(curve[0], curve[1])
-        self.plot(spline[0], spline[1])
+        self.plot(curve[0], curve[1], color='red', legend='measure')
+        self.plot(spline[0], spline[1], color='blue', legend='spline')
         if type_motion == 'pitch':
             self.axes.set_ylim(bottom=0.44, top=0.56)
         elif type_motion == 'roll':
@@ -184,3 +187,4 @@ class PlotCanvas(FigureCanvas):
         self.axes.set_ylabel(type_motion)
         self.axes.set_xlim(left=-0.05, right=1.05)
         self.axes.set_xlabel('yaw')
+        self.draw()
