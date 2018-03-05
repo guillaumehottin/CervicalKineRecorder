@@ -118,6 +118,30 @@ Once everything is done, you should have the following files and folders:
 
 You can then copy them and move them in another folder. Running *main.exe* will then run the application.
  
+ ## The Oculus App architecture
+ 
+ The Oculus App is an Unity project. As such, it is composed of two main type of components :
+ 
+ - The game assets
+ - The scripts attached to the game assets
+ 
+ ### The game assets
+ 
+ The game assets present in the scene are as follows:
+ - The elements making the room in which the patient is located : *Ground*, *BackWall*, *FrontWall*, *LeftWall* and *RightWall*
+ - The camera through which the scene is viewed. It is located at the center of the room and can't be moved
+ - The visual limits of the sphere movement: *LeftLimit* and *RightLimit*
+ - The *Sphere* that is going to move
+ - The UI elements, *Image* and *CountDownText*, grouped under a *Canvas* element.
+ 
+ Moreover, there are two *empty* components in the scene: the *CameraParent* and the *Controller*.
+ 
+ Those components are there to attach the scripts that are going to run.
+ 
+ ### The scripts
+ 
+ There are 8 scripts attached to the *Controller*. Those scripts are under the *Scripts* folder.
+ - *CameraScripts/AcquireMovement.cs* : this script allows to get the rotation of the headset at each frame following the pitch, yaw and roll axis. To do this, it accesses the rotation data of the *Camera* object. When its public attribute *start* is set to *True*, it gets the data in a list every frame. When the *Sphere* stops at an angle, its *pause* attribute is set to *True* and it waits until the ball starts moving again to get the data. When the acquisition is finished, its *stop* attribute is set to *True*, and it writes this data in the temporary file *tmp.orpl*
  
  ## Modeling and data analysis
  
