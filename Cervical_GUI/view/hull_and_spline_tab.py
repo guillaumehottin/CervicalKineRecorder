@@ -56,8 +56,8 @@ class HullAndSplinesTab(QWidget):
         self.label_right_variability_score  = QtWidgets.QLabel()
 
         # CANVAS
-        self.canvas_left_modelization    = PlotCanvas(self, title="Tangage")
-        self.canvas_right_modelization   = PlotCanvas(self, title="Roulis")
+        self.canvas_left_modeling    = PlotCanvas(self, title="Tangage")
+        self.canvas_right_modeling   = PlotCanvas(self, title="Roulis")
 
         self.setup_ui()
 
@@ -92,7 +92,7 @@ class HullAndSplinesTab(QWidget):
         self.left_vertical_layout.addWidget(self.label_pitch)
         self.left_vertical_layout.addLayout(self.left_horizontal_rate_layout)
         self.left_vertical_layout.addLayout(self.left_horizontal_score_layout)
-        self.left_vertical_layout.addWidget(self.canvas_left_modelization)
+        self.left_vertical_layout.addWidget(self.canvas_left_modeling)
 
         # RIGHT SIDE
         self.right_horizontal_rate_layout.addWidget(self.label_right_rate)
@@ -103,7 +103,7 @@ class HullAndSplinesTab(QWidget):
         self.right_vertical_layout.addWidget(self.label_roll)
         self.right_vertical_layout.addLayout(self.right_horizontal_rate_layout)
         self.right_vertical_layout.addLayout(self.right_horizontal_score_layout)
-        self.right_vertical_layout.addWidget(self.canvas_right_modelization)
+        self.right_vertical_layout.addWidget(self.canvas_right_modeling)
 
         # GRID LAYOUT
         self.grid_layout.addLayout(self.left_vertical_layout, 0, 0)
@@ -138,8 +138,8 @@ class HullAndSplinesTab(QWidget):
         This function is used to empty the three displayed graph and the corresponding parameters
         :return: Nothing
         """
-        self.canvas_left_modelization.clear()
-        self.canvas_right_modelization.clear()
+        self.canvas_left_modeling.clear()
+        self.canvas_right_modeling.clear()
         self.label_right_rate_value.setText("0%")
         self.label_right_variability_score.setText("0")
 

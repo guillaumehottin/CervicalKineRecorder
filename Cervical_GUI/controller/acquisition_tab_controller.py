@@ -226,9 +226,9 @@ class AcquisitionTabController(QObject):
             mdl_hull_spline = hs.load_model(path_hs)
             res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
             hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
-            self.view.parent.tab_hull_and_splines.canvas_left_modelization.plot_hull_spline(hull_pitch, (
+            self.view.parent.tab_hull_and_splines.canvas_left_modeling.plot_hull_spline(hull_pitch, (
                 to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
-            self.view.parent.tab_hull_and_splines.canvas_right_modelization.plot_hull_spline(hull_roll, (
+            self.view.parent.tab_hull_and_splines.canvas_right_modeling.plot_hull_spline(hull_roll, (
                 to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
             # TODO ALSO PRINT RESULTS FROM RES_COMPARISON
 
@@ -240,9 +240,9 @@ class AcquisitionTabController(QObject):
             healthy, grid_pitch, hull_pitch, grid_roll, hull_roll = hl.compare_to_model(new_coords, ocsvm_mdl,
                                                                                         size_grid=size_grid,
                                                                                         alpha=alpha)
-            self.view.parent.tab_hulls.canvas_left_modelization.plot_discrete_hull(grid_pitch[0], grid_pitch[1],
+            self.view.parent.tab_hulls.canvas_left_modeling.plot_discrete_hull(grid_pitch[0], grid_pitch[1],
                                                                                    hull_pitch)
-            self.view.parent.tab_hulls.canvas_right_modelization.plot_discrete_hull(grid_roll[0], grid_roll[1],
+            self.view.parent.tab_hulls.canvas_right_modeling.plot_discrete_hull(grid_roll[0], grid_roll[1],
                                                                                     hull_roll)
             # TODO ALSO PRINT HEALTHY
 
