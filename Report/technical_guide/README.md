@@ -123,7 +123,7 @@ You can then copy them and move them in another folder. Running *main.exe* will 
  
  ### Wavelets
  
-The file *spline_wavelet.py* permits to:
+The file *Code/spline_wavelet.py* permits to:
 
  - Get temporal data of Yaw, Pitch and Roll,
  - Interpolate curves **angle = f(t)** with B-Splines,
