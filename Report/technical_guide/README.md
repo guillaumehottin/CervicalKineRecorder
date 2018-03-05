@@ -42,6 +42,10 @@ The files are named *Shapely‑1.6.4.post1‑cp**PYTHON_VERSION**‑cp**PYTHON_V
 
 Once you downloaded the correct **Shapely** file, open a terminal and navigate to the folder that contains it and type *pip install **NAME_OF_YOU_SHAPELY_FILE***.
 
+To generate an executable file for the project, you will also need the *pycairo* library. You will need to install it the same way as *Shapely* by downloading it from [this page](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pycairo). Make sure to download the right version for your python installation. Once you install it, run *pip install **DOWNLOADED_FILE***.
+
+Finally, make sure that you installed *tkinter* when you installed Python. If this is not the case, run the Python installer for your version, chose *Modify* and check the box to install *Tcl/Tk and IDLE*.
+
 After running all these commands, you should be able to open and run the Operator GUI project in the directory *projetlong/Cervical_GUI*.
 
 For this Python project, we have been using *Pycharm*, available at [this page](https://www.jetbrains.com/pycharm/). A free *Community edition* is available, allowing to work with the project. Paid licenses are also available, and students can get all *Jetbrains* paid IDEs for free by registering on their website with the e-mail address their institution provided.
@@ -79,5 +83,95 @@ Once this is done, you can generate an executable file for the Operator GUI. We 
 
 Place yourself in the directory *projetlong/Cervical_GUI*. The main file of the project is *main.py*.
 
-Generate a *spec* file by running *pyinstaller --onefile --icon="icone;
+Generate a *.spec* file by running *pyinstaller --onefile --icon="icone.ico" --noconsole main.py*.
+Once the *.spec* file is generated, open it and add the following in *hiddenimports*:
+
+'scipy.special._ufuncs_cxx',
+'scipy.linalg.cython_blas',
+'scipy.linalg.cython_lapack',
+'scipy.integrate',
+'scipy.integrate.quadrature',
+'scipy.integrate.odepack',
+'scipy.integrate._odepack',
+'scipy.integrate.quadpack',
+'scipy.integrate._quadpack',
+'scipy.integrate._ode',
+'scipy.integrate.vode',
+'scipy.integrate._dop',
+'scipy.integrate.lsoda',
+'scipy.interpolate',
+'scipy.linalg',
+'scipy.linalg.misc',
+'scipy.linalg.blas',
+'scipy._lib.messagestream',
+'sklearn.neighbors.typedefs'
+
+You will also need to add '**PATH_TO_YOUR_PYTHON_INSTALLATION**\\Lib\\site-packages\\scipy\\extra-dll' in the *pathex* variable.
+
+Once this is done, save your *main.spec* file and run *pyinstaller main.spec*. This will create a *main.exe* file in the *dist* directory.
+
+Once everything is done, you should have the following files and folders:
+- *main.exe* in the *dist* directory
+- *Cervical.exe*
+- *UnityPlayer.dll*
+- *cervical_Data*
+
+You can then copy them and move them in another folder. Running *main.exe* will then run the application.
  
+ ## The Oculus App architecture
+ 
+ The Oculus App is an Unity project. As such, it is composed of two main type of components :
+ 
+ - The game assets
+ - The scripts attached to the game assets
+ 
+ ### The game assets
+ 
+ The game assets present in the scene are as follows:
+ - The elements making the room in which the patient is located : *Ground*, *BackWall*, *FrontWall*, *LeftWall* and *RightWall*
+ - The camera through which the scene is viewed. It is located at the center of the room and can't be moved
+ - The visual limits of the sphere movement: *LeftLimit* and *RightLimit*
+ - The *Sphere* that is going to move
+ - The UI elements, *Image* and *CountDownText*, grouped under a *Canvas* element.
+ 
+ Moreover, there are two *empty* components in the scene: the *CameraParent* and the *Controller*.
+ 
+ Those components are there to attach the scripts that are going to run.
+ 
+ ### The scripts
+ 
+ There are 8 scripts attached to the *Controller*. Those scripts are under the *Scripts* folder.
+ - *CameraScripts/AcquireMovement.cs* : this script allows to get the rotation of the headset at each frame following the pitch, yaw and roll axis. To do this, it accesses the rotation data of the *Camera* object. When its public attribute *start* is set to *True*, it gets the data in a list every frame. When the *Sphere* stops at an angle, its *pause* attribute is set to *True* and it waits until the ball starts moving again to get the data. When the acquisition is finished, its *stop* attribute is set to *True*, and it writes this data in the temporary file *tmp.orpl*
+ - *LimitsScripts/LimitsControlScript.cs* : this script receives the maximum angle of rotation of the sphere and places the visual limits accordingly in the scene
+ - *SocketScripts/SocketClient.cs* : this script provides static methods that allow to connect to a remote socket server by giving the host and the port, send a message through this connection or receive a message through the connection.
+ - *SocketScripts/ThreadedJob.cs* : this script is a small framework allowing to create simple threaded jobs by only having to inherit from it and implement two functions
+ - *SocketScripts/SocketReceive.cs* : this script inherits the *ThreadedJob*. It waits ro receive a message through the socket connection and saves it in its public attribute *message* when it is received.
+ - *SphereScripts/SphereColor.cs* : this script allows to change the color of the sphere depending of how far away the patient looks from it. If he is pretty close, the sphere will be green, if he is starting to deviate, it will be yellow and if it is too far away, it will be red. It does this by comparing the yaw angle of the sphere and the camera, as it is the only supported movement of this project for now.
+ - *SphereScripts/SphereControl.cs* : this script takes care of all the logic behind the sphere movement. It gets all the parameters (sphere speed, maximum angle, number of come-and-go's, wait time at the extremums). When its *start* attribute is set to True, it starts the countdown. When the countdown is over, it move the sphere at the correct speed. When it reaches the left side for the first time, it tells the *AcquireMovement* script to start the acquisition and pauses it. It then waits the correct time at the left limit, and once it restarts moving, it tells the *AcquireMovement* script to unpause. It then moves to the other side and pauses the *AcquireMovement* script while it waits. It does so until the end of the acquisition. When it reaches the left side for the last time, it tells the *AcquireMovement* script to stop.
+ - *StartScripts.cs* : this script is the one controlling all the logic of the application. When it is ran, it starts a socket server and waits to receive a *startAcquisition* message with all the correct parameters. Once it receives it, it sends a *startAcquisitionAck* message and attaches all the other scripts to the controller. It fills in all the parameters it receives to the correct scripts, and tells the *SphereControl* script to start its logic. From now on, the *StartScripts* script waits to receive either of two messages *stopAcquisition* or *finishAcquisition*. If it receives *stopAcquisition*, it stops the *SphereControl* script and sends a *stopAcquisitionAck* through the socket. If it receives *finishAcquisition*, it waits until the end of the acquisition. When it is finished, it sends *endAcquisition* through the socket.
+ 
+ There is another script that is attached to the *CameraParent* : *PositionalLock*. This script allows to only get the rotational data from the Oculus headset. This ensure that even if the patient moves around in front of the computer, the camera stays centered in the middle of the room.
+ 
+ 
+ ## Modeling and data analysis
+ 
+ ### Wavelets
+ 
+The file *Code/spline_wavelet.py* permits to:
+
+ - Get temporal data of Yaw, Pitch and Roll,
+ - Interpolate curves **angle = f(t)** with B-Splines,
+ - Build Morlet wavelets for each B-Spline,
+ - Store all generated plots. Each figure contains two subplots:
+   - The first one represents wavelets applied on B-SPlines,
+   - The second one represents wavelets without interpolation. It's not usefull.
+
+
+![Example of subplot for an healthy patient](./images/morlet_wavelet.png "Example of subplot for an healthy patient") 
+                         
+The red curve corresponds to **Yaw** angle, the blue curve to **Pitch** angle and the green to **Roll** angle.
+This file was written at the end of project so it's not well structured. In fact, the biggest part of code is in the main of file. One idea to improve it is to create a function which take as feature a list of patients and compute Morlet wavelets for each angle.
+
+Then, the number of control points (parameter **step**) for the spline and the type of wavelet (parameter **type_wave**) have been arbitrarily chosen so it's better to modify it and test.
+
+To finish, for each plot, you can look at the central area (demarcated by two vertical lines) and see if the roll wavelet (green curve) is out of the rectangle. In fact, this phenomenon seems to appear when we have a pathological patient. To adjust the rectangle height, you need to modify the parameter **thres** in **Rectangle** function in **matplotlib.patches**. This height has also been arbitrarily chosen so you have to test and find its optimal value.

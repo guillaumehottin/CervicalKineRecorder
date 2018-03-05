@@ -44,8 +44,8 @@ class HullsTab(QWidget):
         self.label_roll     = QtWidgets.QLabel()
 
         # CANVAS
-        self.canvas_left_modelization    = PlotCanvas(self, title="Tangage")
-        self.canvas_right_modelization   = PlotCanvas(self, title="Rouli")
+        self.canvas_left_modeling    = PlotCanvas(self, title="Tangage")
+        self.canvas_right_modeling   = PlotCanvas(self, title="Roulis")
 
         self.setup_ui()
 
@@ -72,10 +72,10 @@ class HullsTab(QWidget):
 
         # EXTRA LAYOUTS
         self.left_vertical_layout.addWidget(self.label_pitch)
-        self.left_vertical_layout.addWidget(self.canvas_left_modelization)
+        self.left_vertical_layout.addWidget(self.canvas_left_modeling)
 
         self.right_vertical_layout.addWidget(self.label_roll)
-        self.right_vertical_layout.addWidget(self.canvas_right_modelization)
+        self.right_vertical_layout.addWidget(self.canvas_right_modeling)
 
         # GRID LAYOUT
         self.grid_layout.addLayout(self.left_vertical_layout, 0, 0)
@@ -97,8 +97,8 @@ class HullsTab(QWidget):
         This function is used to empty the three displayed graph and the corresponding parameters
         :return: Nothing
         """
-        self.canvas_left_modelization.clear()
-        self.canvas_right_modelization.clear()
+        self.canvas_left_modeling.clear()
+        self.canvas_right_modeling.clear()
 
     def draw_curves(self, list_curves, directory_path):
         pass

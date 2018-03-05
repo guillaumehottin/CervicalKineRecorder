@@ -85,13 +85,13 @@ We are now goint to define all the terms we are going to use in this tutorial
 
 ![Unity3D window](./images/screens/0_unity.png "Unity3D window")
 
-- Application window: This window allows you to manipulate profiles, set up parameters, launch/stop acquistion and analyse results throught the modelization tab
+- Application window: This window allows you to manipulate profiles, set up parameters, launch/stop acquistion and analyse results throught the modeling tab
 
 ![Application window](./images/screens/0_python.png "Application window")
 
 - Acquisition tab: This tab allows you to set up parameters, launch/stop acquisition and see the acquired curves (see image above)
 
-- Modelization tabs: TODO
+- Modeling tabs: TODO
  
 - Menu bar: The menu bar is composed of four entries :
 
@@ -174,7 +174,7 @@ Extremum wait time | Number (s) | The number of seconds that the target will wai
 After setting up the acquisition as you wanted, you just have to put the headset on your patient head and click on the "*Lancer acquisition*" button. Following this, a countdown will be displayed inside the headset and the acquistion will start.
 
 At the end of the acquisition two cases are possible:
-- **The patient followed well the target**, data are retrieved from the Oculus Rift headset and displayed on the three graph on the acquisition tab and also compared on the modelization tabs.
+- **The patient followed well the target**, data are retrieved from the Oculus Rift headset and displayed on the three graph on the acquisition tab and also compared on the modeling tabs.
 
 - ** The patient did not follow the target well enough**. In this case the following window will appear to inform you about the problem. And you will have to choose if you want to keep this data anyway or stash them. If you accept  you will be in the same state as in the first case.
 
@@ -185,7 +185,7 @@ You must click on the "Enregistrer la courbe" button to save the curves retrieve
 
 On the other hand, you can interrupt at anytime the acquisition in order to change the parameters or just cancel your operation. The acquired data will not be displayed neither saved.
 
-#### Mathematic modelization
+#### Mathematic modeling
 
 #### Create a model
 

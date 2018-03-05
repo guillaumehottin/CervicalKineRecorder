@@ -36,10 +36,10 @@ class WaveletTab(QWidget):
         self.grid_layout = QtWidgets.QGridLayout()
 
         # CANVAS
-        self.canvas_up_left_modelization        = PlotCanvas(self, title="Tangage/Tangage moyen")
-        self.canvas_up_right_modelization       = PlotCanvas(self, title="Rouli/Rouli moyen")
-        self.canvas_down_left_modelization      = PlotCanvas(self, title="Lacet/Lacet moyen")
-        self.canvas_down_right_modelization     = PlotCanvas(self, title="Lacet/Rouli/Tangage")
+        self.canvas_up_left_modeling        = PlotCanvas(self, title="Tangage/Tangage moyen")
+        self.canvas_up_right_modeling       = PlotCanvas(self, title="Roulis/Roulis moyen")
+        self.canvas_down_left_modeling      = PlotCanvas(self, title="Lacet/Lacet moyen")
+        self.canvas_down_right_modeling     = PlotCanvas(self, title="Lacet/Roulis/Tangage")
 
         self.setup_ui()
 
@@ -53,10 +53,10 @@ class WaveletTab(QWidget):
         self.setLayout(self.grid_layout)
 
         # GRID LAYOUT
-        self.grid_layout.addWidget(self.canvas_up_left_modelization, 0, 0)
-        self.grid_layout.addWidget(self.canvas_up_right_modelization, 0, 1)
-        self.grid_layout.addWidget(self.canvas_down_left_modelization, 1, 0)
-        self.grid_layout.addWidget(self.canvas_down_right_modelization, 1, 1)
+        self.grid_layout.addWidget(self.canvas_up_left_modeling, 0, 0)
+        self.grid_layout.addWidget(self.canvas_up_right_modeling, 0, 1)
+        self.grid_layout.addWidget(self.canvas_down_left_modeling, 1, 0)
+        self.grid_layout.addWidget(self.canvas_down_right_modeling, 1, 1)
 
         self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(self.parent)
@@ -74,10 +74,10 @@ class WaveletTab(QWidget):
         This function is used to empty the three displayed graph and the corresponding parameters
         :return: Nothing
         """
-        self.canvas_down_right_modelization.clear()
-        self.canvas_down_left_modelization.clear()
-        self.canvas_up_right_modelization.clear()
-        self.canvas_up_left_modelization.clear()
+        self.canvas_down_right_modeling.clear()
+        self.canvas_down_left_modeling.clear()
+        self.canvas_up_right_modeling.clear()
+        self.canvas_up_left_modeling.clear()
 
     def draw_curves(self, list_curves, directory_path):
         pass

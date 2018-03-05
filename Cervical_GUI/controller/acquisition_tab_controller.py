@@ -3,13 +3,14 @@ import os
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox
 
-from controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
+from Cervical_GUI.controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
     SendContinueThread
-from model.file_manager import create_file_with_curves, get_coord
-from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
-import model.hulls as hl
-import model.hull_and_spline as hs
-import model.myutils as utl
+from Cervical_GUI.model.file_manager import create_file_with_curves, get_coord
+from Cervical_GUI.model.socket_server import SocketServer, PortCount, calculate_time_for_finish
+import Cervical_GUI.model.hulls as hl
+import Cervical_GUI.model.hull_and_spline as hs
+import Cervical_GUI.model.myutils as utl
+import Cervical_GUI.model.plot_time as plot_time
 
 
 DEBUG = True
@@ -60,6 +61,7 @@ class AcquisitionTabController(QObject):
         self.send               = False
         self.send_continue_thread = None
         self.params             = {}
+        self.to_display         = False
         # Attribute curves_on_graph used to list the curves names currently displayed on the graph
         self.curves_on_graph    = []
         # Attribute yaw_pitch_roll used to list the curves values currently displayed on the graph
@@ -184,19 +186,10 @@ class AcquisitionTabController(QObject):
                 # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION EST DE MOYENNE QUALITE MAIS L'USER
                 # VEUT LA CONSERVER ET EST TERMINEE
                 # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
-                new_coords = utl.get_coord(self.TMP_FILE_PATH)
-
-                mdl_hull_spline = hs.load_model(self.view.MyWindowController.path_model_hull_and_spline)
-                res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
-                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
-                self.view.tab_hull_and_splines.canvas_left_modelization.plot_hull_spline(hull_pitch, (to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
-                self.view.tab_hull_and_splines.canvas_right_modelization.plot_hull_spline(hull_roll, (to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
-                # ALSO PRINT RESULTS FROM RES_COMPARISON
-                
-                mdl_hull = hl.load_model(self.view.MyWindowController.path_model_hulls)[0]
-                healthy, grid_pitch, hull_pitch, grid_roll, hull_roll = hl.compare_to_model(new_coords, mdl_hull)
-                self.view.tab_hulls.canvas_left_modelization.plot_discrete_hull(grid_pitch[0], grid_pitch[1], hull_pitch)
-                # ALSO PRINT HEALTHY
+                if self.view.main_window_controller.one_model_loaded():
+                    self.display_models(utl.get_coord(self.TMP_FILE_PATH))
+                if not self.view.main_window_controller.all_models_loaded():
+                    self.to_display = True
             else:
                 DEBUG and print("=== acquisition_tab_controller.py === SUPPRIMER ACQUISITION")
                 self.view.clear_graph()
@@ -212,29 +205,57 @@ class AcquisitionTabController(QObject):
             self.view.saveButton.setEnabled(True)
             # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION C'EST BIEN PASSE ET EST TERMINEE
             # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
-            new_coords = utl.get_coord(self.TMP_FILE_PATH)
-                
-            mdl_hull_spline = hs.load_model(self.view.MyWindowController.path_model_hull_and_spline)
-            res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
-            hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
-            self.view.tab_hull_and_splines.canvas_left_modelization.plot_hull_spline(hull_pitch, (to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
-            self.view.tab_hull_and_splines.canvas_right_modelization.plot_hull_spline(hull_roll, (to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
-            # ALSO PRINT RESULTS FROM RES_COMPARISON
-            
-            mdl_hull = hl.load_model(self.view.MyWindowController.path_model_hulls)[0]
-            healthy, grid_pitch, hull_pitch, grid_roll, hull_roll = hl.compare_to_model(new_coords, mdl_hull)
-            self.view.tab_hulls.canvas_left_modelization.plot_discrete_hull(grid_pitch[0], grid_pitch[1], hull_pitch)
-            # ALSO PRINT HEALTHY
+            if self.view.main_window_controller.one_model_loaded():
+                self.display_models(utl.get_coord(self.TMP_FILE_PATH))
+            if not self.view.main_window_controller.all_models_loaded():
+                self.to_display = True
 
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")
         self.view.startStopButton.setStyleSheet("background-color: green; color:white")
         self.view.startStopButton.setEnabled(True)
 
-
-
-
         # TODO ADD CONTENT
+
+    def display_models(self, new_coords):
+        new_coords = utl.preprocess_data([new_coords])[0]
+        path_hs = self.view.main_window_controller.path_model_hull_and_spline
+        path_hull = self.view.main_window_controller.path_model_hulls
+        path_wavelet = self.view.main_window_controller.path_model_wavelet
+
+        if path_hs != "":
+            mdl_hull_spline = hs.load_model(path_hs)
+            res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
+            hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
+            self.view.parent.tab_hull_and_splines.canvas_left_modeling.plot_hull_spline(hull_pitch, (
+                to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
+            self.view.parent.tab_hull_and_splines.canvas_right_modeling.plot_hull_spline(hull_roll, (
+                to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
+            # TODO ALSO PRINT RESULTS FROM RES_COMPARISON
+
+        if path_hull != "":
+            mdl_hull = hl.load_model(self.view.main_window_controller.path_model_hulls)
+            ocsvm_mdl = mdl_hull[0]
+            size_grid = mdl_hull[3]
+            alpha = mdl_hull[4]
+            healthy, grid_pitch, hull_pitch, grid_roll, hull_roll = hl.compare_to_model(new_coords, ocsvm_mdl,
+                                                                                        size_grid=size_grid,
+                                                                                        alpha=alpha)
+            self.view.parent.tab_hulls.canvas_left_modeling.plot_discrete_hull(grid_pitch[0], grid_pitch[1],
+                                                                                   hull_pitch)
+            self.view.parent.tab_hulls.canvas_right_modeling.plot_discrete_hull(grid_roll[0], grid_roll[1],
+                                                                                    hull_roll)
+            # TODO ALSO PRINT HEALTHY
+
+        if path_wavelet != "":
+            yaw, pitch, roll, _ = plot_time.load_model(self.view.main_window_controller.path_model_wavelet)
+            mean_coords = yaw, pitch, roll
+            self.view.parent.tab_wavelet.canvas_up_left_modeling.plot_final_time(new_coords, mean_coords, 1)
+            self.view.parent.tab_wavelet.canvas_down_left_modeling.plot_final_time(new_coords, mean_coords, 2)
+            self.view.parent.tab_wavelet.canvas_up_right_modeling.plot_final_time(new_coords, mean_coords, 3)
+            self.view.parent.tab_wavelet.canvas_down_right_modeling.plot_final_time(new_coords, mean_coords, 4)
+
+
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
@@ -352,7 +373,7 @@ class AcquisitionTabController(QObject):
             msg.setWindowTitle("Information")
             msg.exec()
         else:
-            confirmation_msg = "Etes vous sur de vouloir supprimer des graphiques toutes " \
+            confirmation_msg = "Etes-vous sûr de vouloir supprimer des graphiques toutes " \
                                "les courbes affichées ? (" + str(len(self.curves_on_graph)) + \
                                (" courbes)" if len(self.curves_on_graph) > 1 else " courbe)")
             reply = QMessageBox.question(self.view, 'Attention !',
@@ -397,6 +418,7 @@ class AcquisitionTabController(QObject):
         directory = self.view.main_window_controller.last_name.strip("\n") + "_" + \
                     self.view.main_window_controller.first_name.strip("\n") + "_" + \
                     self.view.main_window_controller.age.strip("\n") + "/"
+        print("%%%%% DIRECTORY " + directory)
         success = create_file_with_curves(directory, data, param)
 
         if success:

@@ -1,9 +1,11 @@
 """
 Script which allows to plot the superposition of a new data with the mean of the data base
 """
+import datetime
 
 from Cervical_GUI.model.file_manager import get_param_from_file
 from Cervical_GUI.model.plot_serie import *
+from Cervical_GUI.model.myutils import *
 
 
 def get_list_patient(dir_name):
@@ -12,22 +14,22 @@ def get_list_patient(dir_name):
     return list_dir
 
 
-def get_list_data(liste_patient):
+def get_list_data(array_data):
     """
     Get a list of data = liste of .orpl files
-    :param liste_patient: list of directory, corresponding to different patient
+    :param array_data: list of directory, corresponding to different patient
     :return: list of .orpl files
     """
     list_path = []
-    for path in liste_patient:
+    for path in array_data:
         list_path.extend(glob.glob(path + '/*.orpl'))
     return list_path
 
 
-def get_all_param(list_data):
+def get_all_param(array_data):
     """
     Get all the parameters from a list of data
-    :param list_data: list of files containing data
+    :param array_data: list of files containing data
     :return: lists of every parameters : movements, angles, speeds...
     """
     movements = []
@@ -36,8 +38,8 @@ def get_all_param(list_data):
     nb_returns = []
     wait_times = []
     comments = []
-    for file in list_data:
-        [movement, angle, speed, nb_return, wait_time, comment] = get_param_from_file(file)
+    for acq in array_data:
+        movement, angle, speed, nb_return, wait_time, comment = acq[1]
         movements.append(movement)
         angles.append(angle)
         speeds.append(speed)
@@ -47,10 +49,10 @@ def get_all_param(list_data):
     return movements, angles, speeds, nb_returns, wait_times, comments
 
 
-def get_same_param_data(list_patient, movement, angle, speed, nb_return, wait_time):
+def get_same_param_data(array_data, movement, angle, speed, nb_return, wait_time):
     """
     Get the list of data which has the same parameters
-    :param list_patient: a list of directories containing data files
+    :param array_data: a list of directories containing data files
     :param movement: wanted movement
     :param angle: wanted angle
     :param speed: wanted speed
@@ -58,41 +60,45 @@ def get_same_param_data(list_patient, movement, angle, speed, nb_return, wait_ti
     :param wait_time: wanted wait_time
     :return: the list of data with the same parameters
     """
-    list_data = get_list_data(list_patient)
-    movements, angles, speeds, nb_returns, wait_times, comments = get_all_param(list_data)
+    # list_data = get_list_data(array_data)
+
+    movements, angles, speeds, nb_returns, wait_times, comments = get_all_param(array_data)
 
     for i in range(len(movements) - 1):
         same_param = movement == movements[i + 1] and angle == angles[i + 1] and speed == speeds[i + 1] \
                      and nb_return == nb_returns[i + 1] and wait_time == wait_times[i + 1]
         if not same_param:
-            list_data.pop(i)
-    return list_data
+            array_data.pop(i)
+        movement = movements[i+1]
+        angle = angles[i+1]
+        speed = speeds[i+1]
+        nb_return = nb_returns[i+1]
+        wait_time = wait_times[i+1]
+    return array_data
 
 
-def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, norm=1):
+def get_time_mean(array_data, list_param, norm=1):
     """
     Get the mean curves of the data base
-    :param wait_time: wanted wait_time value
-    :param nb_return: wanted nb_return value
-    :param speed: wanted speed value
-    :param angle: wanted angle value
-    :param movement: wanted movement value
-    :param list_patient: path which leads to the data base
+    :param list_param: list of parameters : movement, angle, speed,...
+    :param array_data: path which leads to the data base
     :param norm: optional, 1 if you want the data to be normed
     :return: (mean_pitch, mean_yaw, mean_roll) three lists representing the mean curves of the data base
     """
 
     # On récupère la liste des données qui ont les mêmes paramètres
-    list_file = get_same_param_data(list_patient, movement, angle, speed, nb_return, wait_time)
+    movement = list_param[0]
+    angle = list_param[1]
+    speed = list_param[2]
+    nb_return = list_param[3]
+    wait_time = list_param[4]
+    list_file = get_same_param_data(array_data, movement, angle, speed, nb_return, wait_time)
     all_pitch = []
     all_yaw = []
     all_roll = []
     for current_file in list_file:
         # on récupère les coordonnées spatiales des données
-        pitch_l, yaw_l, roll_l = get_coord(current_file)
-
-        if norm:
-            pitch_l, yaw_l, roll_l = normalize(pitch_l, yaw_l, roll_l)
+        pitch_l, yaw_l, roll_l = current_file[0]
 
         all_pitch.append(pitch_l)
         all_yaw.append(yaw_l)
@@ -112,6 +118,27 @@ def get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, no
             mean_roll[i] += all_roll[j][i]/len(all_roll)
 
     return mean_pitch, mean_yaw, mean_roll
+
+
+def save_model(list_patient, directory, norm=1):
+    array_data = fetch_from_dirs(list_patient)[0]
+    list_data = get_list_data(list_patient)
+    movement, angle, speed, nb_return, wait_time, comments = get_param_from_file(list_data[0])
+    list_param = [movement, angle, speed, nb_return, wait_time]
+    if norm:
+        array_data = preprocess_data(array_data)
+
+    pitch_mean, yaw_mean, roll_mean = get_time_mean(array_data, list_param)
+
+    now = datetime.datetime.now()
+    file_name = directory + '/time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'
+    with open(file_name, 'w+') as file:
+        file.write(str(movement) + '\n' + str(angle) + '\n' + str(speed) + '\n' + str(nb_return) + '\n' +
+                   str(wait_time) + '\n')
+
+        file.write('yaw \t pitch \t roll \n')
+        for pitch, yaw, roll in zip(pitch_mean, yaw_mean, roll_mean):
+            file.write(str(yaw) + '\t' + str(pitch) + '\t' + str(roll) + '\n')
 
 
 def plot_final_time(current_file, list_patient, list_param, norm=1):
@@ -153,3 +180,18 @@ def plot_final_time(current_file, list_patient, list_param, norm=1):
     ax4.set_title("Pitch vs Yaw vs Roll")
 
     fig_final.show()
+
+
+def load_model(model_path):
+    with open(model_path, 'r+') as file:
+        data = file.readlines()
+        list_param = [data[0], data[1], data[2], data[3], data[4]]
+        yaw = []
+        pitch = []
+        roll = []
+        for i in range(6, len(data)):
+            tmp = data[i].split('\t')
+            yaw.append(tmp[0])
+            pitch.append(tmp[1])
+            roll.append(tmp[2])
+    return yaw, pitch, roll, list_param

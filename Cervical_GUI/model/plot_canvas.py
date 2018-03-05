@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QSizePolicy
 from descartes import PolygonPatch
 from matplotlib.figure import Figure
+from Cervical_GUI.model import plot_time
 
 from matplotlib.backends.qt_compat import is_pyqt5
 
@@ -16,6 +17,7 @@ else:
         FigureCanvas)
 
 # TODO FX ICI RAJOUTER FONCTION DE DESSIN DES DIFFERENTS MODELES
+
 
 class PlotCanvas(FigureCanvas):
     """
@@ -89,47 +91,6 @@ class PlotCanvas(FigureCanvas):
                              zorder=-1)
         self.axes.add_patch(patch)
 
-    def plot_many_polygons(self, lst_poly):
-        """
-        Plot a list of polygons contained in a list.
-
-        Parameters
-        ----------
-        lst_poly : array(MultiPoints)
-                List of polygons
-
-        Returns
-        -------
-        figure
-                The corresponding figure.
-        """
-        x_max = 0
-        y_max = 0
-        x_min = 0
-        y_min = 0
-
-        margin = .3
-        for poly in lst_poly:
-            # Determine the axes limits
-            x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
-            if x_max < x_max_curr:
-                x_max = x_max_curr
-            if y_max < y_max_curr:
-                y_max = y_max_curr
-            if y_min > y_min_curr:
-                y_min = y_min_curr
-            if x_min > x_min_curr:
-                x_min = x_min_curr
-
-            color = RGBA_arg()
-            patch = PolygonPatch(poly, fc=color,
-                                 ec=color, fill=True,
-                                 zorder=-1)
-            self.axes.add_patch(patch)
-        self.axes.set_xlim([x_min - margin, x_max + margin])
-        self.axes.set_ylim([y_min - margin, y_max + margin])
-        self.axes.legend([str(i + 1) for i in range(len(lst_poly))])
-
     def plot_discrete_hull(self, grid, grid_pts, hull):
         """
         Plot a hull and its discretization.
@@ -143,9 +104,10 @@ class PlotCanvas(FigureCanvas):
         hull : Polygon
                 The concave hull.
         """
+        self.axes.cla()
         self.plot_polygon_MP(hull)
         x, y = [pt[0] for pt in grid_pts], [pt[1] for pt in grid_pts]
-        self.axes.scatter(x, y)
+        self.axes.scatter(x, y, c='b')
         # plt.scatter(x, y)
         ind_ones = []
         for i in range(len(x)):
@@ -154,6 +116,9 @@ class PlotCanvas(FigureCanvas):
         xd = [x[i] for i in ind_ones]
         yd = [y[i] for i in ind_ones]
         self.axes.scatter(xd, yd, c='r')
+        self.axes.set_ylim(bottom=0.38, top=0.62)
+        self.axes.set_xlim(left=-0.05, right=1.05)
+        self.draw()
 
     def plot_hull_spline(self, hull, spline, curve, type_motion):
         """
@@ -170,15 +135,53 @@ class PlotCanvas(FigureCanvas):
         type_motion : str
                 'pitch' or 'roll', according to the angle considered.
         """
+        self.axes.cla()
         self.plot_polygon_MP(hull)
-        self.plot(curve[0], curve[1])
-        self.plot(spline[0], spline[1])
+        self.plot(curve[0], curve[1], color='red', legend='Dernière acquisition')
+        self.plot(spline[0], spline[1], color='blue', legend='Spline')
         if type_motion == 'pitch':
-            self.axes.set_ylim([0.44, 0.56])
+            self.axes.set_ylim(bottom=0.44, top=0.56)
         elif type_motion == 'roll':
-            self.axes.set_ylim([0.32, 0.67])
+            self.axes.set_ylim(bottom=0.33, top=0.67)
         else:
             raise ValueError('type_motion must be either "pitch" or "roll"')
         self.axes.set_ylabel(type_motion)
-        self.axes.set_xlim([-0.05, 1.05])
+        self.axes.set_xlim(left=-0.05, right=1.05)
         self.axes.set_xlabel('yaw')
+        self.draw()
+
+    def plot_final_time(self, new_coord, mean_coords, nb_window, norm=1):
+        """
+        Plot the final figure : pitch vs pitch_mean, yaw vs yaw_mean, roll vs roll_mean, pitch vs yaw vs roll
+        :param new_coord: list of the three coordinates of the current data
+        :param nb_window: id of the plot window
+        :param mean_coords: list of every patient of the data_base
+        :param norm: optional, 1 if you want the data to be normed
+        :return: void
+        """
+
+        pitch_mean, yaw_mean, roll_mean = mean_coords
+
+        pitch, yaw, roll = new_coord
+
+        self.axes.cla()
+
+        if nb_window == 1:
+            self.plot(pitch)
+            self.plot(pitch_mean)
+            self.axes.set_title("Pitch vs Pitch_mean")
+        elif nb_window == 2:
+            self.plot(yaw)
+            self.plot(yaw_mean)
+            self.axes.set_title("Yaw vs Yaw_mean")
+        elif nb_window == 3:
+            self.plot(roll)
+            self.plot(roll_mean)
+            self.axes.set_title("Roll vs Roll_mean")
+        elif nb_window == 4:
+            self.plot(pitch)
+            self.plot(yaw)
+            self.plot(roll)
+            self.axes.set_title("Pitch vs Yaw vs Roll")
+
+        self.draw()

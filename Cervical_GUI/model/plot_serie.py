@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pywt
 
-from Code.myutils import get_coord
+from Cervical_GUI.model.myutils import get_coord
 from mpl_toolkits.mplot3d import Axes3D
 
 
@@ -49,7 +49,7 @@ def get_list_directory(dir_name):
     list_dir = [dir_name + s for s in list_dir]  # contient la liste de tous les dossiers patients
     list_path = []
     for path in list_dir:
-        list_path.extend(glob.glob(path + '/*.txt'))
+        list_path.extend(glob.glob(path + '/*.orpl'))
     return list_path
 
 

@@ -54,7 +54,7 @@ class Acquisition(QMainWindow):
         # TAB WIDGET
         self.tabs               = QtWidgets.QTabWidget(window)
         self.tab_acquisition    = QWidget(self.tabs)
-        self.tab_modelization   = QWidget(self.tabs)
+        self.tab_modeling   = QWidget(self.tabs)
 
         window.setObjectName("Acquisition")
         window.resize(814, 590)
@@ -161,14 +161,14 @@ class Acquisition(QMainWindow):
             self.menu_last_profile.setEnabled(False)
 
         ###################################################################
-        #### MODELIZATION TAB
+        #### MODELING TAB
         ###################################################################
-        self.grid_layout_modelization = QtWidgets.QGridLayout()
+        self.grid_layout_modeling = QtWidgets.QGridLayout()
         # CANVAS
-        self.canvas_up_left_modelization    = PlotCanvas(self, title="Données temporelles")
-        self.canvas_up_right_modelization   = PlotCanvas(self, title="Décomposition en ondelettes")
-        self.canvas_down_right_modelization = PlotCanvas(self, title="Spline")
-        self.canvas_down_left_modelization  = PlotCanvas(self, title="Enveloppes concaves")
+        self.canvas_up_left_modeling    = PlotCanvas(self, title="Données temporelles")
+        self.canvas_up_right_modeling   = PlotCanvas(self, title="Décomposition en ondelettes")
+        self.canvas_down_right_modeling = PlotCanvas(self, title="Spline")
+        self.canvas_down_left_modeling  = PlotCanvas(self, title="Enveloppes concaves")
 
         self.setup_ui(window)
 
@@ -176,7 +176,7 @@ class Acquisition(QMainWindow):
 
         # TABS
         self.tabs.addTab(self.tab_acquisition, "Acquisition")
-        self.tabs.addTab(self.tab_modelization, "Modélisation")
+        self.tabs.addTab(self.tab_modeling, "Modélisation")
 
         ###################################################################
         #### ACQUISITION TAB
@@ -301,14 +301,14 @@ class Acquisition(QMainWindow):
         self.text_wait_time.setSingleStep(0.05)
 
         ###################################################################
-        #### MODELIZATION TAB
+        #### MODELING TAB
         ###################################################################
-        self.tab_modelization.setLayout(self.grid_layout_modelization)
+        self.tab_modeling.setLayout(self.grid_layout_modeling)
 
-        self.grid_layout_modelization.addWidget(self.canvas_up_left_modelization, 0, 0)
-        self.grid_layout_modelization.addWidget(self.canvas_up_right_modelization, 0, 1)
-        self.grid_layout_modelization.addWidget(self.canvas_down_left_modelization, 1, 0)
-        self.grid_layout_modelization.addWidget(self.canvas_down_right_modelization, 1, 1)
+        self.grid_layout_modeling.addWidget(self.canvas_up_left_modeling, 0, 0)
+        self.grid_layout_modeling.addWidget(self.canvas_up_right_modeling, 0, 1)
+        self.grid_layout_modeling.addWidget(self.canvas_down_left_modeling, 1, 0)
+        self.grid_layout_modeling.addWidget(self.canvas_down_right_modeling, 1, 1)
 
         ###################################################################
         #### MAIN WINDOW
