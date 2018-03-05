@@ -185,7 +185,7 @@ You must click on the "Enregistrer la courbe" button to save the curves retrieve
 
 On the other hand, you can interrupt at anytime the acquisition in order to change the parameters or just cancel your operation. The acquired data will not be displayed neither saved.
 
-#### Mathematic modelization
+#### Mathematic modeling
 
 #### Create a model
 
