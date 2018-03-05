@@ -1024,6 +1024,7 @@ MonoBehaviour:
   sphereWaitTime: 0.25
   sphereCountdownTime: 3
   sphereRoundTripNumber: 2
+  sphereLimitAngleLimits: 0
   sphereGreenToYellowAngle: 0.2
   sphereYellowToRedAngle: 0
   outputFilePath: test.txt
@@ -1031,6 +1032,8 @@ MonoBehaviour:
   profileName: 
   countdownText: {fileID: 438013623}
   crosshair: {fileID: 0}
+  receivebool: 1
+  messages: 0
 --- !u!4 &2041118242
 Transform:
   m_ObjectHideFlags: 0
@@ -1217,7 +1220,6 @@ GameObject:
   - component: {fileID: 2133782256}
   - component: {fileID: 2133782255}
   - component: {fileID: 2133782254}
-  - component: {fileID: 2133782258}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1302,15 +1304,3 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1165, y: 535}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2133782258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 2133782253}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d62e7dd25fbeed14297d8caaae61144e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}

@@ -30,7 +30,6 @@ public class StartScripts : MonoBehaviour {
     private SphereColor sphereColorScript;
     private AcquireMovement acquireMovementScript;
     private LimitsControl limitsControlScript;
-    private s_TCP sTCPScript;
     private SocketClient socketClientScript;
     private SocketReceive socketReceiveJob;
 

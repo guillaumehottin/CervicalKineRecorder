@@ -51,13 +51,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FpsLimit.cs" />
-     <Compile Include="Assets\LookAtCamera.cs" />
      <Compile Include="Assets\PositionalLock.cs" />
      <Compile Include="Assets\Scripts\CameraScripts\AcquireMovement.cs" />
      <Compile Include="Assets\Scripts\LimitsScripts\LimitsControl.cs" />
-     <Compile Include="Assets\Scripts\SocketsScripts\s_TCP.cs" />
-     <Compile Include="Assets\Scripts\SocketsScripts\s_TCP2.cs" />
      <Compile Include="Assets\Scripts\SocketsScripts\SocketClient.cs" />
      <Compile Include="Assets\Scripts\SocketsScripts\SocketReceive.cs" />
      <Compile Include="Assets\Scripts\SocketsScripts\ThreadedJob.cs" />
