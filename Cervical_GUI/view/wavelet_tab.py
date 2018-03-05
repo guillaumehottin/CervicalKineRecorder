@@ -37,9 +37,9 @@ class WaveletTab(QWidget):
 
         # CANVAS
         self.canvas_up_left_modelization        = PlotCanvas(self, title="Tangage/Tangage moyen")
-        self.canvas_up_right_modelization       = PlotCanvas(self, title="Rouli/Rouli moyen")
+        self.canvas_up_right_modelization       = PlotCanvas(self, title="Roulis/Roulis moyen")
         self.canvas_down_left_modelization      = PlotCanvas(self, title="Lacet/Lacet moyen")
-        self.canvas_down_right_modelization     = PlotCanvas(self, title="Lacet/Rouli/Tangage")
+        self.canvas_down_right_modelization     = PlotCanvas(self, title="Lacet/Roulis/Tangage")
 
         self.setup_ui()
 

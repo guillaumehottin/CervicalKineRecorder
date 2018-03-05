@@ -226,7 +226,7 @@ class MyWindowController(QObject):
                 self.view.tab_hulls.clear_graph()
                 self.view.tab_wavelet.clear_graph()
             else:
-                #TODO regenerates model with given patient and file name
+                # TODO regenerates model with given patient and file name
                 pass
 
         else:  # The user cancel his operation
