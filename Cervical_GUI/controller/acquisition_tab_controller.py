@@ -3,13 +3,14 @@ import os
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox
 
-from controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
+from Cervical_GUI.controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
     SendContinueThread
-from model.file_manager import create_file_with_curves, get_coord
-from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
-import model.hulls as hl
-import model.hull_and_spline as hs
-import model.myutils as utl
+from Cervical_GUI.model.file_manager import create_file_with_curves, get_coord
+from Cervical_GUI.model.socket_server import SocketServer, PortCount, calculate_time_for_finish
+import Cervical_GUI.model.hulls as hl
+import Cervical_GUI.model.hull_and_spline as hs
+import Cervical_GUI.model.myutils as utl
+import Cervical_GUI.model.plot_time as plot_time
 
 
 DEBUG = True
@@ -247,8 +248,14 @@ class AcquisitionTabController(QObject):
             # TODO ALSO PRINT HEALTHY
 
         if path_wavelet != "":
-            # TODO
-            pass
+            yaw, pitch, roll, _ = plot_time.load_model(self.view.main_window_controller.path_model_wavelet)
+            mean_coords = yaw, pitch, roll
+            self.view.parent.tab_wavelet.canvas_up_left_modeling.plot_final_time(new_coords, mean_coords, 1)
+            self.view.parent.tab_wavelet.canvas_down_left_modeling.plot_final_time(new_coords, mean_coords, 2)
+            self.view.parent.tab_wavelet.canvas_up_right_modeling.plot_final_time(new_coords, mean_coords, 3)
+            self.view.parent.tab_wavelet.canvas_down_right_modeling.plot_final_time(new_coords, mean_coords, 4)
+
+
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):

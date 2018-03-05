@@ -3,6 +3,7 @@
 from PyQt5.QtWidgets import QSizePolicy
 from descartes import PolygonPatch
 from matplotlib.figure import Figure
+from Cervical_GUI.model import plot_time
 
 from matplotlib.backends.qt_compat import is_pyqt5
 
@@ -147,4 +148,40 @@ class PlotCanvas(FigureCanvas):
         self.axes.set_ylabel(type_motion)
         self.axes.set_xlim(left=-0.05, right=1.05)
         self.axes.set_xlabel('yaw')
+        self.draw()
+
+    def plot_final_time(self, new_coord, mean_coords, nb_window, norm=1):
+        """
+        Plot the final figure : pitch vs pitch_mean, yaw vs yaw_mean, roll vs roll_mean, pitch vs yaw vs roll
+        :param new_coord: list of the three coordinates of the current data
+        :param nb_window: id of the plot window
+        :param mean_coords: list of every patient of the data_base
+        :param norm: optional, 1 if you want the data to be normed
+        :return: void
+        """
+
+        pitch_mean, yaw_mean, roll_mean = mean_coords
+
+        pitch, yaw, roll = new_coord
+
+        self.axes.cla()
+
+        if nb_window == 1:
+            self.plot(pitch)
+            self.plot(pitch_mean)
+            self.axes.set_title("Pitch vs Pitch_mean")
+        elif nb_window == 2:
+            self.plot(yaw)
+            self.plot(yaw_mean)
+            self.axes.set_title("Yaw vs Yaw_mean")
+        elif nb_window == 3:
+            self.plot(roll)
+            self.plot(roll_mean)
+            self.axes.set_title("Roll vs Roll_mean")
+        elif nb_window == 4:
+            self.plot(pitch)
+            self.plot(yaw)
+            self.plot(roll)
+            self.axes.set_title("Pitch vs Yaw vs Roll")
+
         self.draw()
