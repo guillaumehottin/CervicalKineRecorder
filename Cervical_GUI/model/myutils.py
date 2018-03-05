@@ -2,7 +2,7 @@ import random as rd
 import shapely.geometry as geometry
 import numpy as np
 import os
-
+import Cervical_GUI.model.file_manager as file_manager
 
 # Cast array of points to MultiPoint
 def array2MP(pts):
@@ -74,9 +74,8 @@ def fetch_from_dirs(list_dir, extension='.orpl', sub_dir=''):
         files = fetch_files(folder, extension, sub_dir)
         nb_folders += [len(files)]
         for f in files:
-            list_coord += [get_coord(f)]
+            list_coord += [file_manager.get_coord(f), file_manager.get_param_from_file(f)]
     return list_coord, nb_folders
-
 
 # Get list of coordinates in an ORPL file (yaw,pitch_roll)
 def get_coord(file_path):
@@ -96,7 +95,7 @@ def get_coord(file_path):
     yaw_l = np.array(list(map(float, yaw_l)))
     roll_l = np.array(list(map(float, roll_l)))
 
-    return (yaw_l, pitch_l, roll_l)
+    return yaw_l, pitch_l, roll_l
 
 
 # Convert n lists of m coordinates into a list of m n-dimensional vectors
