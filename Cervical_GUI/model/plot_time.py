@@ -39,6 +39,7 @@ def get_all_param(array_data):
     wait_times = []
     comments = []
     for acq in array_data:
+        print(acq)
         movement, angle, speed, nb_return, wait_time, comment = acq[1]
         movements.append(movement)
         angles.append(angle)
@@ -63,17 +64,19 @@ def get_same_param_data(array_data, movement, angle, speed, nb_return, wait_time
     # list_data = get_list_data(array_data)
 
     movements, angles, speeds, nb_returns, wait_times, comments = get_all_param(array_data)
-
+    indices_to_remove = []
     for i in range(len(movements) - 1):
         same_param = movement == movements[i + 1] and angle == angles[i + 1] and speed == speeds[i + 1] \
                      and nb_return == nb_returns[i + 1] and wait_time == wait_times[i + 1]
         if not same_param:
-            array_data.pop(i)
+            indices_to_remove += [i]
         movement = movements[i+1]
         angle = angles[i+1]
         speed = speeds[i+1]
         nb_return = nb_returns[i+1]
         wait_time = wait_times[i+1]
+    for i in reversed(indices_to_remove):
+        array_data.pop(i)
     return array_data
 
 
@@ -120,15 +123,14 @@ def get_time_mean(array_data, list_param, norm=1):
     return mean_pitch, mean_yaw, mean_roll
 
 
-def save_model(list_patient, directory, norm=1):
-    array_data = fetch_from_dirs(list_patient)[0]
-    list_data = get_list_data(list_patient)
-    movement, angle, speed, nb_return, wait_time, comments = get_param_from_file(list_data[0])
-    list_param = [movement, angle, speed, nb_return, wait_time]
+def save_model(list_patient, directory, norm=True):
+    list_data = fetch_from_dirs(list_patient)[0]
+    movement, angle, speed, nb_return, wait_time, comments = list_data[0][1]
+    list_param = [movement, angle, speed, nb_return, wait_time] 
     if norm:
-        array_data = preprocess_data(array_data)
+        list_data = [[y,z[1]] for y,z in zip (preprocess_data([x[0] for x in list_data]), list_data)]
 
-    pitch_mean, yaw_mean, roll_mean = get_time_mean(array_data, list_param)
+    pitch_mean, yaw_mean, roll_mean = get_time_mean(list_data, list_param)
 
     now = datetime.datetime.now()
     file_name = directory + '/time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'

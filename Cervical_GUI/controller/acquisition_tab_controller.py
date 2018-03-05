@@ -187,7 +187,7 @@ class AcquisitionTabController(QObject):
                 # VEUT LA CONSERVER ET EST TERMINEE
                 # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
                 if self.view.main_window_controller.one_model_loaded():
-                    self.display_models(utl.get_coord(self.TMP_FILE_PATH))
+                    self.display_models(get_coord(self.TMP_FILE_PATH))
                 if not self.view.main_window_controller.all_models_loaded():
                     self.to_display = True
             else:
@@ -206,7 +206,7 @@ class AcquisitionTabController(QObject):
             # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION C'EST BIEN PASSE ET EST TERMINEE
             # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
             if self.view.main_window_controller.one_model_loaded():
-                self.display_models(utl.get_coord(self.TMP_FILE_PATH))
+                self.display_models(get_coord(self.TMP_FILE_PATH))
             if not self.view.main_window_controller.all_models_loaded():
                 self.to_display = True
 

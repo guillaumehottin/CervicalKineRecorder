@@ -293,8 +293,6 @@ class MyWindowController(QObject):
                 _, file_extension = os.path.splitext(path)
 
                 acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
-                print('to_display = ' + str(acquisition_tab_controller.to_display))
-                print('all_models_loaded = ' + str(self.all_models_loaded()))
                 if file_extension == self.EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
                     if acquisition_tab_controller.to_display:

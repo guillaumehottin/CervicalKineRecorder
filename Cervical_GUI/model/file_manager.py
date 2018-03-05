@@ -93,12 +93,10 @@ def get_coord(file_path):
     :param file_path: String, the file path we have to parse
     :return: String list, String list, String list - Three lists containing the yaw pitch rolls values
     """
-
     # Get list of coordinates in an ORPL file (yaw,pitch_roll)
     f = open(file_path, "r")
     data = f.readlines()
     f.close()
-
     yaw_l, pitch_l, roll_l = [], [], []
 
     found = False
@@ -304,5 +302,5 @@ def get_param_from_file(file_path):
         j += 1
 
     comment = ''.join(data[index_comments+1:index_values])
-    return [movement, angle, speed, nb_return, wait_time, comment]
+    return movement, angle, speed, nb_return, wait_time, comment
 
