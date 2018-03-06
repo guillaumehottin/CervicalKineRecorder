@@ -198,7 +198,7 @@ def load_model(model_path):
 if __name__ == '__main__':
     # Script pour créer un modèle test à partir d'une liste de patients test
     # Chemin vers le(s) dossier(s) contenant les données :
-    patients = ['/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/data/Hottin_guillaume_22/']
+    patients = ['/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/data/Sapin_Luc_22/']
     # Where save the model :
     directory = '/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/models/'
     # Save_model
