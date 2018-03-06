@@ -152,6 +152,19 @@ You can then copy them and move them in another folder. Running *main.exe* will 
  
  There is another script that is attached to the *CameraParent* : *PositionalLock*. This script allows to only get the rotational data from the Oculus headset. This ensure that even if the patient moves around in front of the computer, the camera stays centered in the middle of the room.
  
+## Communication between the GUI and the Oculus App
+
+The communication between the GUI and the Oculus App is done with sockets.
+
+![Sockets sequence](./images/socket_exchanges.png "Sockets sequence diagram")
+
+- The GUI creates the socket server and the Oculus App connects to it
+- The GUI sends *startAcquisition,parameter1:value1,parameter2:value2...* to the Oculus app
+- The Oculus app starts the acquisition and sends *startAcquisitionAck*
+- Then there are two alternatives :
+    - Either we want to stop and discard the acquisition and the GUI sends *stopAcquisition*
+    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends *finishAcquisition*. The Oculus App the nwaits until the acquisition is finished and sends *endAcquisition,mean:value,standard_deviation:value*.
+ 
  
  ## Modeling and data analysis
  
@@ -163,7 +176,7 @@ The file *Cervical_GUI/model/splines.py* permits to:
  - Interpolate curve with B-Splines (For instance, **Pitch=f(Yaw)**),
  - Compute the mean oscillation of motion,
  - Compute the distance between data curve and mean oscillation,
- - Create the model.
+  - Create the model.
  
  First, we have to detect each oscillation to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
  
