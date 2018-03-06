@@ -54,6 +54,7 @@ class HullAndSplinesTab(QWidget):
         self.label_right_rate_value         = QtWidgets.QLabel()
         self.label_right_variability        = QtWidgets.QLabel()
         self.label_right_variability_score  = QtWidgets.QLabel()
+        self.label_healthy  = QtWidgets.QLabel()
 
         # CANVAS
         self.canvas_left_modeling    = PlotCanvas(self, title="Tangage")
@@ -71,15 +72,21 @@ class HullAndSplinesTab(QWidget):
         self.setLayout(self.grid_layout)
 
         # FONT
-        new_font = QFont("Times", 12, QtGui.QFont.Bold)
+        font = QFont("Times", 12, QtGui.QFont.Bold)
+        font_healthy    = QFont("Times", 17, QtGui.QFont.Bold)
 
         # LABELS
+        # TOP MIDDLE
+        self.label_healthy.setFont(font_healthy)
+        self.label_healthy.setAlignment(Qt.AlignCenter)
+        self.label_healthy.setObjectName("Healthy")
+
         # LEFT SIDE
-        self.label_pitch.setFont(new_font)
+        self.label_pitch.setFont(font)
         self.label_pitch.setAlignment(Qt.AlignCenter)
 
         # RIGHT SIDE
-        self.label_roll.setFont(new_font)
+        self.label_roll.setFont(font)
         self.label_roll.setAlignment(Qt.AlignCenter)
 
         # EXTRA LAYOUTS
@@ -106,8 +113,10 @@ class HullAndSplinesTab(QWidget):
         self.right_vertical_layout.addWidget(self.canvas_right_modeling)
 
         # GRID LAYOUT
-        self.grid_layout.addLayout(self.left_vertical_layout, 0, 0)
-        self.grid_layout.addLayout(self.right_vertical_layout, 0, 1)
+        # Merge the two first columns to center the healthy label
+        self.grid_layout.addWidget(self.label_healthy, 0, 0, 1, 2)
+        self.grid_layout.addLayout(self.left_vertical_layout, 1, 0)
+        self.grid_layout.addLayout(self.right_vertical_layout, 1, 1)
 
         self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(self.parent)
@@ -119,19 +128,22 @@ class HullAndSplinesTab(QWidget):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
+        # TOP MIDDLE
+        self.label_healthy.setText(_translate("HullsTab", "Non défini"))
+
         # LEFT SIDE
-        self.label_pitch.setText(_translate("MainWindow", "Tangage"))
-        self.label_left_variability_score.setText(_translate("MainWindow", "0"))
-        self.label_left_variability.setText(_translate("MainWindow", "Variabilité"))
-        self.label_left_rate_value.setText(_translate("MainWindow", "0%"))
-        self.label_left_rate.setText(_translate("MainWindow", "Taux de points en dehors de l'enveloppe : "))
+        self.label_pitch.setText(_translate("HullsAndSplinesTab", "Tangage"))
+        self.label_left_variability_score.setText(_translate("HullsAndSplinesTab", "0"))
+        self.label_left_variability.setText(_translate("HullsAndSplinesTab", "Variabilité"))
+        self.label_left_rate_value.setText(_translate("HullsAndSplinesTab", "0%"))
+        self.label_left_rate.setText(_translate("HullsAndSplinesTab", "Taux de points en dehors de l'enveloppe : "))
 
         # RIGHT SIDE
-        self.label_right_variability_score.setText(_translate("MainWindow", "0"))
-        self.label_right_variability.setText(_translate("MainWindow", "Variabilité"))
-        self.label_right_rate.setText(_translate("MainWindow", "Taux de points en dehors de l'enveloppe : "))
-        self.label_right_rate_value.setText(_translate("MainWindow", "0%"))
-        self.label_roll.setText(_translate("MainWindow", "Roulis"))
+        self.label_right_variability_score.setText(_translate("HullsAndSplinesTab", "0"))
+        self.label_right_variability.setText(_translate("HullsAndSplinesTab", "Variabilité"))
+        self.label_right_rate.setText(_translate("HullsAndSplinesTab", "Taux de points en dehors de l'enveloppe : "))
+        self.label_right_rate_value.setText(_translate("HullsAndSplinesTab", "0%"))
+        self.label_roll.setText(_translate("HullsAndSplinesTab", "Roulis"))
 
     def clear_graph(self):
         """

@@ -13,8 +13,6 @@ else:
     from matplotlib.backends.backend_qt4agg import (
         FigureCanvas)
 
-# TODO FX ICI RAJOUTER FONCTION DE DESSIN DES DIFFERENTS MODELES
-
 
 class PlotCanvas(FigureCanvas):
     """

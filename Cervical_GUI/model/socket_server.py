@@ -1,5 +1,8 @@
 import socket
 
+DEBUG = False
+
+
 class PortCount:
     """
     PortCount
@@ -45,12 +48,12 @@ class SocketServer:
         :return: None
         """
         self.port = port_counter.get_port()
-        print("Starting server at {0}:{1}".format(host, self.port))
+        DEBUG and print("Starting server at {0}:{1}".format(host, self.port))
         self._s.bind((host, self.port))
         self._s.listen(1)
-        print("Server started at {0}:{1}.".format(host, self.port))
+        DEBUG and print("Server started at {0}:{1}.".format(host, self.port))
         self._conn, self._addr = self._s.accept()
-        print('Connected by {0}.'.format(self._addr[0], self._addr[1]))
+        DEBUG and print('Connected by {0}.'.format(self._addr[0], self._addr[1]))
 
     def send(self, message):
         """
@@ -58,7 +61,7 @@ class SocketServer:
         :param message: The string message to send
         :return: None
         """
-        print("Send message: {0}".format(message))
+        DEBUG and print("Send message: {0}".format(message))
         self._conn.send(message.encode("UTF-8"))
 
     def receive(self):
@@ -69,7 +72,7 @@ class SocketServer:
         while True:
             data = self._conn.recv(1024)
             if data: break
-        print("Received message: " + data.decode('utf-8'))
+        DEBUG and print("Received message: " + data.decode('utf-8'))
         return data
 
     def detach(self):
@@ -108,8 +111,3 @@ def calculate_time_for_finish(params):
     :return: The float value of the calculated time.
     """
     return (4*float(params['sphereRoundTripNumber']) + 1)*(float(params['sphereLimitAngle'])/float(params['sphereSpeed'])) + float(params['sphereCountdownTime']) + (2*float(params['sphereRoundTripNumber'])*float(params['sphereWaitTime'])) - 2*float(params['sphereLimitAngle'])/float(params['sphereSpeed'])
-    
-
-
-HOST = "localhost"
-PORT = 50007

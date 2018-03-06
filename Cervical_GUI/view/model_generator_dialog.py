@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import os
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
-
+from const import *
 from model.file_manager import get_all_directories
 
 DEBUG = False
@@ -147,6 +148,18 @@ class ModelGeneratorDialog(QDialog):
 
     @pyqtSlot(name="ok_handler")
     def ok_handler(self):
+        # Lazy import to avoid import loop with my_window_controller
+
+        model_name = self.text_model_name.text().replace(" ", "_")
+        hull_model_path             = os.path.abspath(PATH_TO_STORE_MODELS + model_name + '_hull' +
+                                                      EXTENSION_HULLS_MODEL)
+
+        hull_and_splines_model_path = os.path.abspath(PATH_TO_STORE_MODELS + model_name + '_hull_and_spline' +
+                                                      EXTENSION_HULLS_SPLINES_MODEL)
+
+        wavelets_model_path         = os.path.abspath(PATH_TO_STORE_MODELS + model_name + '_time_series' +
+                                                      EXTENSION_WAVELET_MODEL)
+
         if self.text_model_name.text() == "":
             color = '#f6989d'  # red
             self.text_model_name.setStyleSheet('QLineEdit { background-color: %s }' % color)
@@ -163,10 +176,22 @@ class ModelGeneratorDialog(QDialog):
                                          confirmation_msg, QMessageBox.Yes, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
-                print("LA SUPPRESION DES MODELES VA ETRE EFFECTUEE")
+                print("Deletion will be processed")
                 return self.parent.accept()
             else:
-                print("ANNULATION")
+                print("CANCEL NONE DIRECTORY SELECTED")
+
+        elif os.path.isfile(hull_model_path) or os.path.isfile(hull_and_splines_model_path) or \
+                os.path.isfile(wavelets_model_path):
+
+            confirmation_msg = "Voulez vous vraiment écraser les anciens modèles du même nom en en créant un nouveau ?"
+            reply = QMessageBox.question(self.parent, 'Attention modèles en conflits !',
+                                         confirmation_msg, QMessageBox.Yes, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                return self.parent.accept()
+            else:
+                print("CANCEL MODELS IN CONFLICTS")
         else:
             return self.parent.accept()
 

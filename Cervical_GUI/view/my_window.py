@@ -10,11 +10,8 @@ from view.hull_and_spline_tab import HullAndSplinesTab
 from view.hulls_tab import HullsTab
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
-
+from const import *
 from view.wavelet_tab import WaveletTab
-
-APP_ICON                        = "./icone.ico"
-LAST_PROFILE_USED_LIST_LIMIT    = 5
 
 
 class MyWindow(QMainWindow):
@@ -60,7 +57,8 @@ class MyWindow(QMainWindow):
         self.action_load_curves         = QtWidgets.QAction(window)
         self.action_create_model        = QtWidgets.QAction(window)
         self.action_load_model          = QtWidgets.QAction(window)
-        self.action_documentation       = QtWidgets.QAction(window)
+        self.action_user_documentation  = QtWidgets.QAction(window)
+        self.action_technical_documentation  = QtWidgets.QAction(window)
 
         # STATUS BAR = UNUSED
         self.statusbar = QtWidgets.QStatusBar(window)
@@ -120,7 +118,8 @@ class MyWindow(QMainWindow):
         self.action_load_curves.setObjectName("actionCharger_courbes")
         self.action_create_model.setObjectName("actionCréerModèle")
         self.action_load_model.setObjectName("actionChargerModèle")
-        self.action_documentation.setObjectName("actionDocumentation")
+        self.action_user_documentation.setObjectName("actionUserDocumentation")
+        self.action_technical_documentation.setObjectName("actionTechnicalDocumentation")
 
         # ACTION LISTENER
         self.action_new_profile.triggered.connect(self.my_window_controller.new_profile_menu_handler)
@@ -128,7 +127,8 @@ class MyWindow(QMainWindow):
         self.action_load_curves.triggered.connect(self.my_window_controller.load_curves_menu_handler)
         self.action_create_model.triggered.connect(self.my_window_controller.create_model_handler)
         self.action_load_model.triggered.connect(self.my_window_controller.load_model_handler)
-        self.action_documentation.triggered.connect(self.my_window_controller.about_menu_handler)
+        self.action_user_documentation.triggered.connect(self.my_window_controller.user_guide_menu_handler)
+        self.action_technical_documentation.triggered.connect(self.my_window_controller.technical_guide_menu_handler)
 
         # MENU BAR SET UP
         self.menu_profile.addAction(self.action_new_profile)
@@ -137,7 +137,8 @@ class MyWindow(QMainWindow):
         self.menu_curves.addAction(self.action_load_curves)
         self.menu_model.addAction(self.action_create_model)
         self.menu_model.addAction(self.action_load_model)
-        self.menu_about.addAction(self.action_documentation)
+        self.menu_about.addAction(self.action_user_documentation)
+        self.menu_about.addAction(self.action_technical_documentation)
         self.menubar.addAction(self.menu_profile.menuAction())
         self.menubar.addAction(self.menu_curves.menuAction())
         self.menubar.addAction(self.menu_model.menuAction())
@@ -166,7 +167,8 @@ class MyWindow(QMainWindow):
         self.action_load_curves.setText(_translate("MyWindow", "Charger courbes"))
         self.action_create_model.setText(_translate("MyWindow", "Créer modèle"))
         self.action_load_model.setText(_translate("MyWindow", "Charger modèle"))
-        self.action_documentation.setText(_translate("MyWindow", "Documentation"))
+        self.action_user_documentation.setText(_translate("MyWindow", "Documentation utilisateur"))
+        self.action_technical_documentation.setText(_translate("MyWindow", "Documentation technique"))
 
     def update_ui(self, enable, first_name="Prénom", last_name="Nom", age="XX"):
         """

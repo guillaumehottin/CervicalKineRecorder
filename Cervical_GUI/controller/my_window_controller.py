@@ -11,6 +11,8 @@ from view.curves_dialog import CurvesDialog
 from view.model_generator_dialog import ModelGeneratorDialog
 from view.new_profile_dialog import NewProfileDialog
 
+from const import *
+
 DEBUG               = False
 
 
@@ -19,13 +21,6 @@ class MyWindowController(QObject):
     This class is used to define all the logic behing my_window.py GUI
     Here you will find all button handler
     """
-
-    PATH_TO_STORE_FILE              = "./data/"
-    PATH_TO_STORE_MODELS            = "./models/"
-    EXTENSION_HULLS_MODEL           = ".mdlhl"
-    EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhs"
-    EXTENSION_WAVELET_MODEL         = ".mdlwvl"
-    GIT_LINK = "https://github.com/guillaumehottin/projetlong"
 
     def __init__(self, view):
         """
@@ -92,8 +87,7 @@ class MyWindowController(QObject):
         :return: Nothing
         """
         new_path = str(QFileDialog.getExistingDirectory(self.view, "Sélectionner un dossier",
-                                                        self.PATH_TO_STORE_FILE, QFileDialog.ShowDirsOnly))
-
+                                                        PATH_TO_STORE_FILES, QFileDialog.ShowDirsOnly))
         # If the user canceled
         if not new_path:
             return
@@ -166,7 +160,7 @@ class MyWindowController(QObject):
             else:
                 [self.last_name, self.first_name, self.age] = [new_last_name, new_first_name, new_age]
                 add_profile_used(self.last_name + "_" + self.first_name + "_" + self.age.strip("\n"))
-                self.directory_path = os.path.abspath(self.PATH_TO_STORE_FILE + text_button.replace(" ", "_")).strip("\n")
+                self.directory_path = os.path.abspath(PATH_TO_STORE_FILES + text_button.replace(" ", "_")).strip("\n")
                 self.view.update_ui(True, self.first_name, self.last_name, self.age)
 
         except ValueError:
@@ -219,17 +213,15 @@ class MyWindowController(QObject):
             # Replace all spaces by underscores to avoid path problems
             model_name = model_name.replace(" ", "_")
 
-            DEBUG and print("=== acquisition.py === selected directories: " + str(directories_for_model))
-            DEBUG and print("=== acquisition.py === model name: " + str(model_name))
+            DEBUG and print("=== my_window_controller.py === selected directories: " + str(directories_for_model))
+            DEBUG and print("=== my_window_controller.py === model name: " + str(model_name))
 
             if len(directories_for_model) == 0:
-                DEBUG and print("=== acquisition.py === None patient selected, clearing the graph")
+                DEBUG and print("=== my_window_controller.py === None patient selected, clearing the graph")
                 self.view.tab_hull_and_splines.clear_graph()
                 self.view.tab_hulls.clear_graph()
                 self.view.tab_wavelet.clear_graph()
             else:
-                # TODO regenerates model with given patient and file name
-
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText("Création des modèles en cours")
@@ -237,16 +229,16 @@ class MyWindowController(QObject):
                 msg.setWindowTitle("Information")
                 msg.exec()
 
-                directories_for_model = [self.PATH_TO_STORE_FILE + d for d in directories_for_model]
+                directories_for_model = [PATH_TO_STORE_FILES + d for d in directories_for_model]
 
-                path_hulls = self.PATH_TO_STORE_MODELS + model_name + '_hull' + self.EXTENSION_HULLS_MODEL
+                path_hulls = PATH_TO_STORE_MODELS + model_name + '_hull' + EXTENSION_HULLS_MODEL
                 hulls.save_model(directories_for_model, path_hulls)
 
-                path_hull_and_spline = self.PATH_TO_STORE_MODELS + model_name + '_hull_and_spline' + \
-                                       self.EXTENSION_HULLS_SPLINES_MODEL
+                path_hull_and_spline = PATH_TO_STORE_MODELS + model_name + '_hull_and_spline' + \
+                                       EXTENSION_HULLS_SPLINES_MODEL
                 hull_and_spline.save_model(directories_for_model, path_hull_and_spline)
 
-                path_wavelet = self.PATH_TO_STORE_MODELS + model_name + '_time_series' + self.EXTENSION_WAVELET_MODEL
+                path_wavelet = PATH_TO_STORE_MODELS + model_name + '_time_series' + EXTENSION_WAVELET_MODEL
                 plot_time.save_model(directories_for_model, path_wavelet)
 
                 confirmation_msg = "La création des modèles est terminée, voulez vous les charger maintenant ?"
@@ -256,7 +248,6 @@ class MyWindowController(QObject):
                     self.path_model_hulls = path_hulls
                     self.path_model_wavelet = path_wavelet
                     self.path_model_hull_and_spline = path_hull_and_spline
-                    pass
                 else:
                     # Do nothing
                     pass
@@ -272,23 +263,23 @@ class MyWindowController(QObject):
         If the file selected does not match the pattern we want we display an error
         :return: Nothing
         """
-        my_filter = "Model file (*" + self.EXTENSION_HULLS_SPLINES_MODEL + " *" + self.EXTENSION_HULLS_MODEL + " *" +\
-                 self.EXTENSION_WAVELET_MODEL + ") ;; All files (*)"
+        my_filter = "Model file (*" + EXTENSION_HULLS_SPLINES_MODEL + " *" + EXTENSION_HULLS_MODEL + " *" +\
+                 EXTENSION_WAVELET_MODEL + ") ;; All files (*)"
 
         model_path, _ = QFileDialog.getOpenFileNames(self.view, caption="Sélectionner un modèle",
-                                                  filter=my_filter, directory=self.PATH_TO_STORE_MODELS)
+                                                  filter=my_filter, directory=PATH_TO_STORE_MODELS)
         # If the user canceled
         if not model_path:
             return
 
         nb_hulls_model = sum(1 for curr_path in model_path \
-                             if os.path.splitext(curr_path)[1] == self.EXTENSION_HULLS_MODEL)
+                             if os.path.splitext(curr_path)[1] == EXTENSION_HULLS_MODEL)
 
         nb_hull_and_splines_model = sum(1 for curr_path in model_path \
-                             if os.path.splitext(curr_path)[1] == self.EXTENSION_HULLS_SPLINES_MODEL)
+                             if os.path.splitext(curr_path)[1] == EXTENSION_HULLS_SPLINES_MODEL)
 
         nb_wavelet_model = sum(1 for curr_path in model_path \
-                             if os.path.splitext(curr_path)[1] == self.EXTENSION_WAVELET_MODEL)
+                             if os.path.splitext(curr_path)[1] == EXTENSION_WAVELET_MODEL)
 
         informative_text = "Vous avez sélectionné deux modèles du type TYPE. \n" +\
                            "Veuillez faire attention à ne sélectionner qu'un seul modèle du type TYPE " +\
@@ -296,15 +287,15 @@ class MyWindowController(QObject):
 
         if nb_hulls_model > 1:
             informative_text = informative_text.replace("TYPE", "Hulls")
-            informative_text = informative_text.replace("EXTENSION", self.EXTENSION_HULLS_MODEL)
+            informative_text = informative_text.replace("EXTENSION", EXTENSION_HULLS_MODEL)
 
         if nb_hull_and_splines_model > 1:
             informative_text = informative_text.replace("TYPE", "Hulls and Splines")
-            informative_text = informative_text.replace("EXTENSION", self.EXTENSION_HULLS_SPLINES_MODEL)
+            informative_text = informative_text.replace("EXTENSION", EXTENSION_HULLS_SPLINES_MODEL)
 
         if nb_wavelet_model > 1:
             informative_text = informative_text.replace("TYPE", "Wavelet")
-            informative_text = informative_text.replace("EXTENSION", self.EXTENSION_WAVELET_MODEL)
+            informative_text = informative_text.replace("EXTENSION", EXTENSION_WAVELET_MODEL)
 
         if nb_wavelet_model > 1 or nb_hull_and_splines_model > 1 or nb_hulls_model > 1:
             msg = QMessageBox()
@@ -322,15 +313,15 @@ class MyWindowController(QObject):
                 _, file_extension = os.path.splitext(path)
 
                 acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
-                if file_extension == self.EXTENSION_HULLS_MODEL:
+                if file_extension == EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
                     acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
-                elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
+                elif file_extension == EXTENSION_HULLS_SPLINES_MODEL:
                     self.path_model_hull_and_spline = path
                     acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
-                elif file_extension == self.EXTENSION_WAVELET_MODEL:
+                elif file_extension == EXTENSION_WAVELET_MODEL:
                     self.path_model_wavelet = path
                     acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
@@ -364,11 +355,21 @@ class MyWindowController(QObject):
         return self.path_model_hull_and_spline != "" and self.path_model_hulls != "" and self.path_model_wavelet != ""
 
     @pyqtSlot(name="about_menu_handler")
-    def about_menu_handler(self):
+    def user_guide_menu_handler(self):
         """
-        Handler called when the about menu is called
-        It opens a web browser to the link of our github project
+        Handler called when the user guide menu is called
+        It opens a web browser to the link of our github project that contains the user guide
         :return:
         """
-        DEBUG and print('=== my_window_controller.py === ABOUT')
-        webbrowser.open(self.GIT_LINK, new=2)
+        DEBUG and print('=== my_window_controller.py === ABOUT USER GUIDE')
+        webbrowser.open(USER_GUIDE_GIT_LINK, new=2)
+
+    @pyqtSlot(name="technical_guide_menu_handler")
+    def technical_guide_menu_handler(self):
+        """
+        Handler called when the about menu is called
+        It opens a web browser to the link of our github project that contains the technical guide
+        :return:
+        """
+        DEBUG and print('=== my_window_controller.py === ABOUT TECHNICAL GUIDE')
+        webbrowser.open(TECHNICAL_GUIDE_GIT_LINK, new=2)

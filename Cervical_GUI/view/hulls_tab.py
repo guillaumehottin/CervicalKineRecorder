@@ -42,6 +42,7 @@ class HullsTab(QWidget):
         # LABELS
         self.label_pitch    = QtWidgets.QLabel()
         self.label_roll     = QtWidgets.QLabel()
+        self.label_healthy  = QtWidgets.QLabel()
 
         # CANVAS
         self.canvas_left_modeling    = PlotCanvas(self, title="Tangage")
@@ -59,16 +60,21 @@ class HullsTab(QWidget):
         self.setLayout(self.grid_layout)
 
         # FONT
-        new_font = QFont("Times", 12, QtGui.QFont.Bold)
+        font            = QFont("Times", 12, QtGui.QFont.Bold)
+        font_healthy    = QFont("Times", 17, QtGui.QFont.Bold)
 
         # LABELS
-        self.label_pitch.setFont(new_font)
+        self.label_pitch.setFont(font)
         self.label_pitch.setAlignment(Qt.AlignCenter)
         self.label_pitch.setObjectName("Tangage")
 
-        self.label_roll.setFont(new_font)
+        self.label_roll.setFont(font)
         self.label_roll.setAlignment(Qt.AlignCenter)
         self.label_roll.setObjectName("Roulis")
+
+        self.label_healthy.setFont(font_healthy)
+        self.label_healthy.setAlignment(Qt.AlignCenter)
+        self.label_healthy.setObjectName("Healthy")
 
         # EXTRA LAYOUTS
         self.left_vertical_layout.addWidget(self.label_pitch)
@@ -78,8 +84,10 @@ class HullsTab(QWidget):
         self.right_vertical_layout.addWidget(self.canvas_right_modeling)
 
         # GRID LAYOUT
-        self.grid_layout.addLayout(self.left_vertical_layout, 0, 0)
-        self.grid_layout.addLayout(self.right_vertical_layout, 0, 1)
+        # Merge the two first columns to center the healthy label
+        self.grid_layout.addWidget(self.label_healthy, 0, 0, 1, 2)
+        self.grid_layout.addLayout(self.left_vertical_layout, 1, 0)
+        self.grid_layout.addLayout(self.right_vertical_layout, 1, 1)
 
         self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(self.parent)
@@ -91,6 +99,7 @@ class HullsTab(QWidget):
         :return: Nothing
         """
         _translate = QtCore.QCoreApplication.translate
+        self.label_healthy.setText(_translate("HullsTab", "Non défini"))
 
     def clear_graph(self):
         """
@@ -99,37 +108,3 @@ class HullsTab(QWidget):
         """
         self.canvas_left_modeling.clear()
         self.canvas_right_modeling.clear()
-
-    def draw_curves(self, list_curves, directory_path):
-        pass
-        # TODO DOC
-        # self.clear_graph()
-        # self.text_area_comment.clear()
-        # self.curves_on_graph    = list_curves
-        # yaw_pitch_roll          = []
-        #
-        # print("=== acquisition.py === selected curves: " + str(list_curves))
-        # for file_name in list_curves:
-        #     [yaw_l, pitch_l, roll_l] = get_coord(os.path.join(directory_path, file_name))
-        #     yaw_pitch_roll.append([yaw_l, pitch_l, roll_l])
-        #
-        #     # Pick a random color
-        #     color = RGBA_arg()
-        #
-        #     # split the file name
-        #     # EXAMPLE FILE NAME: 13-2-2018_16_11_46.txt
-        #     file_name_splitted = file_name.replace("-", "_").split("_")
-        #     [_, angle, speed, _, _, comment] = get_param_from_file(os.path.join(directory_path, file_name))
-        #
-        #     #           YEAR                              MONTH                       DAY
-        #     legend = file_name_splitted[0] + "/" + file_name_splitted[1] + "/" + file_name_splitted[2] + \
-        #              " " + file_name_splitted[3] + "h" + file_name_splitted[4] + \
-        #              " - " + str(angle) + "° - " + str(speed) + "°/s"
-        #
-        #     # LOAD COMMENT
-        #     self.add_comment(legend, comment)
-        #
-        #     # PLOT DATA
-        #     self.canvas_up_right.plot(yaw_l, pitch_l, legend=legend, color=color)
-        #     self.canvas_down_right.plot(pitch_l, roll_l, color=color)
-        #     self.canvas_down_left.plot(yaw_l, roll_l, color=color)

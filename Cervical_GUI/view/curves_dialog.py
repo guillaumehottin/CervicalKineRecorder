@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QDialog
 
 from model.file_manager import get_all_directory_files
 
-DEBUG               = True
+DEBUG               = False
 
 
 class CurvesDialog(object):
@@ -78,7 +78,7 @@ class CurvesDialog(object):
                     # Set checkbox checked
                     item_curve_name.setCheckState(2)
 
-                 # TODO ADD PARAMETERS
+                 # TODO ADD PARAMETERS TO ALLOW USERT TO SORT THE LIST ACCORDING TO PARAMETERS
                 # Join DIRCETORY_PATH/data/FILENAME
                 # path_joined = os.path.join(self.directory_path, list_curves[i])
                 # [_, angle, speed, _, _, _] = get_param_from_file(path_joined)

@@ -43,7 +43,6 @@ def RGBA_arg():
         hex_str = '0' + hex_str
         n = len(hex_str)
     if check_letter(hex_str[0]) and check_letter(hex_str[2]) and check_letter(hex_str[4]):
-        print('ok')
         index = 2 * rd.randint(0, 2)
         res_str = ''
         for i in range(len(hex_str)):

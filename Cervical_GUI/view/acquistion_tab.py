@@ -10,7 +10,7 @@ import os
 from model.file_manager import get_coord, get_param_from_file
 from model.myutils import RGBA_arg
 from model.plot_canvas import PlotCanvas
-
+from const import *
 from view.new_profile_dialog import *
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
@@ -234,10 +234,10 @@ class AcquisitionTab(QWidget):
         self.label_wait_time.setText(_translate("AcquisitionTab", "Temps d'arrêt entre chaque aller retour"))
 
         # SPINBOX
-        self.text_angle.setValue(self.acquisition_controller.INIT_ANGLE)
-        self.text_speed.setValue(self.acquisition_controller.INIT_SPEED)
-        self.text_nb_return.setValue(self.acquisition_controller.INIT_NB_RETURN)
-        self.text_wait_time.setValue(self.acquisition_controller.INIT_WAIT_TIME)
+        self.text_angle.setValue(INIT_ANGLE)
+        self.text_speed.setValue(INIT_SPEED)
+        self.text_nb_return.setValue(INIT_NB_RETURN)
+        self.text_wait_time.setValue(INIT_WAIT_TIME)
 
         # BUTTONS
         self.startStopButton.setText(_translate("AcquisitionTab", "Lancer acquisition"))

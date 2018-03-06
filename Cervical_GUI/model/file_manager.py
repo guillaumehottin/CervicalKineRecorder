@@ -4,13 +4,10 @@ import os
 import ntpath
 from datetime import datetime
 
-FILE_EXTENSION                  = ".orpl"
-PATH_TO_STORE_FILES             = "./data/"
-EXTENSION_HULLS_MODEL           = ".mdlhl"
-EXTENSION_HULLS_SPLINES_MODEL   = ".mdlhls"
-LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
+from const import *
+
 # DEBUG
-DEBUG = True
+DEBUG = False
 
 
 def get_all_directory_files(directory_path_string):

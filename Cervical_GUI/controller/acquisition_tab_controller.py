@@ -11,7 +11,7 @@ import model.hulls as hl
 import model.hull_and_spline as hs
 import model.myutils as utl
 import model.plot_time as plot_time
-
+from const import *
 
 DEBUG = True
 
@@ -22,27 +22,11 @@ class AcquisitionTabController(QObject):
         Here you can find button handler and attributes used to perform acquisition process
     """
 
-    # First values display when the GUI is launched
-    INIT_ANGLE                      = 70.0
-    INIT_SPEED                      = 25
-    INIT_NB_RETURN                  = 5
-    INIT_WAIT_TIME                  = 0.2
-
-    # OTHER CONSTANT
-    LAST_PROFILE_USED_LIST_LIMIT    = 5
-    COUNT_DOWN_TIME                 = "3"
-    SPHERE_GREEN_TO_YELLOW_ANGLE    = "0.1"
-    SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
-    # TODO FX SI TU VEUX SIMULER UNE ACQUISITION UTILISE tmp1.orpl
     # A LA FIN D'UNE ACQUISITION, LE PROGRAMME LIRA DANS CE FICHIER UNE "FAUSSE" COURBE
     if DEBUG:
         TMP_FILE_PATH                   = "tmp1.orpl"
     else:
         TMP_FILE_PATH                   = "tmp.orpl"
-
-    # Values used to create the socket and discuss with unity project
-    HOST = "localhost"
-    PORT = 50007
 
     def __init__(self, view):
         """
@@ -54,10 +38,10 @@ class AcquisitionTabController(QObject):
         # ATTRIBUTES
         self.view               = view
         self.selected_movement  = "Lacet"
-        self.angle              = AcquisitionTabController.INIT_ANGLE
-        self.speed              = AcquisitionTabController.INIT_SPEED
-        self.nb_return          = AcquisitionTabController.INIT_NB_RETURN
-        self.wait_time          = AcquisitionTabController.INIT_WAIT_TIME
+        self.angle              = INIT_ANGLE
+        self.speed              = INIT_SPEED
+        self.nb_return          = INIT_NB_RETURN
+        self.wait_time          = INIT_WAIT_TIME
         self.comment            = ""
         self.send_start_thread  = None
         self.send_stop_thread   = None
@@ -106,10 +90,10 @@ class AcquisitionTabController(QObject):
 
             self.params = {"sphereSpeed": str(self.speed), "sphereLimitAngle": str(self.angle),
                            "sphereWaitTime": str(self.wait_time),
-                           "sphereCountdownTime": self.COUNT_DOWN_TIME, "sphereRoundTripNumber": str(self.nb_return),
+                           "sphereCountdownTime": COUNT_DOWN_TIME, "sphereRoundTripNumber": str(self.nb_return),
                            "profileName": "guillaumelethug",
-                           "sphereGreenToYellowAngle": self.SPHERE_GREEN_TO_YELLOW_ANGLE,
-                           "sphereYellowToRedAngle": self.SPHERE_YELLOW_TO_RED_ANGLE}
+                           "sphereGreenToYellowAngle": SPHERE_GREEN_TO_YELLOW_ANGLE,
+                           "sphereYellowToRedAngle": SPHERE_YELLOW_TO_RED_ANGLE}
 
             DEBUG and print("=== acquisition.py === AcquisitionTab info : \n" +
                   "MOV: " + str(self.view.comboBox.currentText()) + "\n" +
@@ -185,9 +169,7 @@ class AcquisitionTabController(QObject):
                 # Update graph with tMP file content
                 self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
                 self.view.saveButton.setEnabled(True)
-                # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION EST DE MOYENNE QUALITE MAIS L'USER
-                # VEUT LA CONSERVER ET EST TERMINEE
-                # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
+
                 if self.view.main_window_controller.one_model_loaded():
                     self.display_models(get_coord(self.TMP_FILE_PATH))
 
@@ -204,8 +186,7 @@ class AcquisitionTabController(QObject):
         else:
             self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
             self.view.saveButton.setEnabled(True)
-            # TODO FX ICI CODE EXECUTE DES QU'UNE ACQUISITION C'EST BIEN PASSE ET EST TERMINEE
-            # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
+
             if self.view.main_window_controller.one_model_loaded():
                 self.display_models(get_coord(self.TMP_FILE_PATH))
 
@@ -213,7 +194,6 @@ class AcquisitionTabController(QObject):
         self.view.startStopButton.setText("Lancer acquisition")
         self.view.startStopButton.setStyleSheet("background-color: green; color:white")
         self.view.startStopButton.setEnabled(True)
-
 
     def display_models(self, new_coords):
         new_coords = utl.preprocess_data([new_coords])[0]
@@ -230,6 +210,7 @@ class AcquisitionTabController(QObject):
                 to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
             self.view.parent.tab_hull_and_splines.canvas_right_modeling.plot_hull_spline(hull_roll, (
                 to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
+
             # Display results
             self.view.parent.tab_hull_and_splines.label_left_variability_score.setText(
                 str(res_comparison['err_spline_pitch'])[:7])
@@ -239,6 +220,13 @@ class AcquisitionTabController(QObject):
                 "{:.2%}".format(res_comparison['rate_out_pitch']))
             self.view.parent.tab_hull_and_splines.label_right_rate_value.setText(
                 "{:.2%}".format(res_comparison['rate_out_roll']))
+
+            healty_or_not = ""
+            if res_comparison["healthy"]:
+                healty_or_not = "Patient sain"
+            else:
+                healty_or_not = "Patient pathologique"
+            self.view.parent.tab_hull_and_splines.label_healthy.setText(healty_or_not)
 
         if path_hull != "":
             mdl_hull = hl.load_model(self.view.main_window_controller.path_model_hulls)
@@ -252,7 +240,12 @@ class AcquisitionTabController(QObject):
                                                                                    hull_pitch)
             self.view.parent.tab_hulls.canvas_right_modeling.plot_discrete_hull(grid_roll[0], grid_roll[1],
                                                                                     hull_roll)
-            # TODO ALSO PRINT HEALTHY
+            healty_or_not = ""
+            if healthy:
+                healty_or_not = "Patient sain"
+            else:
+                healty_or_not = "Patient pathologique"
+            self.view.parent.tab_hulls.label_healthy.setText(healty_or_not)
 
         if path_wavelet != "":
             yaw, pitch, roll, _ = plot_time.load_model(self.view.main_window_controller.path_model_wavelet)
@@ -262,8 +255,6 @@ class AcquisitionTabController(QObject):
             self.view.parent.tab_wavelet.canvas_down_left_modeling.plot_final_time(new_coords, mean_coords, 2)
             self.view.parent.tab_wavelet.canvas_up_right_modeling.plot_final_time(new_coords, mean_coords, 3)
             self.view.parent.tab_wavelet.canvas_down_right_modeling.plot_final_time(new_coords, mean_coords, 4)
-
-
 
     @pyqtSlot(str, name="start_server_thread_completion_handler")
     def handle_start_server_thread_completion(self, e):
