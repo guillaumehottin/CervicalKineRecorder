@@ -163,20 +163,29 @@ The communication between the GUI and the Oculus App is done with sockets.
 - The Oculus app starts the acquisition and sends *startAcquisitionAck*
 - Then there are two alternatives :
     - Either we want to stop and discard the acquisition and the GUI sends *stopAcquisition*
-    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends *finishAcquisition*. The Oculus App the nwaits until the acquisition is finished and sends *endAcquisition,mean:value,standard_deviation:value*.
- 
- 
+    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends finishAcquisition*. The Oculus App the nwaits until the acquisition is finished and sends endAcquisition,mean:value,standard_deviation:value*.
+
+
  ## Modeling and data analysis
  
  ### Hulls and Splines
+ The file **Cervical_GUI/model/hull_and_spline.py** permits to:
+  - Load, create and save the complete model with concave hulls and B-Splines,
+  - Compare new data with model,
+  - Plot measures.
+  
+ First, we build a mean concave hull of specified data. If new data is out of it (with some margin), we can say that new data correspond to unhealthy patient, else we study the variabilty of motion with B-Splines and compare it with a threshold.
+  
+ To use it, you need files **splines.py** and **hull.py**.
+ 
  #### Splines
  
-The file *Cervical_GUI/model/splines.py* permits to:
+The file **Cervical_GUI/model/splines.py** permits to:
  - Get angle data,
  - Interpolate curve with B-Splines (For instance, **Pitch=f(Yaw)**),
  - Compute the mean oscillation of motion,
  - Compute the distance between data curve and mean oscillation,
-  - Create the model.
+ - Create the model.
  
  First, we have to detect each oscillation to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
  
