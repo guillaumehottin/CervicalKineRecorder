@@ -64,7 +64,6 @@ class AcquisitionTabController(QObject):
         self.send               = False
         self.send_continue_thread = None
         self.params             = {}
-        self.to_display         = False
         # Attribute curves_on_graph used to list the curves names currently displayed on the graph
         self.curves_on_graph    = []
         # Attribute yaw_pitch_roll used to list the curves values currently displayed on the graph
@@ -191,8 +190,7 @@ class AcquisitionTabController(QObject):
                 # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
                 if self.view.main_window_controller.one_model_loaded():
                     self.display_models(get_coord(self.TMP_FILE_PATH))
-                if not self.view.main_window_controller.all_models_loaded():
-                    self.to_display = True
+
             else:
                 DEBUG and print("=== acquisition_tab_controller.py === SUPPRIMER ACQUISITION")
                 self.view.clear_graph()
@@ -210,8 +208,6 @@ class AcquisitionTabController(QObject):
             # ICI DESSINER LES MODELES ET LEURS COMPARAISONS
             if self.view.main_window_controller.one_model_loaded():
                 self.display_models(get_coord(self.TMP_FILE_PATH))
-            if not self.view.main_window_controller.all_models_loaded():
-                self.to_display = True
 
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")

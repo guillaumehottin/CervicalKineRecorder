@@ -239,20 +239,23 @@ class MyWindowController(QObject):
 
                 directories_for_model = [self.PATH_TO_STORE_FILE + d for d in directories_for_model]
 
-                hulls.save_model(directories_for_model, self.PATH_TO_STORE_MODELS + model_name + '_hull' +\
-                                 self.EXTENSION_HULLS_MODEL)
+                path_hulls = self.PATH_TO_STORE_MODELS + model_name + '_hull' + self.EXTENSION_HULLS_MODEL
+                hulls.save_model(directories_for_model, path_hulls)
 
-                hull_and_spline.save_model(directories_for_model, self.PATH_TO_STORE_MODELS + model_name +\
-                                           '_hull_and_spline' + self.EXTENSION_HULLS_SPLINES_MODEL)
+                path_hull_and_spline = self.PATH_TO_STORE_MODELS + model_name + '_hull_and_spline' + \
+                                       self.EXTENSION_HULLS_SPLINES_MODEL
+                hull_and_spline.save_model(directories_for_model, path_hull_and_spline)
 
-                plot_time.save_model(directories_for_model, self.PATH_TO_STORE_MODELS + model_name +\
-                                     '_time_series' + self.EXTENSION_WAVELET_MODEL)
+                path_wavelet = self.PATH_TO_STORE_MODELS + model_name + '_time_series' + self.EXTENSION_WAVELET_MODEL
+                plot_time.save_model(directories_for_model, path_wavelet)
 
                 confirmation_msg = "La création des modèles est terminée, voulez vous les charger maintenant ?"
                 reply = QMessageBox.question(self.view, 'Création des modèles terminée !',
                                              confirmation_msg, QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    # TODO LOAD ALL THREE MODELS
+                    self.path_model_hulls = path_hulls
+                    self.path_model_wavelet = path_wavelet
+                    self.path_model_hull_and_spline = path_hull_and_spline
                     pass
                 else:
                     # Do nothing
@@ -321,21 +324,15 @@ class MyWindowController(QObject):
                 acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
                 if file_extension == self.EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
-                    if acquisition_tab_controller.to_display:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                    acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
                 elif file_extension == self.EXTENSION_HULLS_SPLINES_MODEL:
                     self.path_model_hull_and_spline = path
-                    if acquisition_tab_controller.to_display:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                    acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
                 elif file_extension == self.EXTENSION_WAVELET_MODEL:
                     self.path_model_wavelet = path
-                    if acquisition_tab_controller.to_display:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
-
-                if self.all_models_loaded():
-                    acquisition_tab_controller.to_display = False
+                    acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
             except ValueError:
                 # DISPLAY POP UP ERROR AND DO NOTHING

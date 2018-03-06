@@ -268,9 +268,6 @@ def interpolate_spline(list_coord, nb_points=150, step=20):
     #Outputs : 
     #    tck : tuple (t,c,k) vector of knots, B-spline coeff and the degree
     #    u   : weighted sum of squared residuals of the approximation
-    print('IND : ' + str(indices_change))
-    print('X CTRL : ' + str(x_control))
-    print('Y CTRL : ' + str(y_control))
     tck, u = interpolate.splprep([x_control, y_control], s=0.0)
     x_spline, y_spline = interpolate.splev(np.linspace(0, 1, nb_points), tck)
 
