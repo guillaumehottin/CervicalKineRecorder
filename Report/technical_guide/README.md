@@ -166,8 +166,11 @@ The file *Cervical_GUI/model/splines.py* permits to:
  - Create the model.
  
  First, we have to detect each oscillation to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
+ 
  Then, We find the cycle with the lowest number of points, we reduce others cycle to have the same number of points and we mean all lists. It corresponds to the mean control points (Function *mean_control_points*). After that, it's possible to developp the mean B-Splines (Function *interpolate_spline*).
+ 
  Now, we have to study the variability and get a score. The difficulty is that B-Spline only represents one oscillation so we have to consider each oscillation and compare it with B-Spline. For each point within the data curve, we find the nearest one within the spline and compute the distance ||Point_1 - Point_2||. We return the mean and the standard deviation of all distances (Function *distance_curve_to_spline*). The returned score is not available for now because we have to find a threshold to decide if there is too much variability or not (Function *score_model*).
+ 
  To finish, the function *create_model* call *score_model* on specified patients and return all mean and standard deviation. This result is usefull to create hull_and_spline model.
  
  
