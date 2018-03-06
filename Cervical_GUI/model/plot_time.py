@@ -1,10 +1,10 @@
 """
 Script which allows to plot the superposition of a new data with the mean of the data base
 """
-import datetime
 
 from model.plot_serie import *
 from model.myutils import *
+from model import file_manager
 
 
 def get_list_patient(dir_name):
@@ -122,8 +122,8 @@ def get_time_mean(array_data, list_param):
     return mean_pitch, mean_yaw, mean_roll
 
 
-def save_model(list_patient, directory, norm=True):
-    list_data = fetch_from_dirs(list_patient)[0]
+def save_model(list_patient, file_name, norm=True):
+    list_data = file_manager.get_coord_from_all_directories(list_patient)[0]
     movement, angle, speed, nb_return, wait_time, comments = list_data[0][1]
     list_param = [movement, angle, speed, nb_return, wait_time] 
     if norm:
@@ -131,8 +131,6 @@ def save_model(list_patient, directory, norm=True):
 
     pitch_mean, yaw_mean, roll_mean = get_time_mean(list_data, list_param)
 
-    now = datetime.datetime.now()
-    file_name = directory + 'time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'
     with open(file_name, 'w+') as file:
         file.write(str(movement) + '\n' + str(angle) + '\n' + str(speed) + '\n' + str(nb_return) + '\n' +
                    str(wait_time) + '\n')

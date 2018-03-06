@@ -1,83 +1,15 @@
 import matplotlib.pyplot as plt
 import shapely.geometry as geometry
-from descartes import PolygonPatch
 import math
 from shapely.ops import cascaded_union, polygonize
 from scipy.spatial import Delaunay
 import numpy as np
-from model import myutils
+from model import myutils, file_manager
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import sklearn.svm as svm
 import pickle
-import datetime
 
-#
-# def plot_polygon_MP(polygon):
-#     """
-#     Plot a polygon using PolygonPatch.
-#
-#     Parameters
-#     ----------
-#     polygon : MultiPoint
-#             The polygon to plot
-#     """
-#     fig = plt.figure(figsize=(10,10))
-#     ax = fig.add_subplot(111)
-#     margin = .3
-#     x_min, y_min, x_max, y_max = polygon.bounds
-#     ax.set_xlim([x_min-margin, x_max+margin])
-#     ax.set_ylim([y_min-margin, y_max+margin])
-#     patch = PolygonPatch(polygon, fc='#999999',
-#                          ec='#000000', fill=True,
-#                          zorder=-1)
-#     ax.add_patch(patch)
-#     return fig
-
-
-# def plot_many_polygons(lst_poly):
-#     """
-#     Plot a list of polygons contained in a list.
-#
-#     Parameters
-#     ----------
-#     lst_poly : array(MultiPoints)
-#             List of polygons
-#
-#     Returns
-#     -------
-#     figure
-#             The corresponding figure.
-#     """
-#     x_max = 0
-#     y_max = 0
-#     x_min = 0
-#     y_min = 0
-#     fig = plt.figure(figsize=(10,10))
-#     ax = fig.add_subplot(111)
-#     margin = .3
-#     for poly in lst_poly:
-#         #Determine the axes limits
-#         x_min_curr, y_min_curr, x_max_curr, y_max_curr = poly.bounds
-#         if x_max < x_max_curr:
-#             x_max = x_max_curr
-#         if y_max < y_max_curr:
-#             y_max = y_max_curr
-#         if y_min > y_min_curr:
-#             y_min = y_min_curr
-#         if x_min > x_min_curr:
-#             x_min = x_min_curr
-#
-#         color = myutils.RGBA_arg()
-#         patch = PolygonPatch(poly, fc=color,
-#                          ec=color, fill=True,
-#                          zorder=-1)
-#         ax.add_patch(patch)
-#     ax.set_xlim([x_min-margin, x_max+margin])
-#     ax.set_ylim([y_min-margin, y_max+margin])
-#     ax.legend([str(i+1) for i in range(len(lst_poly))])
-#     return fig
-#
 
 def add_edge(edges, edge_points, coords, i, j):
     """ 
@@ -112,7 +44,7 @@ def alpha_shape(points, alpha):
         # When you have a triangle, there is no sense
         # in computing an alpha shape.
         return geometry.MultiPoint(list(points)).convex_hull
-		  
+
     coords = np.array([point.coords[0] for point in points])
     tri = Delaunay(coords)
     edges = set()
@@ -217,8 +149,8 @@ def discrete_hull(x, y, size_grid, alpha):
             The corresponding grid, its points and the hull as a polygon.
     """
     coordinates = myutils.coord2points([x, y])
-    hull = alpha_shape(myutils.array2MP(coordinates), alpha = alpha)[0]
-    return matching_grid(hull, axis=[0,1,0.4,0.6], npts_grid=size_grid), hull
+    hull = alpha_shape(myutils.array2MP(coordinates), alpha=alpha)[0]
+    return matching_grid(hull, axis=[0, 1, 0.4, 0.6], npts_grid=size_grid), hull
 
 
 def pts_out_poly(poly, pts):
@@ -472,7 +404,7 @@ def compare_to_model(new_acq, model, size_grid=[100,30], alpha=3.0):
     return healthy, grid_p, hull_p, grid_r, hull_r
 
 
-def save_model(list_dir, directory, patho_patients=None):
+def save_model(list_dir, file_name, patho_patients=None):
     """
     Generate and save a model.
     
@@ -480,14 +412,14 @@ def save_model(list_dir, directory, patho_patients=None):
     ----------
     list_dir : array of str
             List of directories where to find the files used to generate the model.
-    directory : str
-            Path to the directory where the model must be saved.
+    file_name : str
+            Name of the file which will contain the model.
     patho_patients : array_like
             Indices of the acquisitions in list_dir which correspond to unhealthy 
             patients.
     """
-    array_data, nb_acq = myutils.fetch_from_dirs(list_dir)
-    array_data = myutils.preprocess_data(array_data)
+    array_data, nb_acq = file_manager.get_coord_from_all_directories(list_dir)
+    array_data = myutils.preprocess_data([x[0] for x in array_data])
 
     if patho_patients is None:
         labels = None
@@ -506,9 +438,7 @@ def save_model(list_dir, directory, patho_patients=None):
     model, acc_train, acc_test = create_model(array_data, type_model='hull', 
                                               size_grid=size_grid, alpha=alpha,
                                               labels=labels)
-    
-    now = datetime.datetime.now()
-    file_name = directory + '/hull_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlhl'
+
     with open(file_name, 'wb') as file:
         pickle.dump(model, file)
     with open(file_name, 'a+') as file:    

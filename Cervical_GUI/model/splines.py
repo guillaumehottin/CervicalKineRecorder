@@ -298,6 +298,7 @@ def create_model(array_data):
     std_roll = []
     npts = 150
     for i in range(len(yaw_pitch)):
+        print(yaw_pitch[i])
         xsp, ysp, indices_p = interpolate_spline(yaw_pitch[i], npts)
         xsr, ysr, indices_r = interpolate_spline(yaw_roll[i], npts)
         std_pitch += [score_model(yaw_pitch[i], xsp, ysp, indices_p)]
@@ -306,15 +307,5 @@ def create_model(array_data):
     return np.mean(std_pitch), np.mean(std_roll)
     
 
-if __name__ == "__main__":
-    
-    direct = 'data/guillaume2/'
-    
-    list_dir = ['data/guillaume2/Normalized']
-    list_coord = myutils.fetch_from_dirs(list_dir)
-
-    npts = 150
-    
-    p, r = create_model(list_coord)
         
     

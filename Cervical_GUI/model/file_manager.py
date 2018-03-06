@@ -36,6 +36,24 @@ def get_all_directory_files(directory_path_string):
     return list_files
 
 
+def get_coord_from_all_directories(list_dir):
+    """
+    Function used to retrieve coordinates in all files contained in a list of directories which match the
+    FILE_EXTENSION
+    :param list_dir: String list containing the directories paths we have to look
+    :return: float list list containing, for each file, the three coordinates and the corresponding parameters
+    :return: int number of files in each directory
+    """
+    list_coord = []
+    nb_files = []
+    for folder in list_dir:
+        files = [folder + '/' + f for f in get_all_directory_files(folder)]
+        nb_files += [len(files)]
+        for f in files:
+            list_coord += [[get_coord(f), get_param_from_file(f)]]
+    return list_coord, nb_files
+
+
 def get_all_directories():
     """
     Function used to retrieve the list of directories contained in PATH_TO_STORE_FILES

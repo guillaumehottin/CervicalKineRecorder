@@ -1,8 +1,7 @@
 import random as rd
 import shapely.geometry as geometry
 import numpy as np
-import os
-import model.file_manager as file_manager
+
 
 # Cast array of points to MultiPoint
 def array2MP(pts):
@@ -55,47 +54,6 @@ def RGBA_arg():
             res_str += char
         hex_str = res_str
     return '#' + hex_str
-
-
-# To fetch files in a specified folder, returns the list of the paths to theses files
-def fetch_files(dir_name='.', extension='.orpl', sub_dir=''):
-    res = []
-    path = dir_name + sub_dir
-    for file in os.listdir(path):
-        if extension in file:
-            res += [path + '/' + file]
-    return res
-
-
-def fetch_from_dirs(list_dir, extension='.orpl', sub_dir=''):
-    list_coord = []
-    nb_folders = []
-    for folder in list_dir:
-        files = fetch_files(folder, extension, sub_dir)
-        nb_folders += [len(files)]
-        for f in files:
-            list_coord += [[file_manager.get_coord(f), file_manager.get_param_from_file(f)]]
-    return list_coord, nb_folders
-
-# Get list of coordinates in an ORPL file (yaw,pitch_roll)
-def get_coord(file_path):
-    with open(file_path, "r") as f:
-        data = f.readlines()
-
-    yaw_l, pitch_l, roll_l = [], [], []
-
-    data.pop(0)
-    for i in range(len(data)):
-        elems = data[i].split(" ")
-        yaw_l.append(elems[0])
-        pitch_l.append(elems[1])
-        roll_l.append(elems[2])
-
-    pitch_l = np.array(list(map(float, pitch_l)))
-    yaw_l = np.array(list(map(float, yaw_l)))
-    roll_l = np.array(list(map(float, roll_l)))
-
-    return yaw_l, pitch_l, roll_l
 
 
 # Convert n lists of m coordinates into a list of m n-dimensional vectors

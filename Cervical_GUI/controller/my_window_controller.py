@@ -4,13 +4,12 @@ import webbrowser
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-from model import hull_and_spline, hulls
+from model import hull_and_spline, hulls, plot_time
 from model.file_manager import create_directory, get_file_name_from_absolute_path, \
-    add_profile_used
+    add_profile_used, get_coord
 from view.curves_dialog import CurvesDialog
 from view.model_generator_dialog import ModelGeneratorDialog
 from view.new_profile_dialog import NewProfileDialog
-from model.myutils import get_coord
 
 DEBUG               = False
 
@@ -227,7 +226,11 @@ class MyWindowController(QObject):
                 self.view.tab_wavelet.clear_graph()
             else:
                 # TODO regenerates model with given patient and file name
-                pass
+                directories_for_model = ['./data/' + d for d in directories_for_model]
+                hulls.save_model(directories_for_model, './models/' + model_name + '_hull' + self.EXTENSION_HULLS_MODEL)
+                hull_and_spline.save_model(directories_for_model, './models/' + model_name + '_hull_and_spline' +
+                                           self.EXTENSION_HULLS_SPLINES_MODEL)
+                plot_time.save_model(directories_for_model, './models/' + model_name + '_time_series' + self.EXTENSION_WAVELET_MODEL)
 
         else:  # The user cancel his operation
             pass

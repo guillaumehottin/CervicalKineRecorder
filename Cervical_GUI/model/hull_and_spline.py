@@ -2,7 +2,7 @@ from model import splines, hulls
 import datetime
 from shapely.wkt import loads
 import matplotlib.pyplot as plt
-from model import myutils
+from model import myutils, file_manager
 
 
 def compare_to_model(new_acq, model):
@@ -82,7 +82,7 @@ def plot_hull_spline(hull, spline, curve, type_motion):
     plt.show()
 
     
-def save_model(list_dir, directory):
+def save_model(list_dir, file_name):
     """
     Generate and save a model.
     
@@ -93,14 +93,12 @@ def save_model(list_dir, directory):
     directory : str
             Path to the directory where the model must be saved.
     """
-    array_data = myutils.fetch_from_dirs(list_dir)[0]
+    array_data = file_manager.get_coord_from_all_directories(list_dir)[0]
     bins = [50, 20]
-    array_data = myutils.preprocess_data(array_data)
+    array_data = myutils.preprocess_data([x[0] for x in array_data])
     hull_model_p, hull_model_r = hulls.create_model(array_data, type_model='has', bins=bins)
     spline_pitch, spline_roll = splines.create_model(array_data)
-    
-    now = datetime.datetime.now()
-    file_name = directory + '/has_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlhs'
+
     with open(file_name, 'w+') as file:
         file.write(hull_model_p.wkt + '\n' + hull_model_r.wkt + '\n' 
                    + str(spline_pitch) + '\n' + str(spline_roll))
