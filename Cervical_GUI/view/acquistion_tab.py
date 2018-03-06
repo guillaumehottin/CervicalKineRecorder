@@ -17,10 +17,6 @@ from matplotlib.backends.qt_compat import QtCore, QtWidgets
 
 DEBUG               = False
 
-#TODO CHANGE CONST LOCATION TO CONTROLLER
-HOST = "localhost"
-PORT = 50007
-
 
 class AcquisitionTab(QWidget):
     """
