@@ -3,11 +3,6 @@
 from PyQt5.QtWidgets import QSizePolicy
 from descartes import PolygonPatch
 from matplotlib.figure import Figure
-<<<<<<< HEAD
-from model import plot_time
-
-=======
->>>>>>> b7c14719b69faea09d9dbbd3d48720b7c513c072
 from matplotlib.backends.qt_compat import is_pyqt5
 
 if is_pyqt5():
