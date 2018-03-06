@@ -35,7 +35,10 @@ class AcquisitionTabController(QObject):
     SPHERE_YELLOW_TO_RED_ANGLE      = "0.2"
     # TODO FX SI TU VEUX SIMULER UNE ACQUISITION UTILISE tmp1.orpl
     # A LA FIN D'UNE ACQUISITION, LE PROGRAMME LIRA DANS CE FICHIER UNE "FAUSSE" COURBE
-    TMP_FILE_PATH                   = "tmp1.orpl"
+    if DEBUG:
+        TMP_FILE_PATH                   = "tmp1.orpl"
+    else:
+        TMP_FILE_PATH                   = "tmp.orpl"
 
     # Values used to create the socket and discuss with unity project
     HOST = "localhost"
@@ -215,7 +218,6 @@ class AcquisitionTabController(QObject):
         self.view.startStopButton.setStyleSheet("background-color: green; color:white")
         self.view.startStopButton.setEnabled(True)
 
-        # TODO ADD CONTENT
 
     def display_models(self, new_coords):
         new_coords = utl.preprocess_data([new_coords])[0]
