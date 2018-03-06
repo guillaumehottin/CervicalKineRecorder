@@ -227,11 +227,20 @@ class AcquisitionTabController(QObject):
             mdl_hull_spline = hs.load_model(path_hs)
             res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
             hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
+            # Display figures
             self.view.parent.tab_hull_and_splines.canvas_left_modeling.plot_hull_spline(hull_pitch, (
                 to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
             self.view.parent.tab_hull_and_splines.canvas_right_modeling.plot_hull_spline(hull_roll, (
                 to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
-            # TODO ALSO PRINT RESULTS FROM RES_COMPARISON
+            # Display results
+            self.view.parent.tab_hull_and_splines.label_left_variability_score.setText(
+                str(res_comparison['err_spline_pitch'])[:7])
+            self.view.parent.tab_hull_and_splines.label_right_variability_score.setText(
+                str(res_comparison['err_spline_roll'])[:7])
+            self.view.parent.tab_hull_and_splines.label_left_rate_value.setText(
+                "{:.2%}".format(res_comparison['rate_out_pitch']))
+            self.view.parent.tab_hull_and_splines.label_right_rate_value.setText(
+                "{:.2%}".format(res_comparison['rate_out_roll']))
 
         if path_hull != "":
             mdl_hull = hl.load_model(self.view.main_window_controller.path_model_hulls)

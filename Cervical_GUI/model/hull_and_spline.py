@@ -43,9 +43,8 @@ def compare_to_model(new_acq, model):
     if (rate_out_pitch > 0.1 or rate_out_pitch > 0.1 or err_spline_pitch < 0 or
             err_spline_roll < 0):
         healthy = False
-    res_comparison = {'healthy': healthy, 'rate_out_pitch': rate_out_pitch, 
-               'rate_out_roll': rate_out_roll, 'err_spline_pitch': err_spline_pitch, 
-               'err_spline_roll': err_spline_roll}
+    res_comparison = {'healthy': healthy, 'rate_out_pitch': rate_out_pitch, 'rate_out_roll': rate_out_roll,
+                      'err_spline_pitch': err_spline_pitch, 'err_spline_roll': err_spline_roll}
     to_plot_pitch = {'hull': hull_pitch, 'xs': xs_pitch, 'ys': ys_pitch,
                      'curve': new_acq[0:2], 'type_motion': 'pitch'}
     to_plot_roll = {'hull': hull_roll, 'xs': xs_roll, 'ys': ys_roll,
