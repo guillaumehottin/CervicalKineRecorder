@@ -1,4 +1,4 @@
-from Cervical_GUI.model.plot_time import *
+from model.plot_time import *
 
 directory = '../tests/'
 

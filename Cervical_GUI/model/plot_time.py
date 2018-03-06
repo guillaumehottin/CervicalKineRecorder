@@ -3,8 +3,14 @@ Script which allows to plot the superposition of a new data with the mean of the
 """
 import datetime
 
+<<<<<<< HEAD
+from model.file_manager import get_param_from_file
+from model.plot_serie import *
+from model.myutils import *
+=======
 from Cervical_GUI.model.plot_serie import *
 from Cervical_GUI.model.myutils import *
+>>>>>>> b7c14719b69faea09d9dbbd3d48720b7c513c072
 
 
 def get_list_patient(dir_name):

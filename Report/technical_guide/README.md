@@ -151,7 +151,20 @@ You can then copy them and move them in another folder. Running *main.exe* will 
  - *StartScripts.cs* : this script is the one controlling all the logic of the application. When it is ran, it starts a socket server and waits to receive a *startAcquisition* message with all the correct parameters. Once it receives it, it sends a *startAcquisitionAck* message and attaches all the other scripts to the controller. It fills in all the parameters it receives to the correct scripts, and tells the *SphereControl* script to start its logic. From now on, the *StartScripts* script waits to receive either of two messages *stopAcquisition* or *finishAcquisition*. If it receives *stopAcquisition*, it stops the *SphereControl* script and sends a *stopAcquisitionAck* through the socket. If it receives *finishAcquisition*, it waits until the end of the acquisition. When it is finished, it sends *endAcquisition* through the socket.
  
  There is another script that is attached to the *CameraParent* : *PositionalLock*. This script allows to only get the rotational data from the Oculus headset. This ensure that even if the patient moves around in front of the computer, the camera stays centered in the middle of the room.
- 
+
+
+## Communication between the GUI and the Oculus App
+
+The communication between the GUI and the Oculus App is done with sockets.
+
+![Sockets sequence](./images/socket_exchanges.png "Sockets sequence diagram")
+
+- The GUI creates the socket server and the Oculus App connects to it
+- The GUI sends *startAcquisition,parameter1:value1,parameter2:value2...* to the Oculus app
+- The Oculus app starts the acquisition and sends *startAcquisitionAck*
+- Then there are two alternatives :
+    - Either we want to stop and discard the acquisition and the GUI sends *stopAcquisition*
+    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends *finishAcquisition*. The Oculus App then waits until the acquisition is finished and sends *endAcquisition,mean:value,standard_deviation:value*
  
  ## Modeling and data analysis
  
