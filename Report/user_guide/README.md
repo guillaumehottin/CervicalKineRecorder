@@ -196,15 +196,23 @@ On the other hand, you can interrupt at anytime the acquisition in order to chan
 
 To create a model you need to use the "*Modèles*" menu and click on "*Créer modèle*". After that you will see the following screen:
 
-![Create a model](./images/screen/10_python_create_model_dialog.png)
+![Create a model](./images/screens/10_python_create_model_dialog.png)
 
-Here you can select all the patients you want to include in your new model by checking the corresponding boxes. You need to specify a name for your new model in the field "*Nom du modèle*". Eventually you can click on "*Regénérer modèle*". This will create one model for each of the three kind presented earlier. Each model will be stored in a file whose name is formatted as follows: *\<name specified\>\_\<type of the model\>.\<model extension\>.
+Here you can select all the patients you want to include in your new model by checking the corresponding boxes. You need to specify a name for your new model in the field "*Nom du modèle*". Eventually you can click on "*Regénérer le modèle*". This will create one model for each of the three kinds presented earlier. Each model will be stored in a file whose name is formatted as follows: *\<name specified\>\_\<type of the model\>.\<model extension\>*.
 
-*\<type of the model\>* is either *hulls*, *hull\_and\_spline* or *wavelet*. The extensions are predefined.
+*\<type of the model\>* is either *hulls*, *hull\_and\_spline* or *time\_series*. The extensions are predefined.
 
 **If a model which has the same name already exists,** you will be asked whether you want to keep the old one or erase it and save the new one.
 
 #### Load a model
+
+When you have saved some models, you can use them by with the "*Modèles*" menu. Then click on "*Charger modèle*". A file browser will open in the directory where all your models are saved.
+
+![Load model](./images/screens/10_python_load_model.png)
+
+There you can select up to three models, each of a different type. The types of the models are specified at the end of the file name. When you have chosen the models you want to use, click on "*Ouvrir*". When the models are loaded a pop up window will appear to confirm it.
+
+If an acquisition was already displayed, it will automatically be compared to the models just loaded and the results will be displayed in the respective tabs. Otherwise, you will need either to load a measure previously acquired or to make a new measure.
 
 #### Documentation
 
