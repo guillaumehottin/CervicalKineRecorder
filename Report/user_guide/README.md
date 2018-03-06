@@ -91,7 +91,12 @@ We are now goint to define all the terms we are going to use in this tutorial
 
 - Acquisition tab: This tab allows you to set up parameters, launch/stop acquisition and see the acquired curves (see image above)
 
-- Modeling tabs: TODO
+- Modeling tabs: These tabs allows you to, after loading one or several differents model, to compare your acquisition with the models.
+Three tabs are available :
+
+    + "Hull and Spline" : Spline and concave hull calculation are made on your acquisition and compared with the model that you loaded
+    + "Hull" : Concave hull of the loaded model and your acquisition are plotted and compared. Color code notifies if your acquisition is outside the concave hull model.
+    + "Time_serie" : The model created represents mean movements of the selected dataset. Your acquisition is compared with these mean curves
  
 - Menu bar: The menu bar is composed of four entries :
 
