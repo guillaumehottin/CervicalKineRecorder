@@ -151,24 +151,27 @@ You can then copy them and move them in another folder. Running *main.exe* will 
  - *StartScripts.cs* : this script is the one controlling all the logic of the application. When it is ran, it starts a socket server and waits to receive a *startAcquisition* message with all the correct parameters. Once it receives it, it sends a *startAcquisitionAck* message and attaches all the other scripts to the controller. It fills in all the parameters it receives to the correct scripts, and tells the *SphereControl* script to start its logic. From now on, the *StartScripts* script waits to receive either of two messages *stopAcquisition* or *finishAcquisition*. If it receives *stopAcquisition*, it stops the *SphereControl* script and sends a *stopAcquisitionAck* through the socket. If it receives *finishAcquisition*, it waits until the end of the acquisition. When it is finished, it sends *endAcquisition* through the socket.
  
  There is another script that is attached to the *CameraParent* : *PositionalLock*. This script allows to only get the rotational data from the Oculus headset. This ensure that even if the patient moves around in front of the computer, the camera stays centered in the middle of the room.
-
-
-## Communication between the GUI and the Oculus App
-
-The communication between the GUI and the Oculus App is done with sockets.
-
-![Sockets sequence](./images/socket_exchanges.png "Sockets sequence diagram")
-
-- The GUI creates the socket server and the Oculus App connects to it
-- The GUI sends *startAcquisition,parameter1:value1,parameter2:value2...* to the Oculus app
-- The Oculus app starts the acquisition and sends *startAcquisitionAck*
-- Then there are two alternatives :
-    - Either we want to stop and discard the acquisition and the GUI sends *stopAcquisition*
-    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends *finishAcquisition*. The Oculus App then waits until the acquisition is finished and sends *endAcquisition,mean:value,standard_deviation:value*
+ 
  
  ## Modeling and data analysis
  
- ### Wavelets
+ ### Hulls and Splines
+ #### Splines
+ 
+The file *Cervical_GUI/model/splines.py* permits to:
+ - Get angle data,
+ - Interpolate curve with B-Splines (For instance, **Pitch=f(Yaw)**),
+ - Compute the mean oscillation of motion,
+ - Compute the distance between data curve and mean oscillation,
+ - Create the model.
+ 
+ First, we have to detect each oscillation to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
+ Then, We find the cycle with the lowest number of points, we reduce others cycle to have the same number of points and we mean all lists. It corresponds to the mean control points (Function *mean_control_points*). After that, it's possible to developp the mean B-Splines (Function *interpolate_spline*).
+ Now, we have to study the variability and get a score. The difficulty is that B-Spline only represents one oscillation so we have to consider each oscillation and compare it with B-Spline. For each point within the data curve, we find the nearest one within the spline and compute the distance ||Point_1 - Point_2||. We return the mean and the standard deviation of all distances (Function *distance_curve_to_spline*). The returned score is not available for now because we have to find a threshold to decide if there is too much variability or not (Function *score_model*).
+ To finish, the function *create_model* call *score_model* on specified patients and return all mean and standard deviation. This result is usefull to create hull_and_spline model.
+ 
+ 
+ ### Wavelets and B-Splines
  
 The file *Code/spline_wavelet.py* permits to:
 
