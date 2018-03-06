@@ -165,17 +165,17 @@ class PlotCanvas(FigureCanvas):
         self.axes.cla()
 
         if nb_window == 1:
-            self.plot(np.linspace(0, len_coord-1, len_coord), pitch)
-            self.plot(np.linspace(0, len_mean-1, len_mean), pitch_mean, color='blue')
+            self.plot(np.linspace(0, len_coord-1, len_coord), pitch, legend='Tangage')
+            self.plot(np.linspace(0, len_mean-1, len_mean), pitch_mean, color='blue', legend='Tangage moyen')
         elif nb_window == 2:
-            self.plot(np.linspace(0, len_coord-1, len_coord), yaw)
-            self.plot(np.linspace(0, len_mean-1, len_mean), yaw_mean, color='blue')
+            self.plot(np.linspace(0, len_coord-1, len_coord), yaw, legend='Lacet')
+            self.plot(np.linspace(0, len_mean-1, len_mean), yaw_mean, color='blue', legend='Lacet moyen')
         elif nb_window == 3:
-            self.plot(np.linspace(0, len_coord-1, len_coord), roll)
-            self.plot(np.linspace(0, len_mean-1, len_mean), roll_mean, color='blue')
+            self.plot(np.linspace(0, len_coord-1, len_coord), roll, legend='Roulis')
+            self.plot(np.linspace(0, len_mean-1, len_mean), roll_mean, color='blue', legend='Roulis moyen')
         elif nb_window == 4:
-            self.plot(np.linspace(0, len_coord-1, len_coord), pitch, color='blue')
-            self.plot(np.linspace(0, len_coord-1, len_coord), yaw, color='red')
-            self.plot(np.linspace(0, len_coord-1, len_coord), roll, color='green')
+            self.plot(np.linspace(0, len_coord-1, len_coord), pitch, color='blue', legend='Tangage')
+            self.plot(np.linspace(0, len_coord-1, len_coord), yaw, color='red', legend='Lacet')
+            self.plot(np.linspace(0, len_coord-1, len_coord), roll, color='green', legend='Roulis')
 
         self.draw()
