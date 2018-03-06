@@ -3,14 +3,14 @@ import os
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5.QtWidgets import QMessageBox
 
-from Cervical_GUI.controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
+from controller.threads import StartSocketServerThread, StartAcquisitionThread, StopAcquisitionThread, \
     SendContinueThread
-from Cervical_GUI.model.file_manager import create_file_with_curves, get_coord
-from Cervical_GUI.model.socket_server import SocketServer, PortCount, calculate_time_for_finish
-import Cervical_GUI.model.hulls as hl
-import Cervical_GUI.model.hull_and_spline as hs
-import Cervical_GUI.model.myutils as utl
-import Cervical_GUI.model.plot_time as plot_time
+from model.file_manager import create_file_with_curves, get_coord
+from model.socket_server import SocketServer, PortCount, calculate_time_for_finish
+import model.hulls as hl
+import model.hull_and_spline as hs
+import model.myutils as utl
+import model.plot_time as plot_time
 
 
 DEBUG = True

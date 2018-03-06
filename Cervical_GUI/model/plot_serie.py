@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pywt
 
-from Cervical_GUI.model.myutils import get_coord
+from model.myutils import get_coord
 from mpl_toolkits.mplot3d import Axes3D
 
 

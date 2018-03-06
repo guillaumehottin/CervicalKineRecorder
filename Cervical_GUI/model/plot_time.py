@@ -3,9 +3,8 @@ Script which allows to plot the superposition of a new data with the mean of the
 """
 import datetime
 
-from Cervical_GUI.model.file_manager import get_param_from_file
-from Cervical_GUI.model.plot_serie import *
-from Cervical_GUI.model.myutils import *
+from model.plot_serie import *
+from model.myutils import *
 
 
 def get_list_patient(dir_name):
@@ -39,7 +38,6 @@ def get_all_param(array_data):
     wait_times = []
     comments = []
     for acq in array_data:
-        print(acq)
         movement, angle, speed, nb_return, wait_time, comment = acq[1]
         movements.append(movement)
         angles.append(angle)
@@ -80,12 +78,11 @@ def get_same_param_data(array_data, movement, angle, speed, nb_return, wait_time
     return array_data
 
 
-def get_time_mean(array_data, list_param, norm=1):
+def get_time_mean(array_data, list_param):
     """
     Get the mean curves of the data base
     :param list_param: list of parameters : movement, angle, speed,...
     :param array_data: path which leads to the data base
-    :param norm: optional, 1 if you want the data to be normed
     :return: (mean_pitch, mean_yaw, mean_roll) three lists representing the mean curves of the data base
     """
 
@@ -110,11 +107,13 @@ def get_time_mean(array_data, list_param, norm=1):
     # all_pitch, all_yaw and all_roll contains all time data with the same parameters
 
     # calcul des courbes moyennes
-    mean_pitch = [0]*len(all_pitch[0])
-    mean_yaw = [0]*len(all_yaw[0])
-    mean_roll = [0]*len(all_roll[0])
+    mean_pitch = [0]*min(map(len, all_pitch))
+    mean_yaw = [0]*min(map(len, all_yaw))
+    mean_roll = [0]*min(map(len, all_roll))
 
-    for i in range(len(mean_pitch)):
+    length_min = min(map(len, all_pitch))
+    print('length_min = ', length_min)
+    for i in range(length_min):
         for j in range(len(all_pitch)):
             mean_pitch[i] += all_pitch[j][i]/len(all_pitch)
             mean_yaw[i] += all_yaw[j][i]/len(all_yaw)
@@ -128,12 +127,12 @@ def save_model(list_patient, directory, norm=True):
     movement, angle, speed, nb_return, wait_time, comments = list_data[0][1]
     list_param = [movement, angle, speed, nb_return, wait_time] 
     if norm:
-        list_data = [[y,z[1]] for y,z in zip (preprocess_data([x[0] for x in list_data]), list_data)]
+        list_data = [[y, z[1]] for y, z in zip (preprocess_data([x[0] for x in list_data]), list_data)]
 
     pitch_mean, yaw_mean, roll_mean = get_time_mean(list_data, list_param)
 
     now = datetime.datetime.now()
-    file_name = directory + '/time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'
+    file_name = directory + 'time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'
     with open(file_name, 'w+') as file:
         file.write(str(movement) + '\n' + str(angle) + '\n' + str(speed) + '\n' + str(nb_return) + '\n' +
                    str(wait_time) + '\n')
@@ -142,23 +141,20 @@ def save_model(list_patient, directory, norm=True):
         for pitch, yaw, roll in zip(pitch_mean, yaw_mean, roll_mean):
             file.write(str(yaw) + '\t' + str(pitch) + '\t' + str(roll) + '\n')
 
+        file.close()
 
-def plot_final_time(current_file, list_patient, list_param, norm=1):
+
+def plot_final_time(current_file, array_data, list_param, norm=1):
     """
     Plot the final figure : pitch vs pitch_mean, yaw vs yaw_mean, roll vs roll_mean, pitch vs yaw vs roll
     :param current_file: path which leads to the current file
-    :param list_patient: list of every patient of the data_base
+    :param array_data: list of every patient of the data_base
     :param list_param: list of parameters : movement, angle, speed,...
     :param norm: optional, 1 if you want the data to be normed
     :return: void
     """
 
-    movement = list_param[0]
-    angle = list_param[1]
-    speed = list_param[2]
-    nb_return = list_param[3]
-    wait_time = list_param[4]
-    pitch_mean, yaw_mean, roll_mean = get_time_mean(list_patient, movement, angle, speed, nb_return, wait_time, norm)
+    pitch_mean, yaw_mean, roll_mean = get_time_mean(array_data, list_param, norm)
 
     pitch, yaw, roll = get_coord(current_file)
 
@@ -197,3 +193,12 @@ def load_model(model_path):
             pitch.append(tmp[1])
             roll.append(tmp[2])
     return yaw, pitch, roll, list_param
+
+
+# Script pour créer un modèle test à partir d'une liste de patients test
+# Chemin vers le(s) dossier(s) contenant les données :
+patients = ['/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/data/Hottin_guillaume_22/']
+# Where save the model :
+directory = '/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/models/'
+# Save_model
+save_model(patients, directory)

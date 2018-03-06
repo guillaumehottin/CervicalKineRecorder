@@ -2,7 +2,7 @@ import random as rd
 import shapely.geometry as geometry
 import numpy as np
 import os
-import Cervical_GUI.model.file_manager as file_manager
+import model.file_manager as file_manager
 
 # Cast array of points to MultiPoint
 def array2MP(pts):
