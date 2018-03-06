@@ -157,9 +157,9 @@ class PlotCanvas(FigureCanvas):
         :return: void
         """
 
-        pitch_mean, yaw_mean, roll_mean = mean_coords
+        yaw_mean, pitch_mean, roll_mean = mean_coords
         len_mean = len(pitch_mean)
-        pitch, yaw, roll = new_coord
+        yaw, pitch, roll = new_coord
         len_coord = len(pitch)
 
         self.axes.cla()

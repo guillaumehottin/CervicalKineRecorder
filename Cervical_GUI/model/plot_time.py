@@ -98,7 +98,7 @@ def get_time_mean(array_data, list_param):
     all_roll = []
     for current_file in list_file:
         # on récupère les coordonnées spatiales des données
-        pitch_l, yaw_l, roll_l = current_file[0]
+        yaw_l, pitch_l, roll_l = current_file[0]
 
         all_pitch.append(pitch_l)
         all_yaw.append(yaw_l)
@@ -156,7 +156,7 @@ def plot_final_time(current_file, array_data, list_param, norm=1):
 
     pitch_mean, yaw_mean, roll_mean = get_time_mean(array_data, list_param, norm)
 
-    pitch, yaw, roll = get_coord(current_file)
+    yaw, pitch, roll = get_coord(current_file)
 
     fig_final, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     ax1.plot(pitch)
