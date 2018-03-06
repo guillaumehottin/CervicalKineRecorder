@@ -1,7 +1,7 @@
 """
-Script de test des fonctions du fichier Cervical_GUI.model.plot_serie.py
+Script de test des fonctions du fichier model.plot_serie.py
 """
-from Cervical_GUI.model.plot_serie import *
+from model.plot_serie import *
 
 directory = '../../bonnes_mesures/'
 

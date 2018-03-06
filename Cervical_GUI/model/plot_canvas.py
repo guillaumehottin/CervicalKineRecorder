@@ -3,7 +3,7 @@
 from PyQt5.QtWidgets import QSizePolicy
 from descartes import PolygonPatch
 from matplotlib.figure import Figure
-from Cervical_GUI.model import plot_time
+from model import plot_time
 
 from matplotlib.backends.qt_compat import is_pyqt5
 
