@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QSizePolicy
 from descartes import PolygonPatch
 from matplotlib.figure import Figure
 from matplotlib.backends.qt_compat import is_pyqt5
+import numpy as np
 
 if is_pyqt5():
     from matplotlib.backends.backend_qt5agg import (
@@ -157,27 +158,24 @@ class PlotCanvas(FigureCanvas):
         """
 
         pitch_mean, yaw_mean, roll_mean = mean_coords
-
+        len_mean = len(pitch_mean)
         pitch, yaw, roll = new_coord
+        len_coord = len(pitch)
 
         self.axes.cla()
 
         if nb_window == 1:
-            self.plot(pitch)
-            self.plot(pitch_mean)
-            self.axes.set_title("Pitch vs Pitch_mean")
+            self.plot(np.linspace(0, len_coord-1, len_coord), pitch)
+            self.plot(np.linspace(0, len_mean-1, len_mean), pitch_mean, color='blue')
         elif nb_window == 2:
-            self.plot(yaw)
-            self.plot(yaw_mean)
-            self.axes.set_title("Yaw vs Yaw_mean")
+            self.plot(np.linspace(0, len_coord-1, len_coord), yaw)
+            self.plot(np.linspace(0, len_mean-1, len_mean), yaw_mean, color='blue')
         elif nb_window == 3:
-            self.plot(roll)
-            self.plot(roll_mean)
-            self.axes.set_title("Roll vs Roll_mean")
+            self.plot(np.linspace(0, len_coord-1, len_coord), roll)
+            self.plot(np.linspace(0, len_mean-1, len_mean), roll_mean, color='blue')
         elif nb_window == 4:
-            self.plot(pitch)
-            self.plot(yaw)
-            self.plot(roll)
-            self.axes.set_title("Pitch vs Yaw vs Roll")
+            self.plot(np.linspace(0, len_coord-1, len_coord), pitch, color='blue')
+            self.plot(np.linspace(0, len_coord-1, len_coord), yaw, color='red')
+            self.plot(np.linspace(0, len_coord-1, len_coord), roll, color='green')
 
         self.draw()

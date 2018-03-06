@@ -258,6 +258,7 @@ class AcquisitionTabController(QObject):
 
         if path_wavelet != "":
             yaw, pitch, roll, _ = plot_time.load_model(self.view.main_window_controller.path_model_wavelet)
+            yaw, pitch, roll = list(map(float, yaw)), list(map(float, pitch)), list(map(float, roll))
             mean_coords = yaw, pitch, roll
             self.view.parent.tab_wavelet.canvas_up_left_modeling.plot_final_time(new_coords, mean_coords, 1)
             self.view.parent.tab_wavelet.canvas_down_left_modeling.plot_final_time(new_coords, mean_coords, 2)

@@ -195,10 +195,11 @@ def load_model(model_path):
     return yaw, pitch, roll, list_param
 
 
-# Script pour créer un modèle test à partir d'une liste de patients test
-# Chemin vers le(s) dossier(s) contenant les données :
-patients = ['/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/data/Hottin_guillaume_22/']
-# Where save the model :
-directory = '/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/models/'
-# Save_model
-save_model(patients, directory)
+if __name__ == '__main__':
+    # Script pour créer un modèle test à partir d'une liste de patients test
+    # Chemin vers le(s) dossier(s) contenant les données :
+    patients = ['/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/data/Hottin_guillaume_22/']
+    # Where save the model :
+    directory = '/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/models/'
+    # Save_model
+    save_model(patients, directory)
