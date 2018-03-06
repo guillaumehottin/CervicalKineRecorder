@@ -75,7 +75,8 @@ def detect_cycles(diff_l,list_angle):
             next_array = diff_l[i:i+window_size]
             prev_pos = positive_values(prev_array)
             next_pos = positive_values(next_array)
-            if (prev_pos > window_size/2 and next_pos < window_size/2) or (prev_pos < window_size/2 and next_pos > window_size/2):
+            if ((prev_pos > window_size / 2 > next_pos) or (prev_pos < window_size / 2 < next_pos)) and \
+                    i - index_change_l[-1] > 100:
                 index_change_l.append(i)
                 i += window_size
             else:
@@ -127,12 +128,12 @@ def mean_control_points(cycles_x, cycles_y):
 
 def get_control_points(angle_x, angle_y, step):
 
-    #Compute difference between two consecutives points    
+    # Compute difference between two consecutives points
     diff_l = compute_difference_list_motion(angle_x)
 
     index_change_l_res = detect_cycles(diff_l, angle_x)  
     index_change_l = index_change_l_res[::2]
-    #Build list for each cycle
+    # Build list for each cycle
     cycles_x, cycles_y = [],[]
     for i in range(len(index_change_l)-1):
         cycles_x += [angle_x[index_change_l[i]:index_change_l[i+1]+1]]
@@ -268,6 +269,9 @@ def interpolate_spline(list_coord, nb_points=150, step=20):
     #Outputs : 
     #    tck : tuple (t,c,k) vector of knots, B-spline coeff and the degree
     #    u   : weighted sum of squared residuals of the approximation
+    print('IND : ' + str(indices_change))
+    print('X CTRL : ' + str(x_control))
+    print('Y CTRL : ' + str(y_control))
     tck, u = interpolate.splprep([x_control, y_control], s=0.0)
     x_spline, y_spline = interpolate.splev(np.linspace(0, 1, nb_points), tck)
 
