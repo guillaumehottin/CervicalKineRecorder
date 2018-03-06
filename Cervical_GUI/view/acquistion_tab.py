@@ -242,7 +242,7 @@ class AcquisitionTab(QWidget):
         # BUTTONS
         self.startStopButton.setText(_translate("AcquisitionTab", "Lancer acquisition"))
         self.saveButton.setText(_translate("AcquisitionTab", "Enregistrer"))
-        self.emptyGraph.setText(_translate("AcquisitionTab", "VEEder les graphiques"))
+        self.emptyGraph.setText(_translate("AcquisitionTab", "Vider les graphiques"))
 
     def add_comment(self, hour_parameters, comments):
         """

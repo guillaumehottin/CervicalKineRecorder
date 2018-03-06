@@ -216,6 +216,9 @@ class MyWindowController(QObject):
 
         # The user choose some directories
         if accepted:
+            # Replace all spaces by underscores to avoid path problems
+            model_name = model_name.replace(" ", "_")
+
             DEBUG and print("=== acquisition.py === selected directories: " + str(directories_for_model))
             DEBUG and print("=== acquisition.py === model name: " + str(model_name))
 
@@ -226,11 +229,34 @@ class MyWindowController(QObject):
                 self.view.tab_wavelet.clear_graph()
             else:
                 # TODO regenerates model with given patient and file name
-                directories_for_model = ['./data/' + d for d in directories_for_model]
-                hulls.save_model(directories_for_model, './models/' + model_name + '_hull' + self.EXTENSION_HULLS_MODEL)
-                hull_and_spline.save_model(directories_for_model, './models/' + model_name + '_hull_and_spline' +
-                                           self.EXTENSION_HULLS_SPLINES_MODEL)
-                plot_time.save_model(directories_for_model, './models/' + model_name + '_time_series' + self.EXTENSION_WAVELET_MODEL)
+
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("Création des modèles en cours")
+                msg.setInformativeText("La création des modèles peut prendre un peu de temps, veuillez patienter")
+                msg.setWindowTitle("Information")
+                msg.exec()
+
+                directories_for_model = [self.PATH_TO_STORE_FILE + d for d in directories_for_model]
+
+                hulls.save_model(directories_for_model, self.PATH_TO_STORE_MODELS + model_name + '_hull' +\
+                                 self.EXTENSION_HULLS_MODEL)
+
+                hull_and_spline.save_model(directories_for_model, self.PATH_TO_STORE_MODELS + model_name +\
+                                           '_hull_and_spline' + self.EXTENSION_HULLS_SPLINES_MODEL)
+
+                plot_time.save_model(directories_for_model, self.PATH_TO_STORE_MODELS + model_name +\
+                                     '_time_series' + self.EXTENSION_WAVELET_MODEL)
+
+                confirmation_msg = "La création des modèles est terminée, voulez vous les charger maintenant ?"
+                reply = QMessageBox.question(self.view, 'Création des modèles terminée !',
+                                             confirmation_msg, QMessageBox.Yes, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    # TODO LOAD ALL THREE MODELS
+                    pass
+                else:
+                    # Do nothing
+                    pass
 
         else:  # The user cancel his operation
             pass
@@ -254,15 +280,12 @@ class MyWindowController(QObject):
 
         nb_hulls_model = sum(1 for curr_path in model_path \
                              if os.path.splitext(curr_path)[1] == self.EXTENSION_HULLS_MODEL)
-        print("NBBBBB HULLS " + str(nb_hulls_model))
 
         nb_hull_and_splines_model = sum(1 for curr_path in model_path \
                              if os.path.splitext(curr_path)[1] == self.EXTENSION_HULLS_SPLINES_MODEL)
-        print("NBBBBB HULLS AND SPLINES " + str(nb_hull_and_splines_model))
 
         nb_wavelet_model = sum(1 for curr_path in model_path \
                              if os.path.splitext(curr_path)[1] == self.EXTENSION_WAVELET_MODEL)
-        print("NBBBBB WAVELET " + str(nb_wavelet_model))
 
         informative_text = "Vous avez sélectionné deux modèles du type TYPE. \n" +\
                            "Veuillez faire attention à ne sélectionner qu'un seul modèle du type TYPE " +\
