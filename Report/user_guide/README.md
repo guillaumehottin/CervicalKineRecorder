@@ -194,6 +194,16 @@ On the other hand, you can interrupt at anytime the acquisition in order to chan
 
 #### Create a model
 
+To create a model you need to use the "*Modèles*" menu and click on "*Créer modèle*". After that you will see the following screen:
+
+![Create a model](./images/screen/10_python_create_model_dialog.png)
+
+Here you can select all the patients you want to include in your new model by checking the corresponding boxes. You need to specify a name for your new model in the field "*Nom du modèle*". Eventually you can click on "*Regénérer modèle*". This will create one model for each of the three kind presented earlier. Each model will be stored in a file whose name is formatted as follows: *\<name specified\>\_\<type of the model\>.\<model extension\>.
+
+*\<type of the model\>* is either *hulls*, *hull\_and\_spline* or *wavelet*. The extensions are predefined.
+
+**If a model which has the same name already exists,** you will be asked whether you want to keep the old one or erase it and save the new one.
+
 #### Load a model
 
 #### Documentation
