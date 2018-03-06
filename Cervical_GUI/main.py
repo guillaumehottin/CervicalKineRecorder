@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets
 
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QHBoxLayout
 
 from view.my_window import MyWindow
 import subprocess
@@ -33,7 +33,20 @@ except OSError:
         window.show()
         sys.exit(app.exec_())
     except OSError:
+
         print("Application 'Cervical' Oculus non trouvée")
+        app = QApplication(sys.argv)
+        w = QWidget()
+
+        text = QLabel(w)
+        text.setText("Nous n'avons pas pu lancer l'application 'Cervical' pour le casque Oculus Rift.\n"
+                     "Assurez vous que 'cervical.exe' se situe bien dans le répertoire du programme.")
+
+        w.setWindowTitle("Application 'Cervical' Oculus non trouvée")
+        w.resize(400,80)
+        text.move(10,20)
+        w.show()
+        sys.exit(app.exec_())
 
 
 
