@@ -199,7 +199,6 @@ def distance_curve_to_spline(curve, spline, indices_curve):
     back_spline  = np.array(spline[index_change_spline[-1]:])
     forth_spline_mp = geo.MultiPoint(forth_spline)
     back_spline_mp  = geo.MultiPoint(back_spline)
-    
 
     #Compute distance for each cycle
     for index in range(0,len(indices_curve)-1,2):
