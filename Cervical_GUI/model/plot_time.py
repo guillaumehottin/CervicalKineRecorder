@@ -38,7 +38,6 @@ def get_all_param(array_data):
     wait_times = []
     comments = []
     for acq in array_data:
-        print(acq)
         movement, angle, speed, nb_return, wait_time, comment = acq[1]
         movements.append(movement)
         angles.append(angle)
@@ -108,11 +107,13 @@ def get_time_mean(array_data, list_param):
     # all_pitch, all_yaw and all_roll contains all time data with the same parameters
 
     # calcul des courbes moyennes
-    mean_pitch = [0]*len(all_pitch[0])
-    mean_yaw = [0]*len(all_yaw[0])
-    mean_roll = [0]*len(all_roll[0])
+    mean_pitch = [0]*min(map(len, all_pitch))
+    mean_yaw = [0]*min(map(len, all_yaw))
+    mean_roll = [0]*min(map(len, all_roll))
 
-    for i in range(len(mean_pitch)):
+    length_min = min(map(len, all_pitch))
+    print('length_min = ', length_min)
+    for i in range(length_min):
         for j in range(len(all_pitch)):
             mean_pitch[i] += all_pitch[j][i]/len(all_pitch)
             mean_yaw[i] += all_yaw[j][i]/len(all_yaw)
@@ -131,7 +132,7 @@ def save_model(list_patient, directory, norm=True):
     pitch_mean, yaw_mean, roll_mean = get_time_mean(list_data, list_param)
 
     now = datetime.datetime.now()
-    file_name = directory + '/time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'
+    file_name = directory + 'time_serie_' + now.strftime("%m-%d-%Y_%H%M") + '.mdlwvl'
     with open(file_name, 'w+') as file:
         file.write(str(movement) + '\n' + str(angle) + '\n' + str(speed) + '\n' + str(nb_return) + '\n' +
                    str(wait_time) + '\n')
@@ -139,6 +140,8 @@ def save_model(list_patient, directory, norm=True):
         file.write('yaw \t pitch \t roll \n')
         for pitch, yaw, roll in zip(pitch_mean, yaw_mean, roll_mean):
             file.write(str(yaw) + '\t' + str(pitch) + '\t' + str(roll) + '\n')
+
+        file.close()
 
 
 def plot_final_time(current_file, array_data, list_param, norm=1):
@@ -194,4 +197,8 @@ def load_model(model_path):
 
 # Script pour créer un modèle test à partir d'une liste de patients test
 # Chemin vers le(s) dossier(s) contenant les données :
-list_patient = ['~/Documents/']
+patients = ['/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/data/Hottin_guillaume_22/']
+# Where save the model :
+directory = '/home/lsapin/Documents/n7/3A/projetlong/Cervical_GUI/models/'
+# Save_model
+save_model(patients, directory)
