@@ -205,6 +205,39 @@ This part will explain how each view has been designed, how layouts are organise
 
 ![Create model dialog structure](./images/create_model_dialog_structure.png "Create model dialog structure")
 
+
+### Application constants 
+
+In order to get every things working as expected, the application use some constants that are useful for file storage, URL links, defaults values, etc.
+Here is the list of const and their meaning:
+
+Constant name | Meaning | Default Value 
+--- | --- | --- |
+APP_ICON | The icon file used for the app| "./icone.ico"
+LAST_PROFILE_USED_FILE_NAME | The file name where last profile used are stored | "last_profile_used.conf"
+LAST_PROFILE_USED_LIST_LIMIT | The size of the last profile used list in the GUI | 5
+FILE_EXTENSION                  | The file extension of acquired data | ".orpl"
+PATH_TO_STORE_FILES             | The relative path where profiles data are stored | "./data/"
+PATH_TO_STORE_MODELS            | The relative path where models files are stored | "./models/"
+EXTENSION_HULLS_MODEL           | The file extension of hull model file | ".mdlhl"
+EXTENSION_HULLS_SPLINES_MODEL   | The file extension of hull and splines model file | ".mdlhs"
+EXTENSION_WAVELET_MODEL         | The file extension of wavelet model file |  ".mdlwvl"
+USER_GUIDE_GIT_LINK         | The web link to the user guide | "https://github.com/guillaumehottin/CervicalKineRecorder/tree/master/Report/user_guide"
+TECHNICAL_GUIDE_GIT_LINK    | The web link to the technical guide (the current guide) |  "https://github.com/guillaumehottin/CervicalKineRecorder/tree/master/Report/technical_guide"
+INIT_ANGLE      |The default value for the target amplitude| 70.0
+INIT_SPEED      |The default value for the target speed| 25
+INIT_NB_RETURN  |The default value fot the number of target movements| 5
+INIT_WAIT_TIME  |The default value for the extremum wait time| 0.2
+COUNT_DOWN_TIME                 | The count down time at acquisistion start| "3"
+SPHERE_GREEN_TO_YELLOW_ANGLE    | The distance threshold between **green** and **yellow** target color. The bigger the distance between user eyes position and target position, the bigger this difference will be |  "0.1"
+SPHERE_YELLOW_TO_RED_ANGLE      |The distance threshold between **yellow** and **red** target color. The bigger the distance between user eyes position and target position, the bigger this difference will be| "0.2"
+HOST |The IP address on which the GUI will send info through sockets. **This value shoud never be modified without changing Unity 3D socket settings**| "localhost"
+PORT |The init port on which the GUI will send info through socket. **This value shoud never be modified without changing Unity 3D socket settings**| 50007
+
+**All these constants are defined in the *const.py* file that you can find in *Cervical_GUI* folder**. 
+
+They are imported into the file they are useful with the following line: **from const import \***. Then they are used only with their name, without any prefix.
+
  
 ## Communication between the GUI and the Oculus App
 
@@ -251,7 +284,7 @@ The file **Cervical_GUI/model/splines.py** permits to:
  
  
  ### Wavelets and B-Splines
- 
+  
 The file *Code/spline_wavelet.py* permits to:
 
  - Get temporal data of Yaw, Pitch and Roll,

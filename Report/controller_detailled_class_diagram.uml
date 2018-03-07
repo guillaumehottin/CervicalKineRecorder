@@ -2,17 +2,6 @@
 
 package Controller {
 		class AcquisitionTabController{
-			+ INIT_ANGLE          
-		    + INIT_SPEED          
-		    + INIT_NB_RETURN      
-		    + INIT_WAIT_TIME      
-		    + LAST_PROFILE_USED_LIST_LIMIT
-		    + COUNT_DOWN_TIME             
-		    + SPHERE_GREEN_TO_YELLOW_ANGLE
-		    + SPHERE_YELLOW_TO_RED_ANGLE  
-		    + TMP_FILE_PATH               
-			+ HOST
-	    	+ PORT
 
 	        + angle
 	        + comment  
