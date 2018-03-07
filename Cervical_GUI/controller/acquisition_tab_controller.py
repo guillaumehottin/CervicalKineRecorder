@@ -421,7 +421,7 @@ class AcquisitionTabController(QObject):
         directory = self.view.main_window_controller.last_name.strip("\n") + "_" + \
                     self.view.main_window_controller.first_name.strip("\n") + "_" + \
                     self.view.main_window_controller.age.strip("\n") + "/"
-        print("%%%%% DIRECTORY " + directory)
+        DEBUG and print("%%%%% DIRECTORY " + directory)
         success = create_file_with_curves(directory, data, param)
 
         if success:

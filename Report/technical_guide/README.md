@@ -304,6 +304,8 @@ The file **Cervical_GUI/model/splines.py** permits to:
  - Compute the distance between data curve and mean cycle,
  - Create the model.
  
+ ![Splines](./images/spline.png "Splines")
+ 
  First, we have to detect each cycle to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
  
  Then, We find the cycle with the lowest number of points, we reduce others cycle to have the same number of points and we mean all lists. It corresponds to the mean control points (Function *mean_control_points*). After that, it's possible to developp the mean B-Splines (Function *interpolate_spline*).

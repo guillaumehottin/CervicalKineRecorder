@@ -233,6 +233,10 @@ class MyWindowController(QObject):
                 msg.setWindowTitle("Information")
                 msg.exec()
 
+                abs_path = os.path.abspath(PATH_TO_STORE_MODELS)
+                if not os.path.isdir(abs_path):
+                    os.makedirs(abs_path)
+
                 directories_for_model = [PATH_TO_STORE_FILES + d for d in directories_for_model]
 
                 path_hulls = PATH_TO_STORE_MODELS + model_name + '_hull' + EXTENSION_HULLS_MODEL
