@@ -11,7 +11,7 @@ from const import *
 # LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
 
 # DEBUG
-DEBUG = True
+DEBUG = False
 
 
 def get_all_directory_files(directory_path_string):
