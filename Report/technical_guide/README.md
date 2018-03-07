@@ -316,7 +316,27 @@ The file **Cervical_GUI/model/splines.py** permits to:
  
  To finish, the function *create_model* call *score_model* on specified patients and return all mean and standard deviation. This result is usefull to create hull_and_spline model.
  
+ #### Hulls
  
+ The file **Cervical_GUI/model/hulls.py** permits to:
+  - Develop a concave hull
+  - Compute distance between two hulls
+  - Discretize a space ([0,1]x[0,1]) and find points in hull for classification
+  - Compute train and test sets to have a score (classification)
+  - Compute mean of concave hulls
+  - Create/Save/Load a model of concave hulls
+  
+  In this part, we only consider the mean of concave hulls.
+  
+  The idea is to compute the mean of all concave hulls (Functions **build_set_for_hull** and **alpha_shape**). To do that, we don't consider union or intersection. We compute the density of points of all hulls in different areas. We only keep those which are in areas with high density. Then, for a new acquisition, we compute the pourcentage of points out of mean hull (Function **pts_out_poly**). If this number is higher than a threshold (0.1), the patient has a pathology.
+  
+ ### Classification of concave hulls
+ 
+ Here, we use the other part of **hulls.py**.
+ 
+ The idea is to consider a grid in [0,1]x[0,1]. For each patient, we compute the associated concave hull and we identify points in it. In this case, we assign to the points the value 1, else the value 0.
+  
+  
  ### Wavelets and B-Splines
  
 The file *Code/spline_wavelet.py* permits to:
