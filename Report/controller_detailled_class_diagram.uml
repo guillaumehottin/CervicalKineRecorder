@@ -381,10 +381,105 @@ package View {
         + unselect_all_button_handler()
 	}
 
-	class MyWindow 
-	class NewProfileDialog
-	class SplineAndHull
-	class Wavelet
+	class MyWindow {
+        + action_create_model    
+        + action_load_profile    
+        + action_load_curves     
+        + action_load_model      
+        + action_new_profile     
+        + action_user_documentation
+        + action_technical_documentation
+        + last_profiles_actions
+        + last_profiles_used     
+        + menubar            
+        + menu_curves        
+        + menu_profile       
+        + menu_last_profile  
+        + menu_model         
+        + menu_about         
+		+ my_window_controller  
+        + parent                
+        + tabs
+        + tab_acquisition    
+        + tab_hull_and_splines
+        + tab_hulls           
+        + tab_wavelet         
+        + statusbar 
+
+        + __init__(model_generator_dialog, already_selected_profiles)
+        + retranslate_ui()
+        + setup_ui()
+        + update_ui(enable, first_name="Prénom", last_name="Nom", age="XX")
+        + 
+	}
+
+	class NewProfileDialog {
+        + buttonBox
+        + gridLayoutWidget
+        + gridLayout 
+        + label_age 
+        + label_first_name
+        + label_last_name
+        + text_age
+        + text_last_name 
+        + text_first_name 
+		+ parent 
+
+		+ get_age()
+		+ get_first_name()
+		+ {static} get_info()
+		+ get_last_name()
+		+ ok_handler()
+		+ retranslate_ui()
+		+ setup_ui()
+	}
+
+	class SplineAndHull {
+        + canvas_left_modeling    
+        + canvas_right_modeling
+        + grid_layout
+		+ hulls_and_splines_controller 
+        + label_pitch
+        + label_left_rate
+        + label_left_rate_value
+        + label_left_variability
+        + label_left_variability_score
+        + label_roll                  
+        + label_right_rate            
+        + label_right_rate_value      
+        + label_right_variability     
+        + label_right_variability_score
+        + label_healthy
+        + left_vertical_layout
+        + left_horizontal_rate_layout
+        + left_horizontal_score_layout
+        + my_window_controller       
+        + parent 
+        + right_vertical_layout
+        + right_horizontal_rate_layout
+        + right_horizontal_score_layout
+
+        + __init__(window, my_window_controller)
+        + clear_graph()
+        + retranslate_ui()
+        + setup_ui()
+	}
+
+	class Wavelet {
+        + canvas_up_left_modeling
+        + canvas_up_right_modeling
+        + canvas_down_left_modeling   
+        + canvas_down_right_modeling
+        + grid_layout 
+        + my_window_controller  
+        + parent 
+		+ wavelet_tab_controller
+
+		+  __init__(window, my_window_controller)
+		+ clear_graph()
+        + retranslate_ui()
+		+ setup_ui()
+	}
 } 
 
 @enduml
