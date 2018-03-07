@@ -108,7 +108,7 @@ class ModelGeneratorDialog(QDialog):
 
         # BUTTON BOX
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.addButton("Regénérer le modèle", QDialogButtonBox.AcceptRole)
+        self.buttonBox.addButton("Régénérer le modèle", QDialogButtonBox.AcceptRole)
         self.buttonBox.addButton(QtWidgets.QDialogButtonBox.Cancel)
 
         self.buttonBox.setObjectName("buttonBox")

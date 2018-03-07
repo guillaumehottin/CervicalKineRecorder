@@ -252,6 +252,8 @@ class MyWindowController(QObject):
                     self.path_model_hulls = path_hulls
                     self.path_model_wavelet = path_wavelet
                     self.path_model_hull_and_spline = path_hull_and_spline
+                    acq_controller = self.view.tab_acquisition.acquisition_controller
+                    acq_controller.display_models(get_coord(acq_controller.TMP_FILE_PATH))
                 else:
                     # Do nothing
                     pass
