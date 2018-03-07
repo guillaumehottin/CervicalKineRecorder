@@ -153,6 +153,59 @@ You can then copy them and move them in another folder. Running *main.exe* will 
  
  There is another script that is attached to the *CameraParent* : *PositionalLock*. This script allows to only get the rotational data from the Oculus headset. This ensure that even if the patient moves around in front of the computer, the camera stays centered in the middle of the room.
  
+## GUI design 
+
+In this part, the GUI design will be explained. You could find info about the architecure (package, functions, etc.) but also on the way that each window was design.
+
+### Overall architecture
+
+This application meets the MVC (Model-View-Controller) requirements. Thereby it has the following structure:
+
+![Overall architecture](./images/class_diagram.png "Overall architecture")
+
+The three packages (Model, View and Controller) corresponds to the following things:
+- *Model*: it contains functions about file managing (writing and reading files) but also all the mathematic function about modelling.
+- *Controller*: it contains the logic that is behind each view. You have one controller per view (except for Dialog) that takes care of handling button clicked or other event that could occurs on a view.
+- *View*: it contains all the GUI design itself. Thereby you will find there every button positionning, labels, layouts, etc.
+
+
+
+### Design explanation
+
+This part will explain how each view has been designed, how layouts are organised to help you in adding some stuff to the one you need to.
+
+*You can find psd file to update the following schemas in the image folder*
+
+##### Acquisition tab
+
+![Acquisition tab structure](./images/acquisition_tab_structure.png "Acquisition tab structure")
+
+##### Hulls tab
+
+![Hulls model tab structure](./images/hulls_tab_structure.png "Hulls model tab structure")
+
+##### Hulls and splines tab
+
+![Hulls and splines model tab structure](./images/hulls_and_splines_tab_structure.png "Hulls and splines model tab structure")
+
+##### Wavelet tab
+
+
+![Wavelet model tab structure](./images/wavelet_tab_structure.png "Wavelet model tab structure")
+
+##### New profile dialog
+
+![New profile dialog structure](./images/new_profile_structure_dialog.png "New profile dialog structure")
+
+##### Load curves dialog
+
+![Load curves dialog structure](./images/curves_dialog_structure.png "Load curves dialog structure")
+
+##### Create model dialog
+
+![Create model dialog structure](./images/create_model_dialog_structure.png "Create model dialog structure")
+
+ 
 ## Communication between the GUI and the Oculus App
 
 The communication between the GUI and the Oculus App is done with sockets.
