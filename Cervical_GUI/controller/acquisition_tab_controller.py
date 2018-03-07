@@ -381,12 +381,16 @@ class AcquisitionTabController(QObject):
             if reply == QMessageBox.Yes:
                 DEBUG and print("=== acquisition_tab_controller.py === SUPPRESION EN COURS")
                 self.view.clear_graph()
+                self.view.text_area_comment.clear()
+                self.view.parent.tab_hull_and_splines.clear_graph()
+                self.view.parent.tab_hulls.clear_graph()
+                self.view.parent.tab_wavelet.clear_graph()
 
                 # Empty attribute
                 self.curves_on_graph    = []
 
                 # Disable save button
-                self.view.saveButton.setEnabled(True)
+                self.view.saveButton.setEnabled(False)
 
             else:
                 DEBUG and print("=== acquisition_tab_controller.py === ANNULATION")

@@ -183,6 +183,9 @@ class MyWindow(QMainWindow):
 
         # REACTIVATE ALL FIELDS AND BUTTONS
         self.tab_acquisition.update_ui(enable, first_name, last_name, age)
+        self.tab_wavelet.clear_graph()
+        self.tab_hulls.clear_graph()
+        self.tab_hull_and_splines.clear_graph()
 
         # MENU
         self.action_load_curves.setEnabled(enable)
