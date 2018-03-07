@@ -361,7 +361,7 @@ class MyWindowController(QObject):
     def all_models_loaded(self):
         return self.path_model_hull_and_spline != "" and self.path_model_hulls != "" and self.path_model_wavelet != ""
 
-    @pyqtSlot(name="about_menu_handler")
+    @pyqtSlot(name="user_guide_menu_handler")
     def user_guide_menu_handler(self):
         """
         Handler called when the user guide menu is called

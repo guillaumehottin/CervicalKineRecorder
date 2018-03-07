@@ -6,8 +6,12 @@ from datetime import datetime
 
 from const import *
 
+# FILE_EXTENSION                  = ".orpl"
+# PATH_TO_STORE_FILES             = "./data/"
+# LAST_PROFILE_USED_FILE_NAME = "last_profile_used.conf"
+
 # DEBUG
-DEBUG = False
+DEBUG = True
 
 
 def get_all_directory_files(directory_path_string):

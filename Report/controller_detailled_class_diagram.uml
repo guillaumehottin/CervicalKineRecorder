@@ -2,6 +2,7 @@
 
 package Controller {
 		class AcquisitionTabController{
+			+ TMP_FILE_PATH
 
 	        + angle
 	        + comment  
@@ -25,6 +26,7 @@ package Controller {
 
 	        + __init__(view)
 	        + empty_graph_button_handler()
+	        + display_models(new_coords)
 	        + handle_send_finish_thread_completion()
 	        + handle_send_start_thread_completion()
 	        + handle_send_stop_thread_completion()
@@ -32,44 +34,51 @@ package Controller {
 	        + handle_start_server_thread_acquisition_started_completion()
 	        + handle_start_server_thread_acquisition_stopped_completion()
 	        + handle_start_server_thread_completion()
+	        + is_acquition_correct(mean, standard_deviation)
 	        + save_curves_button_handler()
 	        + start_stop_button_handler()
 		}
 
 	class MyWindowController {
-		+ PATH_TO_STORE_FILE
-	    + PATH_TO_STORE_MODELS
-	    + EXTENSION_HULLS_MODEL
-	    + EXTENSION_HULLS_SPLINES_MODEL
-	    + EXTENSION_WAVELET_MODEL      
-	    + GIT_LINK
-
 	    + view           
         + directory_path 
         + first_name     
         + last_name      
         + age       
+        + path_model_hulls           
+        + path_model_hull_and_spline 
+        + path_model_wavelet        
 
-        + new_profile_menu_handler()
-        + load_profile_menu_handler()
-        + load_last_profile_used()
-        + load_curves_menu_handler()
+        + __init__(view)
+        + all_models_loaded()
         + create_model_handler()
+        + load_curves_menu_handler()
+        + load_last_profile_used()
         + load_model_handler()
-        + about_menu_handler()
+        + load_profile_menu_handler()
+        + new_profile_menu_handler()
+        + one_model_loaded()
+        + technical_guide_menu_handler()
+        + user_guide_menu_handler()
 	}
 
 	class HullAndSplinesTabController {
+		+ view
 
+		+ __init__(view)
 	} 
 
 
 	class HullsTabController {
+		+ view
 
+		+ __init__(view)
 	}
 
 	class WaveletTabController {
+		+ view
 
+		+ __init__(view)
 	}
 
 	package threads.py {
@@ -127,27 +136,212 @@ package Controller {
 
 
 package Model {
-	class FileManager
-	class MyUtils
-	class PlotCanvas
-	class SocketServer
+	class FileManager {
+		+ add_profile_used(profile_name)
+		+ create_directory(directory_name)
+		+ create_file_with_curves(directory, data, param)
+		+ create_last_profile_used_file()
+		+ get_all_directories()
+		+ get_all_directory_files(directory_path_string)
+		+ get_coord(file_path)
+		+ get_coord_from_all_directories(list_dir)
+		+ get_file_name_from_absolute_path(absolute_path)
+		+ get_param_from_file(file_path)
+	}
+
+	class Hulls {
+		+ add_edge(edges, edge_points, coords, i, j)
+		+ alpha_shape(points, alpha)
+		+ build_set_for_hull(array_data, bins, threshold)
+		+ compare_to_model(new_acq, model, size_grid=[100,30], alpha=3.0)
+		+ create_model(array_data, type_model, bins=None, size_grid=None, alpha=None, labels=None)
+		+ discrete_hull(x, y, size_grid, alpha)
+		+ hull_distance(polyA, polyB)
+		+ load_model(file_path)
+		+ matching_grid(polygon, axis=[0,1,0,1], npts_grid=[100,20])
+		+ plot_discrete_hull(grid, grid_pts, hull)
+		+ points_in_area(x_coords, y_coords, xlims, ylims)
+		+ pts_out_poly(poly, pts)
+		+ save_model(list_dir, file_name, patho_patients=None)
+		+ train_test_model(dataset, labels)
+	}
+
+
+	class HullAndSplines {
+		+ compare_to_model(new_acq, model)
+		+ plot_hull_spline(hull, spline, curve, type_motion)
+		+ save_model(list_dir, file_name)
+		+ load_model(file_path)
+	}
+
+	class MyUtils {
+		+ array2MP(pts)
+		+ get_axes(list_coord, axes)
+		+ check_letter(x)
+		+ RGBA_arg()
+		+ coord2points(data)
+		+ normalize(yaw_l, pitch_l, roll_l, type_norm='global')
+		+ preprocess_data(array_data, type_norm='global')
+	}
+
+	class PlotCanvas {
+		+ figure
+        + axes 
+        + title
+
+        +  __init__(parent=None, width=5, height=4, dpi=100, title="No title")
+        + plot(data_x, data_y, legend="", color="red")
+        + plot_polygon_MP(polygon)
+        + plot_discrete_hull(grid, grid_pts, hull)
+        + plot_hull_spline(hull, spline, curve, type_motion):
+        + plot_final_time(new_coord, mean_coords, nb_window, norm=1)
+	}
+
+	class PlotSerie {
+		+ get_all_correlate(dir_name, norm=1, mode='same')
+		+ get_all_fourier(dir_name, norm=1)
+		+ get_all_wavelet(dir_name, type_wavelet='morl', norm=1)
+		+ get_list_directory(dir_name)
+		+ get_correlate(pitch_l, yaw_l, roll_l, mode='same')
+		+ get_fourier(pitch_l, yaw_l, roll_l)
+		+ get_wavelet(pitch_l, yaw_l, roll_l, type_wavelet)
+		+ normalize(pitch_l, yaw_l, roll_l)
+		+ plot_all(dir_name, type_plot, type_wavelet='morl', norm=1, save=0)
+		+ plot_all_superposed_fourier(dir_name, norm=1, save=0)
+		+ plot_all_superposed_correlate(dir_name, norm=1, save=0, mode='same')
+		+ plot_all_superposed_wavelet(dir_name, type_wavelet='morl', norm=1, save=0)
+		+ plot_data(pitch_l, yaw_l, roll_l)
+		+ plot_one(current_file, type_plot, type_wavelet='morl', norm=1, save=0)
+		+ save_fig(fig, res_split, norm, type_plot)
+	}
+
+	class PlotTest 
+	class PlotTime {
+		+ get_all_param(array_data)
+		+ get_list_data(array_data)
+		+ get_list_patient(dir_name)
+		+ get_same_param_data(array_data, movement, angle, speed, nb_return, wait_time)
+		+ get_time_mean(array_data, list_param)
+		+ load_model(model_path)
+		+ plot_final_time(current_file, array_data, list_param, norm=1)
+		+ save_model(list_patient, file_name, norm=True)
+	}
+
+	package SocketServer {
+		class PortCount {
+			+ starting_port
+        	+ port 
+        	+ ending_port
+
+        	+ __init__(starting_port)
+        	+ get_port()
+        	+ reset()
+		}
+
+		class SocketServer {
+			+ _s
+
+			+ __init__()
+			+ start(host, port_counter)
+			+ send(message)
+			+ receive()
+			+ detach()
+			+ close()
+		}
+	}
+
+	class Splines {
+		+ compute_difference_list_motion(angle_x)
+		+ create_model(array_data)
+		+ detect_cycles(diff_l,list_angle)
+		+ distance_curve_to_spline(curve, spline, indices_curve)
+		+ distance_to_spline(pt, spline)
+		+ get_control_points(angle_x, angle_y, step)
+		+ interpolate_spline(list_coord, nb_points=150, step=20)
+		+ mean_control_points(cycles_x, cycles_y)
+		+ positive_values(array)
+		+ score_model(list_coord, xs, ys, indices_change)
+	}
+	class TestSerie
+	class TestSplines
 }
 
+@enduml
+
+
 package View {
-	class Acquisition
-	class MyWindow 
-	class CurvesDialog
+	class Acquisition {
+		+ parent                
+        + main_window_controller
+        + acquisition_controller
+        + gridLayoutWidget   
+        + sock_serv 
+        + has_been_drawn
+        + gridLayout         
+        + canvas_up_right    
+        + canvas_down_right  
+        + canvas_down_left   
+        + verticalLayout              
+        + horizontalLayout_nom_prenom 
+        + horizontalLayout_mvt        
+        + horizontalLayout_angle      
+        + horizontalLayout_speed      
+        + horizontalLayout_return     
+        + horizontalLayout_wait_time  
+        + horizontalLayout_start_save 
+        + horizontalLayout_empty_graph
+        + label_nom_prenom  
+        + label_comment     
+        + label_mvt_selected
+        + label_angle      
+        + label_speed      
+        + label_nb_return  
+        + label_wait_time  
+        + text_area_comment
+        + text_angle    
+        + text_speed    
+        + text_nb_return
+        + text_wait_time
+        + comboBox 
+        + available_movements
+        + startStopButton  
+        + saveButton       
+        + emptyGraph        
+        + connected
+        + profile_loaded
+
+        + __init__(parent, main_window_controller)
+        + add_comment(hour_parameters, comments)
+        + clear_graph()
+        + draw_curves(list_curves, directory_path)
+        + get_curves_on_graph()
+        + retranslate_ui()
+        + setup_ui()
+        + update_ui(enable, first_name, last_name, age)
+	}
+
+	class CurvesDialog {
+        + already_selected_curves
+        + buttonBox
+		+ directory_path     
+        + listView 
+        + model
+        + parent                 
+        + scrollArea
+        + vertical_layout
+
+        + setup_ui()
+        + retranslate_ui()
+        + get_selected_curves()
+        + get_result(directory_path, already_selected_curves)
+	}
+
+	class Hulls
 	class ModelGeneratorDialog
+	class MyWindow 
 	class NewProfileDialog
 	class SplineAndHull
-	class Hulls
 	class Wavelet
 } 
-
-/'Acquisition 	*--* AcquisitionController
-MyWindow 		*--* MyWindowController
-SplineAndHull 	*--* SplineAndHullController
-Hulls 			*--* HullsController
-Wavelet 		*--* WaveletController'/
 
 @enduml

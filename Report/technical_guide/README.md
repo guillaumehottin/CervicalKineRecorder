@@ -168,7 +168,31 @@ The three packages (Model, View and Controller) corresponds to the following thi
 - *Controller*: it contains the logic that is behind each view. You have one controller per view (except for Dialog) that takes care of handling button clicked or other event that could occurs on a view.
 - *View*: it contains all the GUI design itself. Thereby you will find there every button positionning, labels, layouts, etc.
 
+##### Controller package
 
+Here is the set of attribute and functions available through each file in the controller package. 
+
+![Controller package details](./images/controller_package_detailled.png "Controller package details")
+
+*You can click on the image to make it bigger and more readable*
+
+
+##### Model package
+
+Here is the set of attribute and functions available through each file in the model package. 
+
+
+![Model package details](./images/model_package_detailled.png "Model package details")
+
+*You can click on the image to make it bigger and more readable*
+
+##### View package
+
+Here is the set of attribute and functions available through each file in the view package. 
+
+![View package details](./images/view_package_detailled.png "Model package details")
+
+*You can click on the image to make it bigger and more readable*
 
 ### Design explanation
 
@@ -238,6 +262,12 @@ PORT |The init port on which the GUI will send info through socket. **This value
 
 They are imported into the file they are useful with the following line: **from const import \***. Then they are used only with their name, without any prefix.
 
+### Debug mode, run without headset
+
+In each file you will find a debug constant at the top. This constant is used to enable or disable some prints to help you debugging. You just have to swtich this constant to "**True**" to enable debugging mode.
+
+If you do not have any headset available, you can still use the application (without having movement recording of course) for example to debug and test some functions. To do so you have to switch *acquisition_tab_controller* **DEBUG** constant to "*True*" and it will simulate an acquisition and allow you to launch one, compare with models etc. In fact what it is done is that when you switch *DEBUG* to *True* it will not retrieve data from "*tmp.orpl*" file but from "*tmp1.oprl*" instead which is in fact a static file use especially for debugging and simulating headset recording.
+
  
 ## Communication between the GUI and the Oculus App
 
@@ -284,7 +314,7 @@ The file **Cervical_GUI/model/splines.py** permits to:
  
  
  ### Wavelets and B-Splines
-  
+ 
 The file *Code/spline_wavelet.py* permits to:
 
  - Get temporal data of Yaw, Pitch and Roll,
