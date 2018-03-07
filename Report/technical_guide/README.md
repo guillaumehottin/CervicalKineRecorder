@@ -168,7 +168,7 @@ The three packages (Model, View and Controller) corresponds to the following thi
 - *Controller*: it contains the logic that is behind each view. You have one controller per view (except for Dialog) that takes care of handling button clicked or other event that could occurs on a view.
 - *View*: it contains all the GUI design itself. Thereby you will find there every button positionning, labels, layouts, etc.
 
-##### Controller package
+#### Controller package
 
 Here is the set of attribute and functions available through each file in the controller package. 
 
@@ -177,7 +177,7 @@ Here is the set of attribute and functions available through each file in the co
 *You can click on the image to make it bigger and more readable*
 
 
-##### Model package
+#### Model package
 
 Here is the set of attribute and functions available through each file in the model package. 
 
@@ -188,7 +188,7 @@ Here is the set of attribute and functions available through each file in the mo
 
 *You can click on the image to make it bigger and more readable*
 
-##### View package
+#### View package
 
 Here is the set of attribute and functions available through each file in the view package. 
 
