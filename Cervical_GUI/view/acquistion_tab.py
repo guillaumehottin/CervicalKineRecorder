@@ -42,6 +42,9 @@ class AcquisitionTab(QWidget):
 
         self.sock_serv = None
 
+        # Attribute set to True when a curve has been printed since the application was launched
+        self.has_been_drawn = False
+
         ###################################################################
         # ACQUISITION TAB
         ###################################################################
@@ -324,6 +327,9 @@ class AcquisitionTab(QWidget):
         self.acquisition_controller.curves_on_graph     = list_curves
         self.acquisition_controller.yaw_pitch_roll      = []
         yaw_pitch_roll          = []
+
+        if list_curves != [] and not self.has_been_drawn:
+            self.has_been_drawn = True
 
         DEBUG and print("=== acquisition.py === selected curves: " + str(list_curves))
         for file_name in list_curves:

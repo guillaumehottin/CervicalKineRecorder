@@ -193,6 +193,10 @@ class MyWindowController(QObject):
             # Empty attributes and graph
             self.view.tab_acquisition.draw_curves(curves_on_graph, self.directory_path)
 
+            if self.view.my_window_controller.one_model_loaded():
+                acq_controller = self.view.tab_acquisition.acquisition_controller
+                acq_controller.display_models(get_coord(acq_controller.TMP_FILE_PATH))
+
         else:  # The user cancel his operation
             pass
 
@@ -315,15 +319,18 @@ class MyWindowController(QObject):
                 acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
                 if file_extension == EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
-                    acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                    if acquisition_tab_controller.view.has_been_drawn:
+                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
                 elif file_extension == EXTENSION_HULLS_SPLINES_MODEL:
                     self.path_model_hull_and_spline = path
-                    acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                    if acquisition_tab_controller.view.has_been_drawn:
+                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
                 elif file_extension == EXTENSION_WAVELET_MODEL:
                     self.path_model_wavelet = path
-                    acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                    if acquisition_tab_controller.view.has_been_drawn:
+                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
 
             except ValueError:
                 # DISPLAY POP UP ERROR AND DO NOTHING
