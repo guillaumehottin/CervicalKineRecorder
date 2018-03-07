@@ -270,7 +270,7 @@ package Model {
 
 
 package View {
-	class Acquisition {
+	class AcquisitionTab {
 		+ parent                
         + main_window_controller
         + acquisition_controller
@@ -330,14 +330,57 @@ package View {
         + scrollArea
         + vertical_layout
 
-        + setup_ui()
-        + retranslate_ui()
         + get_selected_curves()
         + get_result(directory_path, already_selected_curves)
+        + retranslate_ui()
+        + {static} setup_ui()
 	}
 
-	class Hulls
-	class ModelGeneratorDialog
+	class HullsTab {
+        + canvas_left_modeling 
+        + canvas_right_modeling
+        + grid_layout
+		+ hulls_controller   
+        + label_pitch    
+        + label_roll     
+        + label_healthy  
+        + left_vertical_layout
+        + my_window_controller
+        + parent 
+        + right_vertical_layout
+
+        + __init__(window, my_window_controller)
+        + clear_graph()
+        + retranslate_ui()
+        + setup_ui()
+	}
+
+	class ModelGeneratorDialog {
+        + already_selected_model_generator
+        + buttonBox 
+        + horizontal_layout_model_name   
+        + horizontal_layout_select_all   
+        + label_model_name
+        + listView 
+        + model 
+		+ parent
+        + select_all_button
+        + scrollArea
+        + text_model_name 
+        + vertical_layout                
+        + unselect_all_button
+
+        + __init__(model_generator_dialog, already_selected_profiles)
+        + get_model_name()
+        + {static} get_result(already_selected_profiles)
+        + get_selected_directories()
+        + ok_handler()
+        + retranslate_ui()
+        + select_all_button_handler()
+        + setup_ui()
+        + unselect_all_button_handler()
+	}
+
 	class MyWindow 
 	class NewProfileDialog
 	class SplineAndHull
