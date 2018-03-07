@@ -78,6 +78,3 @@ class WaveletTab(QWidget):
         self.canvas_down_left_modeling.clear()
         self.canvas_up_right_modeling.clear()
         self.canvas_up_left_modeling.clear()
-
-    def draw_curves(self, list_curves, directory_path):
-        pass

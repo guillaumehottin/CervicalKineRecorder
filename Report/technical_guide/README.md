@@ -182,7 +182,9 @@ Here is the set of attribute and functions available through each file in the co
 Here is the set of attribute and functions available through each file in the model package. 
 
 
-![Model package details](./images/model_package_detailled.png "Model package details")
+![Model package details - part 1](./images/model_package_detailled_1.png "Model package details - part 1")
+
+![Model package details - part 2](./images/model_package_detailled_2.png "Model package details - part 2")
 
 *You can click on the image to make it bigger and more readable*
 
@@ -190,7 +192,9 @@ Here is the set of attribute and functions available through each file in the mo
 
 Here is the set of attribute and functions available through each file in the view package. 
 
-![View package details](./images/view_package_detailled.png "Model package details")
+![View package details - part 1](./images/view_package_detailled_1.png "View package details - part 1")
+
+![View package details - part 2](./images/view_package_detailled_2.png "View package details - part 2")
 
 *You can click on the image to make it bigger and more readable*
 
@@ -303,8 +307,6 @@ The file **Cervical_GUI/model/splines.py** permits to:
  - Compute the mean cycle of motion,
  - Compute the distance between data curve and mean cycle,
  - Create the model.
- 
- ![Splines](./images/spline.png "Splines")
  
  First, we have to detect each cycle to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
  
