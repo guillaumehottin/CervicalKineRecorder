@@ -89,6 +89,6 @@ os.system("pyinstaller main.spec")
 print("Generated exe")
 print("Moving exe")
 os.remove('main.exe')
-os.rename('dist\\main.exe', 'main.exe')
+os.rename('dist\\main.exe', 'Cervical Kine Recorder.exe')
 
 print("Done")

@@ -206,7 +206,7 @@ To create a model you need to use the "*Modèles*" menu and click on "*Créer mo
 
 ![Create a model](./images/screens/10_python_create_model_dialog.png)
 
-Here you can select all the patients you want to include in your new model by checking the corresponding boxes. You need to specify a name for your new model in the field "*Nom du modèle*". Eventually you can click on "*Regénérer le modèle*". This will create one model for each of the three kinds presented earlier. Each model will be stored in a file whose name is formatted as follows: *\<name specified\>\_\<type of the model\>.\<model extension\>*.
+Here you can select all the patients you want to include in your new model by checking the corresponding boxes. You need to specify a name for your new model in the field "*Nom du modèle*". Eventually you can click on "*Régénérer le modèle*". This will create one model for each of the three kinds presented earlier. Each model will be stored in a file whose name is formatted as follows: *\<name specified\>\_\<type of the model\>.\<model extension\>*.
 
 *\<type of the model\>* is either *hulls*, *hull\_and\_spline* or *time\_series*. The extensions are predefined.
 

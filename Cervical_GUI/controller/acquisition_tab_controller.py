@@ -13,7 +13,7 @@ import model.myutils as utl
 import model.plot_time as plot_time
 from const import *
 
-DEBUG = True
+DEBUG = False
 
 
 class AcquisitionTabController(QObject):
@@ -170,8 +170,10 @@ class AcquisitionTabController(QObject):
                 self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
                 self.view.saveButton.setEnabled(True)
 
+                # TODO
                 if self.view.main_window_controller.one_model_loaded():
-                    self.display_models(get_coord(self.TMP_FILE_PATH))
+                    dir_path = self.view.parent.my_window_controller.directory_path
+                    self.display_models(get_coord(os.path.join(dir_path, self.curves_on_graph[0])))
 
             else:
                 DEBUG and print("=== acquisition_tab_controller.py === SUPPRIMER ACQUISITION")
@@ -187,8 +189,10 @@ class AcquisitionTabController(QObject):
             self.view.draw_curves([self.TMP_FILE_PATH], os.getcwd())
             self.view.saveButton.setEnabled(True)
 
+            # TODO
             if self.view.main_window_controller.one_model_loaded():
-                self.display_models(get_coord(self.TMP_FILE_PATH))
+                dir_path = self.view.parent.my_window_controller.directory_path
+                self.display_models(get_coord(os.path.join(dir_path, self.curves_on_graph[0])))
 
         # UPDATE BUTTON START/STOP
         self.view.startStopButton.setText("Lancer acquisition")
@@ -201,32 +205,42 @@ class AcquisitionTabController(QObject):
         path_hull = self.view.main_window_controller.path_model_hulls
         path_wavelet = self.view.main_window_controller.path_model_wavelet
 
-        if path_hs != "":
-            mdl_hull_spline = hs.load_model(path_hs)
-            res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
-            hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
-            # Display figures
-            self.view.parent.tab_hull_and_splines.canvas_left_modeling.plot_hull_spline(hull_pitch, (
-                to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
-            self.view.parent.tab_hull_and_splines.canvas_right_modeling.plot_hull_spline(hull_roll, (
-                to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
+        try:
+            if path_hs != "":
+                mdl_hull_spline = hs.load_model(path_hs)
+                res_comparison, to_plot_pitch, to_plot_roll = hs.compare_to_model(new_coords, mdl_hull_spline)
 
-            # Display results
-            self.view.parent.tab_hull_and_splines.label_left_variability_score.setText(
-                str(res_comparison['err_spline_pitch'])[:7])
-            self.view.parent.tab_hull_and_splines.label_right_variability_score.setText(
-                str(res_comparison['err_spline_roll'])[:7])
-            self.view.parent.tab_hull_and_splines.label_left_rate_value.setText(
-                "{:.2%}".format(res_comparison['rate_out_pitch']))
-            self.view.parent.tab_hull_and_splines.label_right_rate_value.setText(
-                "{:.2%}".format(res_comparison['rate_out_roll']))
+                hull_pitch, hull_roll, spline_std_pitch, spline_std_roll = mdl_hull_spline
+                # Display figures
+                self.view.parent.tab_hull_and_splines.canvas_left_modeling.plot_hull_spline(hull_pitch, (
+                    to_plot_pitch['xs'], to_plot_pitch['ys']), to_plot_pitch['curve'], 'pitch')
+                self.view.parent.tab_hull_and_splines.canvas_right_modeling.plot_hull_spline(hull_roll, (
+                    to_plot_roll['xs'], to_plot_roll['ys']), to_plot_roll['curve'], 'roll')
 
-            healty_or_not = ""
-            if res_comparison["healthy"]:
-                healty_or_not = "Patient sain"
-            else:
-                healty_or_not = "Patient pathologique"
-            self.view.parent.tab_hull_and_splines.label_healthy.setText(healty_or_not)
+                # Display results
+                self.view.parent.tab_hull_and_splines.label_left_variability_score.setText(
+                    str(res_comparison['err_spline_pitch'])[:7])
+                self.view.parent.tab_hull_and_splines.label_right_variability_score.setText(
+                    str(res_comparison['err_spline_roll'])[:7])
+                self.view.parent.tab_hull_and_splines.label_left_rate_value.setText(
+                    "{:.2%}".format(res_comparison['rate_out_pitch']))
+                self.view.parent.tab_hull_and_splines.label_right_rate_value.setText(
+                    "{:.2%}".format(res_comparison['rate_out_roll']))
+
+                if res_comparison["healthy"]:
+                    healthy_or_not = "Patient sain"
+                else:
+                    healthy_or_not = "Patient pathologique"
+                self.view.parent.tab_hull_and_splines.label_healthy.setText(healthy_or_not)
+        except (RuntimeError, TypeError) as e:
+            print('ERROR: ' + str(e))
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Mesure invalide")
+            msg.setInformativeText("La qualité cette mesure ne permet pas son analyse. Il y a peut-être trop de "
+                                   "variabilité dans les mouvements du patient.")
+            msg.setWindowTitle("Erreur")
+            msg.exec()
 
         if path_hull != "":
             mdl_hull = hl.load_model(self.view.main_window_controller.path_model_hulls)
@@ -240,7 +254,6 @@ class AcquisitionTabController(QObject):
                                                                                    hull_pitch)
             self.view.parent.tab_hulls.canvas_right_modeling.plot_discrete_hull(grid_roll[0], grid_roll[1],
                                                                                     hull_roll)
-            healty_or_not = ""
             if healthy:
                 healty_or_not = "Patient sain"
             else:
@@ -421,7 +434,7 @@ class AcquisitionTabController(QObject):
         directory = self.view.main_window_controller.last_name.strip("\n") + "_" + \
                     self.view.main_window_controller.first_name.strip("\n") + "_" + \
                     self.view.main_window_controller.age.strip("\n") + "/"
-        print("%%%%% DIRECTORY " + directory)
+        DEBUG and print("%%%%% DIRECTORY " + directory)
         success = create_file_with_curves(directory, data, param)
 
         if success:

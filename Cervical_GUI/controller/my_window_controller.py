@@ -195,7 +195,9 @@ class MyWindowController(QObject):
 
             if self.view.my_window_controller.one_model_loaded():
                 acq_controller = self.view.tab_acquisition.acquisition_controller
-                acq_controller.display_models(get_coord(acq_controller.TMP_FILE_PATH))
+                # TODO
+                acq_controller.display_models(get_coord(os.path.join(self.directory_path,
+                                                                     acq_controller.curves_on_graph[0])))
 
         else:  # The user cancel his operation
             pass
@@ -233,6 +235,10 @@ class MyWindowController(QObject):
                 msg.setWindowTitle("Information")
                 msg.exec()
 
+                abs_path = os.path.abspath(PATH_TO_STORE_MODELS)
+                if not os.path.isdir(abs_path):
+                    os.makedirs(abs_path)
+
                 directories_for_model = [PATH_TO_STORE_FILES + d for d in directories_for_model]
 
                 path_hulls = PATH_TO_STORE_MODELS + model_name + '_hull' + EXTENSION_HULLS_MODEL
@@ -252,6 +258,10 @@ class MyWindowController(QObject):
                     self.path_model_hulls = path_hulls
                     self.path_model_wavelet = path_wavelet
                     self.path_model_hull_and_spline = path_hull_and_spline
+                    acq_controller = self.view.tab_acquisition.acquisition_controller
+                    # TODO
+                    acq_controller.display_models(get_coord(os.path.join(self.directory_path,
+                                                                         acq_controller.curves_on_graph[0])))
                 else:
                     # Do nothing
                     pass
@@ -316,21 +326,25 @@ class MyWindowController(QObject):
             try:
                 _, file_extension = os.path.splitext(path)
 
+                # TODO INDICES OF CURVES
                 acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
+                if acquisition_tab_controller.view.has_been_drawn:
+                    coords = get_coord(os.path.join(self.directory_path, acquisition_tab_controller.curves_on_graph[0]))
+
                 if file_extension == EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
                     if acquisition_tab_controller.view.has_been_drawn:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                        acquisition_tab_controller.display_models(coords)
 
                 elif file_extension == EXTENSION_HULLS_SPLINES_MODEL:
                     self.path_model_hull_and_spline = path
                     if acquisition_tab_controller.view.has_been_drawn:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                        acquisition_tab_controller.display_models(coords)
 
                 elif file_extension == EXTENSION_WAVELET_MODEL:
                     self.path_model_wavelet = path
                     if acquisition_tab_controller.view.has_been_drawn:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                        acquisition_tab_controller.display_models(coords)
 
             except ValueError:
                 # DISPLAY POP UP ERROR AND DO NOTHING

@@ -155,5 +155,3 @@ class HullAndSplinesTab(QWidget):
         self.label_right_rate_value.setText("0%")
         self.label_right_variability_score.setText("0")
 
-    def draw_curves(self, list_curves, directory_path):
-        pass

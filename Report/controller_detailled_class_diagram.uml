@@ -270,7 +270,7 @@ package Model {
 
 
 package View {
-	class Acquisition {
+	class AcquisitionTab {
 		+ parent                
         + main_window_controller
         + acquisition_controller
@@ -330,18 +330,156 @@ package View {
         + scrollArea
         + vertical_layout
 
-        + setup_ui()
-        + retranslate_ui()
         + get_selected_curves()
         + get_result(directory_path, already_selected_curves)
+        + retranslate_ui()
+        + {static} setup_ui()
 	}
 
-	class Hulls
-	class ModelGeneratorDialog
-	class MyWindow 
-	class NewProfileDialog
-	class SplineAndHull
-	class Wavelet
+	class HullsTab {
+        + canvas_left_modeling 
+        + canvas_right_modeling
+        + grid_layout
+		+ hulls_controller   
+        + label_pitch    
+        + label_roll     
+        + label_healthy  
+        + left_vertical_layout
+        + my_window_controller
+        + parent 
+        + right_vertical_layout
+
+        + __init__(window, my_window_controller)
+        + clear_graph()
+        + retranslate_ui()
+        + setup_ui()
+	}
+
+	class ModelGeneratorDialog {
+        + already_selected_model_generator
+        + buttonBox 
+        + horizontal_layout_model_name   
+        + horizontal_layout_select_all   
+        + label_model_name
+        + listView 
+        + model 
+		+ parent
+        + select_all_button
+        + scrollArea
+        + text_model_name 
+        + vertical_layout                
+        + unselect_all_button
+
+        + __init__(model_generator_dialog, already_selected_profiles)
+        + get_model_name()
+        + {static} get_result(already_selected_profiles)
+        + get_selected_directories()
+        + ok_handler()
+        + retranslate_ui()
+        + select_all_button_handler()
+        + setup_ui()
+        + unselect_all_button_handler()
+	}
+
+	class MyWindow {
+        + action_create_model    
+        + action_load_profile    
+        + action_load_curves     
+        + action_load_model      
+        + action_new_profile     
+        + action_user_documentation
+        + action_technical_documentation
+        + last_profiles_actions
+        + last_profiles_used     
+        + menubar            
+        + menu_curves        
+        + menu_profile       
+        + menu_last_profile  
+        + menu_model         
+        + menu_about         
+		+ my_window_controller  
+        + parent                
+        + tabs
+        + tab_acquisition    
+        + tab_hull_and_splines
+        + tab_hulls           
+        + tab_wavelet         
+        + statusbar 
+
+        + __init__(model_generator_dialog, already_selected_profiles)
+        + retranslate_ui()
+        + setup_ui()
+        + update_ui(enable, first_name="Prénom", last_name="Nom", age="XX")
+        + 
+	}
+
+	class NewProfileDialog {
+        + buttonBox
+        + gridLayoutWidget
+        + gridLayout 
+        + label_age 
+        + label_first_name
+        + label_last_name
+        + text_age
+        + text_last_name 
+        + text_first_name 
+		+ parent 
+
+		+ get_age()
+		+ get_first_name()
+		+ {static} get_info()
+		+ get_last_name()
+		+ ok_handler()
+		+ retranslate_ui()
+		+ setup_ui()
+	}
+
+	class SplineAndHull {
+        + canvas_left_modeling    
+        + canvas_right_modeling
+        + grid_layout
+		+ hulls_and_splines_controller 
+        + label_pitch
+        + label_left_rate
+        + label_left_rate_value
+        + label_left_variability
+        + label_left_variability_score
+        + label_roll                  
+        + label_right_rate            
+        + label_right_rate_value      
+        + label_right_variability     
+        + label_right_variability_score
+        + label_healthy
+        + left_vertical_layout
+        + left_horizontal_rate_layout
+        + left_horizontal_score_layout
+        + my_window_controller       
+        + parent 
+        + right_vertical_layout
+        + right_horizontal_rate_layout
+        + right_horizontal_score_layout
+
+        + __init__(window, my_window_controller)
+        + clear_graph()
+        + retranslate_ui()
+        + setup_ui()
+	}
+
+	class Wavelet {
+        + canvas_up_left_modeling
+        + canvas_up_right_modeling
+        + canvas_down_left_modeling   
+        + canvas_down_right_modeling
+        + grid_layout 
+        + my_window_controller  
+        + parent 
+		+ wavelet_tab_controller
+
+		+  __init__(window, my_window_controller)
+		+ clear_graph()
+        + retranslate_ui()
+		+ setup_ui()
+	}
 } 
 
 @enduml

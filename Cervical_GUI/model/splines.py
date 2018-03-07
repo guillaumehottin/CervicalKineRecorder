@@ -75,8 +75,11 @@ def detect_cycles(diff_l,list_angle):
             next_array = diff_l[i:i+window_size]
             prev_pos = positive_values(prev_array)
             next_pos = positive_values(next_array)
-            if ((prev_pos > window_size / 2 > next_pos) or (prev_pos < window_size / 2 < next_pos)) and \
-                    i - index_change_l[-1] > 100:
+            if (prev_pos > window_size / 2 > next_pos) or (prev_pos < window_size / 2 < next_pos):
+                if i - index_change_l[-1] < 100 < i:
+                    # If the new change occurs less than 100 points after the previous one, the cycles are too frequent.
+                    # Also, we assume there is no changes during the first 100 points
+                    raise RuntimeError('Cycles detected are too frequent')
                 index_change_l.append(i)
                 i += window_size
             else:
@@ -131,7 +134,10 @@ def get_control_points(angle_x, angle_y, step):
     # Compute difference between two consecutives points
     diff_l = compute_difference_list_motion(angle_x)
 
-    index_change_l_res = detect_cycles(diff_l, angle_x)  
+    try:
+        index_change_l_res = detect_cycles(diff_l, angle_x)
+    except RuntimeError:
+        raise RuntimeError('Cycles detected are too frequent')
     index_change_l = index_change_l_res[::2]
     # Build list for each cycle
     cycles_x, cycles_y = [],[]
@@ -261,14 +267,20 @@ def interpolate_spline(list_coord, nb_points=150, step=20):
     #Get data according to id_curve
     angle_x, angle_y = list_coord
     #1) Choose control points
-    x_control, y_control, indices_change = get_control_points(angle_x, angle_y, step)
+    try:
+        x_control, y_control, indices_change = get_control_points(angle_x, angle_y, step)
+    except RuntimeError:
+        raise RuntimeError('Cycles detected are too frequent')
     #2)Interpolate
     #Inputs  :
     #    s: smoothing condition
     #Outputs : 
     #    tck : tuple (t,c,k) vector of knots, B-spline coeff and the degree
     #    u   : weighted sum of squared residuals of the approximation
-    tck, u = interpolate.splprep([x_control, y_control], s=0.0)
+    try:
+        tck, u = interpolate.splprep([x_control, y_control], s=0.0)
+    except TypeError:
+        raise TypeError('Invalid acquisition')
     x_spline, y_spline = interpolate.splev(np.linspace(0, 1, nb_points), tck)
 
     return x_spline, y_spline, indices_change
@@ -298,11 +310,13 @@ def create_model(array_data):
     std_roll = []
     npts = 150
     for i in range(len(yaw_pitch)):
-        print(yaw_pitch[i])
-        xsp, ysp, indices_p = interpolate_spline(yaw_pitch[i], npts)
-        xsr, ysr, indices_r = interpolate_spline(yaw_roll[i], npts)
-        std_pitch += [score_model(yaw_pitch[i], xsp, ysp, indices_p)]
-        std_roll += [score_model(yaw_roll[i], xsr, ysr, indices_r)]
+        try:
+            xsp, ysp, indices_p = interpolate_spline(yaw_pitch[i], npts)
+            xsr, ysr, indices_r = interpolate_spline(yaw_roll[i], npts)
+            std_pitch += [score_model(yaw_pitch[i], xsp, ysp, indices_p)]
+            std_roll += [score_model(yaw_roll[i], xsr, ysr, indices_r)]
+        except (RuntimeError, TypeError):
+            raise RuntimeWarning('This acquisition is not valid')
     #We use the mean for now, but might take a quantile or other measure later.
     return np.mean(std_pitch), np.mean(std_roll)
     
