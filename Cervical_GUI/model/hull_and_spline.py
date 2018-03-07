@@ -31,9 +31,12 @@ def compare_to_model(new_acq, model):
     npts = len(new_pts_pitch)
     rate_out_pitch = hulls.pts_out_poly(hull_pitch, new_pts_pitch) / npts
     rate_out_roll = hulls.pts_out_poly(hull_roll, new_pts_roll) / npts
-    
-    xs_pitch, ys_pitch, ind_pitch = splines.interpolate_spline(new_acq[0:2])
-    xs_roll, ys_roll, ind_roll = splines.interpolate_spline(new_acq[0:3:2])
+
+    try:
+        xs_pitch, ys_pitch, ind_pitch = splines.interpolate_spline(new_acq[0:2])
+        xs_roll, ys_roll, ind_roll = splines.interpolate_spline(new_acq[0:3:2])
+    except TypeError:
+        raise RuntimeError('This measure is not valid')
     score_pitch = splines.score_model(new_acq[0:2], xs_pitch, ys_pitch, ind_pitch)
     score_roll = splines.score_model(new_acq[0:3:2], xs_roll, ys_roll, ind_roll)
     err_spline_pitch = spline_threshold_pitch - score_pitch

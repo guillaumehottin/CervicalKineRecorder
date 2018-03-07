@@ -386,7 +386,7 @@ class Acquisition(QMainWindow):
         self.action_new_profile.setText(_translate("MainWindow", "Nouveau profil"))
         self.action_load_profile.setText(_translate("MainWindow", "Charger profil"))
         self.action_load_curves.setText(_translate("MainWindow", "Charger courbes"))
-        self.action_load_files_model.setText(_translate("MainWindow", "Regénérer avec..."))
+        self.action_load_files_model.setText(_translate("MainWindow", "Régénérer avec..."))
         self.action_documentation.setText(_translate("MainWindow", "Documentation"))
 
     @pyqtSlot(name="new_profile_menu_handler")
