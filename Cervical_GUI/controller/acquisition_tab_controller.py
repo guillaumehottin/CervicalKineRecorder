@@ -13,7 +13,7 @@ import model.myutils as utl
 import model.plot_time as plot_time
 from const import *
 
-DEBUG = True
+DEBUG = False
 
 
 class AcquisitionTabController(QObject):
