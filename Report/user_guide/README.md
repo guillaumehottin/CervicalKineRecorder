@@ -189,7 +189,7 @@ After setting up the acquisition as you wanted, you just have to put the headset
 At the end of the acquisition two cases are possible:
 - **The patient followed well the target**, data are retrieved from the Oculus Rift headset and displayed on the three graph on the acquisition tab and also compared on the modeling tabs.
 
-- ** The patient did not follow the target well enough**. In this case the following window will appear to inform you about the problem. And you will have to choose if you want to keep this data anyway or stash them. If you accept  you will be in the same state as in the first case.
+- **The patient did not follow the target well enough**. In this case the following window will appear to inform you about the problem. And you will have to choose if you want to keep this data anyway or stash them. If you accept  you will be in the same state as in the first case.
 
 ![Bad acquisition](./images/screens/4_python_3_finished_popup_bad.png "Load same profile twice")
 
@@ -216,6 +216,20 @@ On the window of model (cf figure), you can see, for the two plans *yaw-pitch* a
  - on the plot : the red curve corresponds to the measure, the blue one to the mean cycle and the grey area to the hull.
 
 ![hull spline](./images/hull_spline_tab.png)
+
+##### Classification of concave hulls
+
+This model uses machine learning in order to detect pathologies, and more precisely classification. This technique involves assigning labels to data: in our case, when we give a new piece of data to the algorithm (Once Class SVM), this one assigns it either the label *healthy* or *unhealthy*.
+
+We provide the algorithm with discrete concave hulls built from the projection of data on two planes.
+
+**Remark:** This model requires a lot of data to work. It is normal to obtain poor results if the data set used to build the model is too small.
+
+On the tab of the model, besides the prediction on the state of health on top the screen, you can see for the planes *yaw-pitch* on the left and *yaw-roll* on the right:
+ - the concave hull of the measure considered,
+ - the points corresponding to the grid that makes the discrete space. These points are red if they are inside the hull and blue otherwise.
+
+![hulls](./images/screens/11_python_hulls_model_tab.png)      
         
 #### Create a model
 
