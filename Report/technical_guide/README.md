@@ -259,8 +259,12 @@ The communication between the GUI and the Oculus App is done with sockets.
 - The Oculus app starts the acquisition and sends *startAcquisitionAck*
 - Then there are two alternatives :
     - Either we want to stop and discard the acquisition and the GUI sends *stopAcquisition*
-    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends finishAcquisition*. The Oculus App the nwaits until the acquisition is finished and sends endAcquisition,mean:value,standard_deviation:value*.
+    - Either the operator wants to keep the acquisition and does nothing. Just before the end of the acquisition, the GUI sends *finishAcquisition*. The Oculus App then waits until the acquisition is finished and sends endAcquisition,mean:value,standard_deviation:value*.
 
+Once the acquisition is finished, the Oculus application writes the data in the file *tmp.orpl*.
+The first line of the file is the header : "yaw pitch roll"
+Then, every line is the data for yaw, pitch and roll in degrees for a frame.
+Finally, the GUI gets the temporary file to get the data.
 
  ## Modeling and data analysis
  
