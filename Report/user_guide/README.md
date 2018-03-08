@@ -199,7 +199,24 @@ You must click on the "Enregistrer la courbe" button to save the curves retrieve
 On the other hand, you can interrupt at anytime the acquisition in order to change the parameters or just cancel your operation. The acquired data will not be displayed neither saved.
 
 #### Mathematic modeling
+##### Concave hulls and B-Splines
+    
+This model is based on two principles : the first one is to define borders with help of hulls, the second one is to study variability of measures.       
+For the hull part, we consider a new acquisition data and look if some points are out of the hull:
+ - If it's the case, we detect a pathology,
+ - Else, we study the variability of motion.
 
+In this case, we focus on cycles of new data because we study periodical motions. We build a mean cycle and we compute its difference with data :
+ - If the result is higher than a threshold, the patient is unhealthy,
+ - Else, everything is ok for him.
+
+On the window of model (cf figure), you can see, for the two plans *yaw-pitch* at left and *yaw,roll* at right.In addition, you can see the prediction on patient health:
+ - The pourcentage of points out of hull,
+ - The variability score. If it's positive, there is no problem, else there is a pathology,
+ - on the plot : the red curve corresponds to the measure, the blue one to the mean cycle and the grey area to the hull.
+
+![hull spline](./images/hull_spline_tab.png)
+        
 #### Create a model
 
 To create a model you need to use the "*Modèles*" menu and click on "*Créer modèle*". After that you will see the following screen:
