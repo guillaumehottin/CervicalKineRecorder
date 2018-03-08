@@ -84,40 +84,15 @@ Once this is done, you can generate an executable file for the Operator GUI. We 
 
 Place yourself in the directory *projetlong/Cervical_GUI*. The main file of the project is *main.py*.
 
-Generate a *.spec* file by running *pyinstaller --onefile --icon="icone.ico" --noconsole main.py*.
-Once the *.spec* file is generated, open it and add the following in *hiddenimports*:
-
-'scipy.special._ufuncs_cxx',
-'scipy.linalg.cython_blas',
-'scipy.linalg.cython_lapack',
-'scipy.integrate',
-'scipy.integrate.quadrature',
-'scipy.integrate.odepack',
-'scipy.integrate._odepack',
-'scipy.integrate.quadpack',
-'scipy.integrate._quadpack',
-'scipy.integrate._ode',
-'scipy.integrate.vode',
-'scipy.integrate._dop',
-'scipy.integrate.lsoda',
-'scipy.interpolate',
-'scipy.linalg',
-'scipy.linalg.misc',
-'scipy.linalg.blas',
-'scipy._lib.messagestream',
-'sklearn.neighbors.typedefs'
-
-You will also need to add '**PATH_TO_YOUR_PYTHON_INSTALLATION**\\Lib\\site-packages\\scipy\\extra-dll' in the *pathex* variable.
-
-Once this is done, save your *main.spec* file and run *pyinstaller main.spec*. This will create a *main.exe* file in the *dist* directory.
+The script *main2exe.py* allows to automatically generate an executable file. Running *python main2exe.py* will generate *Cervical Kine Recorder.exe*. Keep in mind that generating it may take up to 10 minutes as it has to compile every library in use in the project.
 
 Once everything is done, you should have the following files and folders:
-- *main.exe* in the *dist* directory
+- *Cervical Kine Recorder.exe*
 - *Cervical.exe*
 - *UnityPlayer.dll*
 - *cervical_Data*
 
-You can then copy them and move them in another folder. Running *main.exe* will then run the application.
+You can then copy them and move them in another folder. Running *Cervical Kine Recorder.exe* will then run the application.
  
  ## The Oculus App architecture
  
