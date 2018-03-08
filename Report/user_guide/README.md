@@ -210,7 +210,7 @@ In this case, we focus on cycles of new data because we study periodical motions
  - If the result is higher than a threshold, the patient is unhealthy,
  - Else, everything is ok for him.
 
-On the window of model (cf figure), you can see, for the two plans *yaw-pitch* at left and *yaw,roll* at right.In addition, you can see the prediction on patient health:
+On the window of model (cf figure), you can see, for the two plans *yaw-pitch* at left and *yaw-roll* at right, the prediction on patient health:
  - The pourcentage of points out of hull,
  - The variability score. If it's positive, there is no problem, else there is a pathology,
  - on the plot : the red curve corresponds to the measure, the blue one to the mean cycle and the grey area to the hull.
