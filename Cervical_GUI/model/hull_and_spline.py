@@ -132,14 +132,3 @@ def load_model(file_path):
         spline_std_pitch = float(data[2])
         spline_std_roll = float(data[3])
     return hull_pitch, hull_roll, spline_std_pitch, spline_std_roll
-
-
-if __name__ == '__main__':
-    direct = ['data/guillaume2/']
-    save_model(direct, '.')
-
-    """
-    model = load_model("has_02-26-2018_1154.mdlhs")
-    acq = myutils.preprocess_data([myutils.get_coord('data/guillaume2/patho4.orpl')])[0]
-    print(compare_to_model(acq, model))
-    """

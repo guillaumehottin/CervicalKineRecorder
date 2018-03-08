@@ -471,10 +471,3 @@ def load_model(file_path):
         alpha = float(data[4])
     return model, acc_train, acc_test, size_grid, alpha
 
-
-if __name__ == '__main__':
-    """ direct = ['data/guillaume2/', 'data/tests/']
-    ind = [1]
-    save_model(direct, '.', patho_patients=ind)
-    """
-    x = load_model('hull_03-01-2018_1301.mdlhl')

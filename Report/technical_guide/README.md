@@ -8,7 +8,7 @@ Authors:
 - François-Xavier STEMPFEL
 
 ## Introduction 
-The Cervical Kinematic Recorder is an open-source software developped to acquire, display and analyse cervical movements thanks to an Oculus Rift headset. Cervical Kinematic Recorder was developed in the context of a last year project in the engineeing school E.N.S.E.E.I.H.T in colaboration with the Osteopathy Institute of Toulouse. This project was under the supervision of M. Denis Ducommun, Mme Sandrine Mouysset and M. Jérôme Ermont.
+The Cervical Kinematic Recorder is an open-source software developed to acquire, display and analyse cervical movements thanks to an Oculus Rift headset. Cervical Kinematic Recorder was developed in the context of a last year project in the engineeing school E.N.S.E.E.I.H.T in colaboration with the Osteopathy Institute of Toulouse. This project was under the supervision of M. Denis Ducommun, Mme Sandrine Mouysset and M. Jérôme Ermont.
 
 ![Oculus Rift Headset](./images/oculus.png "Oculus Rift Headset")
 
@@ -16,7 +16,7 @@ The overall process of the project is the following one:
 
 ![Overall project process](./images/overall_process_requirements.png "Overall project process")
 
-## Setup the developpement environment
+## Setup the developement environment
 
 This project is made of two main components :
 
@@ -27,7 +27,7 @@ This project is made of two main components :
 
 The Operator GUI part of the project is made in Python using PyQt as the graphical library. It was developped with **Python 3.6.2**.
 
-To setup the whole developpement environment, you need several plugins that are used in the project. To install those libraries, you will need to use **pip 9.0.1** and enter the following commands in a shell :
+To setup the whole development environment, you need several plugins that are used in the project. To install those libraries, you will need to use **pip 9.0.1** and enter the following commands in a shell :
 
 - pip install numpy
 - pip install PyQt5
@@ -273,9 +273,9 @@ Finally, the GUI gets the temporary file to get the data.
   - Compare new data with model,
   - Plot measures.
   
- First, we build a mean concave hull of specified data. If new data is out of it (with some margin), we can say that new data correspond to unhealthy patient, else we study the variabilty of motion with B-Splines and compare it with a threshold.
+ First, we build a mean concave hull of specified data. If new data is out of it (with some margin), we can say that the new piece of data corresponds to an unhealthy patient, else we study the variabilty of the motion with B-Splines and compare it with a threshold.
   
- To use it, you need files **splines.py** and **hull.py**.
+ In order to use it, you need the files **splines.py** and **hull.py**.
  
  #### Splines
  
@@ -286,34 +286,44 @@ The file **Cervical_GUI/model/splines.py** permits to:
  - Compute the distance between data curve and mean cycle,
  - Create the model.
  
- First, we have to detect each cycle to develop the mean B-Spline. The main problem is that there are lots of small go-backs because the patient want to be aligned with the tracker. To avoid considering it, we use a system of window. In fact, for each points, we look at some points before and after and study their evolution (Function *detect_cycles*). 
+ First, we detect all the cycles of the motion. The main problem is that there are lots of small changes of way because the patient wants to stay on the tracker and he goas backwards when he is too much ahead. To avoid considering these, we use a system of windows. In fact, for each point, we look at some points before and after and study their evolution (Function *detect_cycles*). 
  
- Then, We find the cycle with the lowest number of points, we reduce others cycle to have the same number of points and we mean all lists. It corresponds to the mean control points (Function *mean_control_points*). After that, it's possible to developp the mean B-Splines (Function *interpolate_spline*).
+ Then, we find the cycle with the lowest number of points, we reduce other cycles to have the same number of points and we mean all lists. It corresponds to the mean control points (function *mean_control_points*). After that, we develop the mean B-Spline (function *interpolate_spline*).
  
- Now, we have to study the variability and get a score. The difficulty is that B-Spline only represents one cycle so we have to consider each cycle and compare it with B-Spline. For each point within the data curve, we find the nearest one within the spline and compute the distance ||Point_1 - Point_2||. We return the mean and the standard deviation of all distances (Function *distance_curve_to_spline*). The returned score is not available for now because we have to find a threshold to decide if there is too much variability or not (Function *score_model*).
+ Now, we have to study the variability and get a score. The difficulty is that B-Spline only represents one cycle so we have to consider each cycle and compare it with the B-Spline. For each point within the data curve, we find the nearest one within the spline and compute the distance between the two. We return the mean and the standard deviation of all distances (function *distance_curve_to_spline*). The returned score is not available for now because we have to find a threshold to decide if there is too much variability or not (Function *score_model*).
  
  To finish, the function *create_model* call *score_model* on specified patients and return all mean and standard deviation. This result is usefull to create hull_and_spline model.
  
  #### Hulls
  
  The file **Cervical_GUI/model/hulls.py** permits to:
-  - Develop a concave hull
-  - Compute distance between two hulls
-  - Discretize a space ([0,1]x[0,1]) and find points in hull for classification
-  - Compute train and test sets to have a score (classification)
-  - Compute mean of concave hulls
+  - Build a concave hull
+  - Discretize the space and find the points in the hull for classification
+  - Split a data set into a training and a testing sets for classification
+  - Compute a "mean" of concave hulls
   - Create/Save/Load a model of concave hulls
   
-  In this part, we only consider the mean of concave hulls.
+  In this part, we only consider the mean concave hull.
+  Concave hulls are built using the function *alpha_shape* which take a parameter *alpha*. This parameter needs to be properly chosen as it determines the gooeyness of the hull.
   
-  The idea is to compute the mean of all concave hulls (Functions **build_set_for_hull** and **alpha_shape**). To do that, we don't consider union or intersection. We compute the density of points of all hulls in different areas. We only keep those which are in areas with high density. Then, for a new acquisition, we compute the pourcentage of points out of mean hull (Function **pts_out_poly**). If this number is higher than a threshold (0.1), the patient has a pathology.
+  The idea is to build a concave hull that will contain most of the points acquired on healthy patient (function **build_set_for_hull**). The way of computing the hull is an issue, as the intersection of all the hulls of the acquisitions is too tight and the union is too large. Thus we consider all the points at the same time and we build a 2D histogram of the distribution. Then we keep only the points that are in a box of the histogram where there is more points than a certain threshold that might need to be improved. The efficiency of this approach is of course depednent of the number of boxes in the histogram. 
+  Then, for a new acquisition, we compute the percentage of points out of the mean hull (Function **pts_out_poly**). If this number is higher than a threshold (that we arbitrarily set to 0.1), we judge that the patient has a pathology.
   
  ### Classification of concave hulls
  
  Here, we use the other part of **hulls.py**.
  
- The idea is to consider a grid in [0,1]x[0,1]. For each patient, we compute the associated concave hull and we identify points in it. In this case, we assign to the points the value 1, else the value 0.
+ The idea of using classification is very natural given the problem. However finding the proper shape features is not easy. For now, we use discrete concave hulls on the planes *yaw/pitch* and *yaw/roll*. 
+ The principle is to consider a discrete concave hull. For each patient, we compute the associated concave hulls and we discretize the space: we build a grid whose points are assigned the value 1 if they are inside the hull and 0 otherwise. The number of points in the grid is determined by the parameter *size_grid*. Obviously, a tradeoff lust be made between precision and performance.
+ 
+ This gives us two vectors of 1s and 0s, one for each plane: we concatenate the two and give the result to the algorithm (Once Class SVM).
+ The code has been written so that if ever we can distinguish healthy and unhealthy patients in the training set, we can give each patient's label in the parameter *patho_patients* of the function *save_model*. This should yield better training performance. 
+ 
+ Our tests yield pretty poor results but we are pretty confident of the potential of this approach.
+ 
+ It must be noted that this model needs a lot of data to work. For unbalanced data set handling, see *outlier detection* or *anomaly detection*.
   
+ I advise the next programmers to look for other shape features and to consider using classification on time series an not on planes. Another idea is to use neural networks to automatically extract relevant features. You can find related information about it on the following paper: *Unsupervised and Semi-supervised Anomaly Detection with LSTM Neural Networks, Ergen et al., 2017*.  
   
  ### Wavelets and B-Splines
  
