@@ -265,6 +265,9 @@ The first line of the file is the header : "yaw pitch roll"
 Then, every line is the data for yaw, pitch and roll in degrees for a frame.
 Finally, the GUI gets the temporary file to get the data.
 
+Below is the sequence of threads and callbacks that are called when communicating with the sockets with the Python app.
+
+![Callback map](./images/callback.png "Handlers calling stack")
  ## Modeling and data analysis
  
  ### Hulls and Splines
