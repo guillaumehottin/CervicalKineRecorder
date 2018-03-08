@@ -195,7 +195,9 @@ class MyWindowController(QObject):
 
             if self.view.my_window_controller.one_model_loaded():
                 acq_controller = self.view.tab_acquisition.acquisition_controller
-                acq_controller.display_models(get_coord(acq_controller.TMP_FILE_PATH))
+                # TODO
+                acq_controller.display_models(get_coord(os.path.join(self.directory_path,
+                                                                     acq_controller.curves_on_graph[0])))
 
         else:  # The user cancel his operation
             pass
@@ -257,7 +259,9 @@ class MyWindowController(QObject):
                     self.path_model_wavelet = path_wavelet
                     self.path_model_hull_and_spline = path_hull_and_spline
                     acq_controller = self.view.tab_acquisition.acquisition_controller
-                    acq_controller.display_models(get_coord(acq_controller.TMP_FILE_PATH))
+                    # TODO
+                    acq_controller.display_models(get_coord(os.path.join(self.directory_path,
+                                                                         acq_controller.curves_on_graph[0])))
                 else:
                     # Do nothing
                     pass
@@ -322,21 +326,25 @@ class MyWindowController(QObject):
             try:
                 _, file_extension = os.path.splitext(path)
 
+                # TODO INDICES OF CURVES
                 acquisition_tab_controller = self.view.tab_acquisition.acquisition_controller
+                if acquisition_tab_controller.view.has_been_drawn:
+                    coords = get_coord(os.path.join(self.directory_path, acquisition_tab_controller.curves_on_graph[0]))
+
                 if file_extension == EXTENSION_HULLS_MODEL:
                     self.path_model_hulls = path
                     if acquisition_tab_controller.view.has_been_drawn:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                        acquisition_tab_controller.display_models(coords)
 
                 elif file_extension == EXTENSION_HULLS_SPLINES_MODEL:
                     self.path_model_hull_and_spline = path
                     if acquisition_tab_controller.view.has_been_drawn:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                        acquisition_tab_controller.display_models(coords)
 
                 elif file_extension == EXTENSION_WAVELET_MODEL:
                     self.path_model_wavelet = path
                     if acquisition_tab_controller.view.has_been_drawn:
-                        acquisition_tab_controller.display_models(get_coord(acquisition_tab_controller.TMP_FILE_PATH))
+                        acquisition_tab_controller.display_models(coords)
 
             except ValueError:
                 # DISPLAY POP UP ERROR AND DO NOTHING

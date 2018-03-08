@@ -91,13 +91,21 @@ We are now goint to define all the terms we are going to use in this tutorial
 
 - Acquisition tab: This tab allows you to set up parameters, launch/stop acquisition and see the acquired curves (see image above)
 
-- Modeling tabs: These tabs allows you to, after loading one or several differents model, to compare your acquisition with the models.
+- Modeling tabs: These tabs allow you to compare your acquisition with some models previously loaded.
 Three tabs are available :
 
     + "Hull and Spline" : Spline and concave hull calculation are made on your acquisition and compared with the model that you loaded
+    
+    ![Hull and spline window](./images/screens/11_python_hull_and_splines_model_tab.png "Hull and spline window")
+    
     + "Hull" : Concave hull of the loaded model and your acquisition are plotted and compared. Color code notifies if your acquisition is outside the concave hull model.
-    + "Time_serie" : The model created represents mean movements of the selected dataset. Your acquisition is compared with these mean curves
- 
+    
+    ![Concave hull window](./images/screens/11_python_hulls_model_tab.png "Concave hull window")
+    
+    + "Time_serie" : The model created represents mean movements of the selected dataset. Your acquisition is compared with these mean curves.
+    
+    ![Signal processing window](./images/screens/11_python_wavelet_model_tab.png "Signal processing window")
+
 - Menu bar: The menu bar is composed of four entries :
 
 	+ "Profil": Create, load or opena  recent profile
