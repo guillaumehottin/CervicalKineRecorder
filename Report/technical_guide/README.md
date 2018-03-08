@@ -14,7 +14,7 @@ The Cervical Kinematic Recorder is an open-source software developped to acquire
 
 The overall process of the project is the following one:
 
-![Overall project process](./images/overall_process.png "Overall project process")
+![Overall project process](./images/overall_process_requirements.png "Overall project process")
 
 ## Setup the developpement environment
 
