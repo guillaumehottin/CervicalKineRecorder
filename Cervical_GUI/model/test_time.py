@@ -1,3 +1,4 @@
+from model.file_manager import get_param_from_file
 from model.plot_time import *
 
 directory = '../tests/'
@@ -13,5 +14,3 @@ movement, angle, speed, nb_return, wait_time, comment = get_param_from_file(list
 
 
 list_param = [movement, angle, speed, nb_return, wait_time, comment]
-
-plot_final_time(list_data[0], list_patient, list_param)

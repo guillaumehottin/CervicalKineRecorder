@@ -13,6 +13,7 @@ import numpy as np
 import pywt
 
 from model.file_manager import get_coord
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def normalize(pitch_l, yaw_l, roll_l):

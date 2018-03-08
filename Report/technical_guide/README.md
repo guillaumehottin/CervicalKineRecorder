@@ -191,10 +191,9 @@ This part will explain how each view has been designed, how layouts are organise
 
 ![Hulls and splines model tab structure](./images/hulls_and_splines_tab_structure.png "Hulls and splines model tab structure")
 
-##### Wavelet tab
+##### Time serie tab
 
-
-![Wavelet model tab structure](./images/wavelet_tab_structure.png "Wavelet model tab structure")
+![Time serie model tab structure](./images/wavelet_tab_structure.png "Wavelet model tab structure")
 
 ##### New profile dialog
 
@@ -318,7 +317,7 @@ The file **Cervical_GUI/model/splines.py** permits to:
   
  ### Wavelets and B-Splines
  
-The file *Code/spline_wavelet.py* permits to:
+The file *Cervical_GUI/model/spline_wavelet.py* permits to:
 
  - Get temporal data of Yaw, Pitch and Roll,
  - Interpolate curves **angle = f(t)** with B-Splines,
@@ -336,3 +335,40 @@ This file was written at the end of project so it's not well structured. In fact
 Then, the number of control points (parameter **step**) for the spline and the type of wavelet (parameter **type_wave**) have been arbitrarily chosen so it's better to modify it and test.
 
 To finish, for each plot, you can look at the central area (demarcated by two vertical lines) and see if the roll wavelet (green curve) is out of the rectangle. In fact, this phenomenon seems to appear when we have a pathological patient. To adjust the rectangle height, you need to modify the parameter **thres** in **Rectangle** function in **matplotlib.patches**. This height has also been arbitrarily chosen so you have to test and find its optimal value.
+
+### Temporal analysis
+
+Two files help to build this model :
+
++ *Cervical_GUI/model/plot_serie.py*
+    
++ *Cervical_GUI/model/plot_time.py*
+    
+The files *Cervical_GUI/model/test_time.py* and *Cervical_GUI/model/test_serie.py* are test scripts for the functions defined in the files listed above.
+    
+Thanks to the functions defined in *plot_serie.py*, you are able to compute fast fourier transform, wavelet transform, auto-correlation for an acquisition.
+
+![Example of time plot for an healthy patient](./images/screens/time_plot.png "Example of time plot for an healthy patient")
+
+![Example of fourier plot for an healthy patient](./images/screens/fourier_plot.png "Example of fourier plot for an healthy patient")
+
+![Example of wavelet plot for an healthy patient](./images/screens/wavelet_plot.png "Example of wavelet plot for an healthy patient")
+
+![Example of correlation plot for an healthy patient](./images/screens/correlate_plot.png "Example of correlation plot for an healthy patient")
+
+![Example of 3d plot for an healthy patient](./images/screens/3d_plot.png "Example of 3d plot for an healthy patient")
+
+
+You also can superpose all wavelet transform, all fourier transform and all correlation analysis. If wavelet transforms, for instance, can highlights a discriminant factor, it's a good way to detect acquisition of an unhealthy patient.
+
+![Example of all wavelet plot](./images/screens/all_wavelet_plot.png "Example of all wavelet plot")
+
+
+Thanks to the functions defined un *plot_time.py*, you are able to build a time_serie model. This models get the mean time profile for a list of patient selected by the user of the application.
+Then these mean curves are plotted and superposed with the last plotted acquisition. Be careful, before computing the mean curves, the algorithm only keeps the curves that have the same acquisition parameters than the first acquisition of the given list. This particularity should be changed as soon as possible and the application should be able to select the parameters that have the same parameters of the current acquisition.
+
+![Example of timse_serie plot for an healthy patient](./images/screens/time_serie.png "Example of correlation plot for an healthy patient")
+
+ 
+
+

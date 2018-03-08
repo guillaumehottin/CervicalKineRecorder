@@ -10,7 +10,7 @@ liste = get_list_directory(directory)
 # plot_all_superposed_fourier(directory)
 # plot_one(liste[0], type_plot='correlate')
 # plot_one(liste[0])
-plot_one(liste[0], type_plot='time')
+# plot_one(liste[0], type_plot='wavelet')
 
 # plot_one(liste[0], type_plot='3d', type_wavelet='db1')
 # for family in pywt.families():
@@ -19,7 +19,7 @@ plot_one(liste[0], type_plot='time')
 # plot_one(liste[0], type_wavelet='morl', type_plot='wavelet')
 # plot_one(liste[0], type_plot='time')
 # plot_one(liste[0], type_plot='fourier')
-# plot_one(liste[0], type_plot='3d')
+plot_one(liste[0], type_plot='3d')
 # plot_one(liste[0], type_plot='correlate')
 
 # plot_all_superposed_wavelet(directory, type_wavelet='morl', norm=0, save=0)
