@@ -266,6 +266,7 @@ Then, every line is the data for yaw, pitch and roll in degrees for a frame.
 Finally, the GUI gets the temporary file to get the data.
 
 Below is the sequence of threads and callbacks that are called when communicating with the sockets with the Python app.
+It is available at an higher resolution [here](./images/callback.png).
 
 ![Callback map](./images/callback.png "Handlers calling stack")
  ## Modeling and data analysis
