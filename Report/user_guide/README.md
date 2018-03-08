@@ -216,6 +216,13 @@ If an acquisition was already displayed, it will automatically be compared to th
 
 #### Documentation
 
+If you need any help to use this application you can click on the "A propos" menu and then on the documentation you want to see.
+
+It will brings you to the following links:
+- Technical documentation: [https://github.com/guillaumehottin/CervicalKineRecorder/tree/master/Report/technical_guide](https://github.com/guillaumehottin/CervicalKineRecorder/tree/master/Report/technical_guide)
+- User documentation: [https://github.com/guillaumehottin/CervicalKineRecorder/tree/master/Report/user_guide](://github.com/guillaumehottin/CervicalKineRecorder/tree/master/Report/user_guide)
+
+![Documentation](./images/screens/12_python_documentation.png "Documentation")
 
 
  

@@ -98,10 +98,10 @@ class MyWindow(QMainWindow):
         :return: Nothing
         """
         # TABS
-        self.tabs.addTab(self.tab_acquisition, "AcquisitionTab")
+        self.tabs.addTab(self.tab_acquisition, "Acquisition")
         self.tabs.addTab(self.tab_hull_and_splines, "Hull and Splines")
         self.tabs.addTab(self.tab_hulls, "Hulls")
-        self.tabs.addTab(self.tab_wavelet, "Wavelet")
+        self.tabs.addTab(self.tab_wavelet, "Traitement du signal")
 
         # MENUBAR
         self.menubar.setGeometry(QtCore.QRect(0, 0, 814, 21))
