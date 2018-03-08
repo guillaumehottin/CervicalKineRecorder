@@ -295,7 +295,7 @@ def plot_one(current_file, type_plot, type_wavelet='morl', norm=1, save=0):
     nom_patient = res_split[3]
     fig = plt.figure()
 
-    (pitch_l, yaw_l, roll_l) = get_coord(current_file)
+    (yaw_l, pitch_l, roll_l) = get_coord(current_file)
     title = ""
     # Normalize data
     if norm:
