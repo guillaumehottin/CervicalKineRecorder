@@ -48,10 +48,14 @@ If everything is working, you have just finish the environment setup, otherwise 
 
 ### Install the CervicalKineRecords Application
 
-In order to install the application on your computer, you just need to get the latest release available on the current git repository. 
+In order to install the application on your computer, you just need to get the latest release available on the current git repository.
+You can download it [here](https://github.com/guillaumehottin/CervicalKineRecorder/releases/tag/1.0).
 This release should contains: 
-- The exe file "CervicalKineRecord.exe"
-- TODO
+- The exe file "Cervical Kine Recorder.exe"
+- The folder *Cervical_data*
+- The exe file *Cervical.exe*
+- The empty folders *data* and *model*
+- The library file *UnityPlayer.dll*
 
 ### Start application
 
